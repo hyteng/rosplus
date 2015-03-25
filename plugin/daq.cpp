@@ -1,6 +1,10 @@
 #include "daq.h"
 #include <thread>
 
+#include <sys/msg.h>
+#include <sys/ipc.h>
+#include <sys/types.h>
+
 using std::string;
 using std::thread;
 
@@ -89,6 +93,33 @@ int daq::beforeDaq() {
         ring1->release();
     ring0->create(size0);
     ring1->create(size1);
+
+    key_t key_dma, key_net;
+    if((key_dma=ftok(".", 'vme_dma'))==-1) {
+        return 0;
+    }
+    if((g_msgQcblt=msgget(key_dma, 0)) >= 0) {
+        if((msgctl(g_msgQcblt, IPC_RMID, NULL)) < 0){
+            return 0;
+        }
+    }
+    if((g_msgQcblt=msgget(key_dma, IPC_CREAT|IPC_EXCL|0666))==-1) {
+        return 0;
+    }
+
+    if((key_net=ftok(".", 'vme_net'))==-1) {
+        return 0;
+    }
+    if((g_msgQnet=msgget(key_net, 0)) >= 0) {
+        if((msgctl(g_msgQcblt, IPC_RMID, NULL)) < 0){
+            return 0;
+        }
+    }
+    if((g_msgQnet=msgget(key_net, IPC_CREAT|IPC_EXCL|0666))==-1) {
+        return 0;
+    }
+
+
 
     return 1;
 }
