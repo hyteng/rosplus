@@ -8,15 +8,24 @@
 using std::string;
 using std::thread;
 
+#define TASK_START 1
+#define TASK_STOP 0
+#define TASK_RUN 1
+#define TASK_EXIT 0
+
+struct taskMsg {
+    long signal;
+    unsigned int size;
+};
 
 daq::daq(const string& n): smBase(n) {
-    ring0 = new ringBuffer();
-    ring1 = new ringBuffer();
+    ringDma = new ringBuffer();
+    ringNet = new ringBuffer();
 }
 
 daq::~daq() {
-    delete ring0;
-    delete ring1;
+    delete ringDma;
+    delete ringNet;
 }
 
 int daq::InitializedLOAD(int para) {
@@ -42,7 +51,6 @@ int daq::ConfiguredPREP(int para) {
 int daq::ReadySATR(int para) {
 
     stMsg->stateOut(1, "daq SATR");
-    t0 = new thread(&daq::startDaq, this);
     return 5;
 }
 
@@ -87,39 +95,38 @@ int daq::AnyEXIT(int para) {
 
 int daq::beforeDaq() {
 
-    if(ring0->isVaild())
-        ring0->release();
-    if(ring1->isVaild())
-        ring1->release();
-    ring0->create(size0);
-    ring1->create(size1);
+    if(ringDma->isVaild())
+        ringDma->release();
+    if(ringNet->isVaild())
+        ringNet->release();
+    ringDma->create(size0);
+    ringNet->create(size1);
 
-    key_t key_dma, key_net;
-    if((key_dma=ftok(".", 'vme_dma'))==-1) {
+    key_t keyDma, keyNet;
+
+    if((keyDma=ftok(".", 'vmeDma')) == -1) {
         return 0;
     }
-    if((g_msgQcblt=msgget(key_dma, 0)) >= 0) {
-        if((msgctl(g_msgQcblt, IPC_RMID, NULL)) < 0){
+    if((msgQDma=msgget(keyDma, 0)) >= 0) {
+        if((msgctl(msgQDma, IPC_RMID, NULL)) < 0){
             return 0;
         }
     }
-    if((g_msgQcblt=msgget(key_dma, IPC_CREAT|IPC_EXCL|0666))==-1) {
+    if((msgQDma=msgget(keyDma, IPC_CREAT|IPC_EXCL|0666)) == -1) {
         return 0;
     }
 
-    if((key_net=ftok(".", 'vme_net'))==-1) {
+    if((keyNet=ftok(".", 'vmeNet')) == -1) {
         return 0;
     }
-    if((g_msgQnet=msgget(key_net, 0)) >= 0) {
-        if((msgctl(g_msgQcblt, IPC_RMID, NULL)) < 0){
+    if((msgQNet=msgget(keyNet, 0)) >= 0) {
+        if((msgctl(msgQDma, IPC_RMID, NULL)) < 0){
             return 0;
         }
     }
-    if((g_msgQnet=msgget(key_net, IPC_CREAT|IPC_EXCL|0666))==-1) {
+    if((msgQNet=msgget(keyNet, IPC_CREAT|IPC_EXCL|0666)) == -1) {
         return 0;
     }
-
-
 
     return 1;
 }
@@ -135,13 +142,59 @@ int daq::afterDaq() {
 int daq::startDaq() {
 
     stMsg->stateOut(1, "start Daq.");
+    runDmaCtrl = TASK_START;
+    runNetCtrl = TASK_STOP;
+    t0 = new thread(&daq::runDma, this);
+    t0 = new thread(&daq::runNet, this);
     return 1;
 }
 
 int daq::stopDaq() {
 
+    runDmaCtrl = TASK_START;
+    runNetCtrl = TASK_STOP;
     stMsg->stateOut(1, "stop Daq.");
     return 1;
+}
+
+void daq::runDma(void *para) {
+
+    totalDmaSize = 0;
+    struct message msgDma;
+    unsigned int buffCount=0, dmaCount=0;
+    while(1) {
+        if(runDmaCtrl == TASK_STOP && totalDmaSize == 0)
+            break;
+
+        pvme->waitIrq(irqLevel, statusID);
+        unsigned int offset = pvme->DMAread(adc0.base, dmaTranSize, A32, D32);
+        if(offset < 0) {
+            stopDaq();
+            continue;
+        }
+        buffCount++;
+
+        ringDma->dmaWrite(dma.base+offset, dmaTranSize);
+        dmaCount++;
+        buffCount--;
+        totalDmaSize += dmaTranSize;
+
+        if(totalDmaSize >= packSize || runDmaCtrl == TASK_STOP) {
+            msgDma.signal = 1;
+            msgDma.size = totalDmaSize;
+            if((msgsnd(msgQDma, &msgDma, sizeof(msgDma), 0)) < 0) {
+                stopDaq();
+                continue;
+            }
+            totalDmaSize = 0;
+        }
+    }
+}
+
+void daq::runPack(void* para) {
+}
+
+void daq::runNet(void *para) {
 }
 
 extern "C" smBase* create(const string& n) {

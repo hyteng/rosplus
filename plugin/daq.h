@@ -11,7 +11,7 @@ class daq :public smBase {
     public:
         daq(const std::string& n);
         ~daq();
-
+        
     protected:
         virtual int InitializedLOAD(int para);
         virtual int LoadedUNLD(int para);
@@ -33,11 +33,20 @@ class daq :public smBase {
         int afterDaq();
         int startDaq();
         int stopDaq();
+        void runDma(void* para);
+        void runPack(void* para);
+        void runNet(void* para);
 
     private:
-        ringBuffer *ring0, *ring1;
-        unsigned int size0, size1, dmaAddr;
+        ringBuffer *ringDma, *ringNet;
+        unsigned int sizeDma, sizeNet, dmaTranSize;
+        unsigned int totalDmaSize, totalNetSize;
         std::thread *t0;
+        int msgQDma, msgQNet;
+        int runDmaCtrl, runNetCtrl;
+        int dmaStatus, netStatus;
+
+        VMEBridge *pvme;
 };
 
 #endif
