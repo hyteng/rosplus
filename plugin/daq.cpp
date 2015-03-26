@@ -16,16 +16,17 @@ using std::thread;
 struct taskMsg {
     long signal;
     unsigned int size;
+    unsigned int count;
 };
 
 daq::daq(const string& n): smBase(n) {
-    ringDma = new ringBuffer();
-    ringNet = new ringBuffer();
+    dmaRing = new ringBuffer();
+    netRing = new ringBuffer();
 }
 
 daq::~daq() {
-    delete ringDma;
-    delete ringNet;
+    delete dmaRing;
+    delete netRing;
 }
 
 int daq::InitializedLOAD(int para) {
@@ -95,36 +96,36 @@ int daq::AnyEXIT(int para) {
 
 int daq::beforeDaq() {
 
-    if(ringDma->isVaild())
-        ringDma->release();
-    if(ringNet->isVaild())
-        ringNet->release();
-    ringDma->create(size0);
-    ringNet->create(size1);
+    if(dmaRing->isVaild())
+        dmaRing->release();
+    if(netRing->isVaild())
+        netRing->release();
+    dmaRing->create(dmaRingSize);
+    netRing->create(netRingSize);
 
-    key_t keyDma, keyNet;
+    key_t dmaKey, netKey;
 
-    if((keyDma=ftok(".", 'vmeDma')) == -1) {
+    if((dmaKey=ftok(".", 'vmeDma')) == -1) {
         return 0;
     }
-    if((msgQDma=msgget(keyDma, 0)) >= 0) {
-        if((msgctl(msgQDma, IPC_RMID, NULL)) < 0){
+    if((dmaMsgQue=msgget(dmaKey, 0)) >= 0) {
+        if((msgctl(dmaMsgQue, IPC_RMID, NULL)) < 0){
             return 0;
         }
     }
-    if((msgQDma=msgget(keyDma, IPC_CREAT|IPC_EXCL|0666)) == -1) {
+    if((dmaMsgQue=msgget(dmaKey, IPC_CREAT|IPC_EXCL|0666)) == -1) {
         return 0;
     }
 
-    if((keyNet=ftok(".", 'vmeNet')) == -1) {
+    if((netKey=ftok(".", 'vmeNet')) == -1) {
         return 0;
     }
-    if((msgQNet=msgget(keyNet, 0)) >= 0) {
-        if((msgctl(msgQDma, IPC_RMID, NULL)) < 0){
+    if((netMsgQue=msgget(netKey, 0)) >= 0) {
+        if((msgctl(dmaMsgQue, IPC_RMID, NULL)) < 0){
             return 0;
         }
     }
-    if((msgQNet=msgget(keyNet, IPC_CREAT|IPC_EXCL|0666)) == -1) {
+    if((netMsgQue=msgget(netKey, IPC_CREAT|IPC_EXCL|0666)) == -1) {
         return 0;
     }
 
@@ -143,15 +144,18 @@ int daq::startDaq() {
 
     stMsg->stateOut(1, "start Daq.");
     runDmaCtrl = TASK_START;
-    runNetCtrl = TASK_STOP;
+    runPackCtrl = TASK_START;
+    runNetCtrl = TASK_START;
     t0 = new thread(&daq::runDma, this);
-    t0 = new thread(&daq::runNet, this);
+    t1 = new thread(&daq::runPack, this);
+    t2 = new thread(&daq::runNet, this);
     return 1;
 }
 
 int daq::stopDaq() {
 
-    runDmaCtrl = TASK_START;
+    runDmaCtrl = TASK_STOP;
+    runPackCtrl = TASK_STOP;
     runNetCtrl = TASK_STOP;
     stMsg->stateOut(1, "stop Daq.");
     return 1;
@@ -159,39 +163,73 @@ int daq::stopDaq() {
 
 void daq::runDma(void *para) {
 
+    dmaStatus = TASK_RUN;
+
     totalDmaSize = 0;
-    struct message msgDma;
-    unsigned int buffCount=0, dmaCount=0;
+    struct message dmaMsg;
+    unsigned int buffCount=0;
     while(1) {
-        if(runDmaCtrl == TASK_STOP && totalDmaSize == 0)
+        if(runDmaCtrl == TASK_STOP && totalDmaSize == 0) {
+            dmaStatus = TASK_EXIT;
             break;
+        }
 
         pvme->waitIrq(irqLevel, statusID);
         unsigned int offset = pvme->DMAread(adc0.base, dmaTranSize, A32, D32);
         if(offset < 0) {
-            stopDaq();
-            continue;
+            dmaStatus = TASK_EXIT;
+            break;
         }
         buffCount++;
 
-        ringDma->dmaWrite(dma.base+offset, dmaTranSize);
+        dmaRing->dmaWrite(dma.base+offset, dmaTranSize);
         dmaCount++;
-        buffCount--;
         totalDmaSize += dmaTranSize;
 
         if(totalDmaSize >= packSize || runDmaCtrl == TASK_STOP) {
-            msgDma.signal = 1;
-            msgDma.size = totalDmaSize;
-            if((msgsnd(msgQDma, &msgDma, sizeof(msgDma), 0)) < 0) {
-                stopDaq();
-                continue;
+            dmaMsg.signal = 1;
+            dmaMsg.size = totalDmaSize;
+            dmaMsg.count = buffCount;
+            if((msgsnd(dmaMsgQue, &dmaMsg, sizeof(dmaMsg), 0)) < 0) {
+                dmaStatus = TASK_EXIT;
+                break;
             }
             totalDmaSize = 0;
+            buffCount = 0;
         }
+    }
+    if(dmaStatus == TASK_EXIT) {
+        dmaMsg.signal = 2;
+        dmaMsg.size = 0;
+        if((msgsnd(dmaMsgQue, &dmaMsg, sizeof(dmaMsg), 0)) < 0)
+            msgsnd(dmaMsgQue, &dmaMsg, sizeof(dmaMsg), 0);
+        runPackCtrl == TASK_STOP;
     }
 }
 
 void daq::runPack(void* para) {
+
+    packStatus = TASK_RUN;
+
+    struct message dmaMsg;
+    struct message netMsg;
+    totalPackSize = 0;
+    while(1) {
+        if(runPackCtrl == TASK_STOP && totalPackSize == 0 && dmaCount == 0) {
+
+        if((msgsnd(dmaMsgQue, &dmaMsg, sizeof(dmaMsg), 0)) < 0) {
+            packStatus = TASK_EXIT;
+            break;
+        }
+
+        if(dmaMsg.signal == 2) {
+            packStatus = TASK_EXIT;
+            break;
+        }
+
+        unsigned int packTranSize = dmaMsg.size;
+
+    }
 }
 
 void daq::runNet(void *para) {

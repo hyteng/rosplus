@@ -38,13 +38,14 @@ class daq :public smBase {
         void runNet(void* para);
 
     private:
-        ringBuffer *ringDma, *ringNet;
-        unsigned int sizeDma, sizeNet, dmaTranSize;
-        unsigned int totalDmaSize, totalNetSize;
-        std::thread *t0;
-        int msgQDma, msgQNet;
-        int runDmaCtrl, runNetCtrl;
-        int dmaStatus, netStatus;
+        ringBuffer *dmaRing, *netRing;
+        unsigned int dmaRingSize, netRingSize, dmaTranSize;
+        unsigned int dmaCount;
+        unsigned int totalDmaSize, totalPackSize, totalNetSize;
+        std::thread *t0, *t1, *t2;
+        int dmaMsgQue, netMsgQue;
+        int runDmaCtrl, runPackCtrl, runNetCtrl;
+        int dmaStatus, packStatus, netStatus;
 
         VMEBridge *pvme;
 };
