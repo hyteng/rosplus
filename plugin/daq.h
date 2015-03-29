@@ -40,7 +40,8 @@ class daq :public smBase {
     private:
         ringBuffer *dmaRing, *netRing;
         unsigned int dmaRingSize, netRingSize, dmaTranSize;
-        unsigned int dmaCount;
+        unsigned int dmaCount, netCount;
+        unsigned int packSize;
         unsigned int totalDmaSize, totalPackSize, totalNetSize;
         std::thread *t0, *t1, *t2;
         int dmaMsgQue, netMsgQue;

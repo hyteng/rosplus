@@ -12,6 +12,7 @@ using std::thread;
 #define TASK_STOP 0
 #define TASK_RUN 1
 #define TASK_EXIT 0
+#define TASK_ERROR 2
 
 struct taskMsg {
     long signal;
@@ -166,18 +167,18 @@ void daq::runDma(void *para) {
     dmaStatus = TASK_RUN;
 
     totalDmaSize = 0;
+    dmaCount = 0;
     struct message dmaMsg;
-    unsigned int buffCount=0;
+    unsigned int buffCount = 0;
     while(1) {
         if(runDmaCtrl == TASK_STOP && totalDmaSize == 0) {
-            dmaStatus = TASK_EXIT;
             break;
         }
 
         pvme->waitIrq(irqLevel, statusID);
         unsigned int offset = pvme->DMAread(adc0.base, dmaTranSize, A32, D32);
         if(offset < 0) {
-            dmaStatus = TASK_EXIT;
+            dmaStatus = TASK_ERROR;
             break;
         }
         buffCount++;
@@ -186,24 +187,29 @@ void daq::runDma(void *para) {
         dmaCount++;
         totalDmaSize += dmaTranSize;
 
-        if(totalDmaSize >= packSize || runDmaCtrl == TASK_STOP) {
+        if((totalDmaSize+dmaTranSize) >= packSize || runDmaCtrl == TASK_STOP) {
             dmaMsg.signal = 1;
             dmaMsg.size = totalDmaSize;
             dmaMsg.count = buffCount;
             if((msgsnd(dmaMsgQue, &dmaMsg, sizeof(dmaMsg), 0)) < 0) {
-                dmaStatus = TASK_EXIT;
+                dmaStatus = TASK_ERROR;
                 break;
             }
             totalDmaSize = 0;
             buffCount = 0;
         }
     }
-    if(dmaStatus == TASK_EXIT) {
+
+    if(runDmaCtrl == TASK_STOP || dmaStatus == TASK_ERROR) {
+        runPackCtrl = TASK_STOP;
         dmaMsg.signal = 2;
         dmaMsg.size = 0;
-        if((msgsnd(dmaMsgQue, &dmaMsg, sizeof(dmaMsg), 0)) < 0)
-            msgsnd(dmaMsgQue, &dmaMsg, sizeof(dmaMsg), 0);
-        runPackCtrl == TASK_STOP;
+        if((msgsnd(dmaMsgQue, &dmaMsg, sizeof(dmaMsg), 0)) < 0) {
+            dmaStatus = TASK_ERROR;;
+        }
+
+        if(dmaStatus == TASK_RUN)
+            dmaStatus = TASK_EXIT;
     }
 }
 
@@ -213,26 +219,83 @@ void daq::runPack(void* para) {
 
     struct message dmaMsg;
     struct message netMsg;
+    packCount = 0;
     totalPackSize = 0;
+    void* tmpBuff0 = malloc(packSize);
+    void* tmpBuff1 = malloc(packSize);
     while(1) {
-        if(runPackCtrl == TASK_STOP && totalPackSize == 0 && dmaCount == 0) {
-
-        if((msgsnd(dmaMsgQue, &dmaMsg, sizeof(dmaMsg), 0)) < 0) {
-            packStatus = TASK_EXIT;
+        //if(runPackCtrl == TASK_STOP && totalPackSize == 0 && dmaCount == 0) {
+        if((msgrcv(dmaMsgQue, &dmaMsg, sizeof(dmaMsg), 0, 0)) < 0) {
+            packStatus = TASK_ERROR;
             break;
         }
 
         if(dmaMsg.signal == 2) {
-            packStatus = TASK_EXIT;
             break;
         }
 
         unsigned int packTranSize = dmaMsg.size;
+        packStatus = TASK_ERROR;dmaRead(tmpBuff0, packTranSize);
+        dmaCount -= dmaMsg.count;
+        packData(tmpBuff0, tmpBuff1, packTranSize);
 
+        if(packTranSize != 0) {
+            netMsg.signal = 1;
+            netMsg.size = packTranSize;
+            netMsg.count = 1;
+
+            packCount++;
+            totalPackSize += packTranSize;
+            netRing->netWrite(tmpBuff1, packTranSize);
+            if((msgsnd(netMsgQue, &netMsg, sizeof(netMsg), 0)) < 0) {
+                packStatus = TASK_ERROR;
+                break;
+            }
+            totalPackSize = 0;
+        }
     }
+
+    if(runPackCtrl == TASK_STOP || packStatus == TASK_ERROR) {
+        //runNetCtrl = TASK_STOP;
+        netMsg.signal = 2;
+        netMsg.size = 0;
+        if((msgsnd(netMsgQue, &netMsg, sizeof(netMsg), 0)) < 0) {
+            packStatus = TASK_ERROR;
+        }
+
+        if(packStatus == TASK_RUN)
+            packStatus = TASK_EXIT;
+    }
+
+    free((void*)tmpBuff0);
+    free((void*)tmpBuff1);
 }
 
 void daq::runNet(void *para) {
+    netStatus = TASK_RUN;
+
+    generateFileHeader();
+
+    unsigned int buffCount = 0;
+    unsigned int buffSize = 0;
+    struct message netMsg;
+    while(1) {
+        if((msgrcv(netMsgQue, &netMsg, sizeof(netMsg), 0, 0)) < 0) {
+            netStatus = TASK_ERROR;
+            break;
+        }
+
+        if((netMsg.signal == 2 || runNetCtrl == TASK_STOP) && packCount == 0) {
+            break;
+        }
+
+        buffCount += netMsg.count;
+        buffSize += netMsg.size;
+
+        if(buffSize >= packSize*5 || runNetCtrl == TASK_STOP) {
+        }
+        
+    }
 }
 
 extern "C" smBase* create(const string& n) {
