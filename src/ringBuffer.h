@@ -19,11 +19,17 @@ class ringBuffer {
         unsigned int dmaApply(const bool& rw, const unsigned int& nBytes, ringBuffer& other);
         unsigned int dmaWrite(const void* addr, const unsigned int& nBytes);
         unsigned int dmaRead(void* addr, const unsigned int& nBytes);
+        int setSnapStatus();
+        void* getSnapPtr(const unsigned int& nBias, const unsigned int& nLength);
+        unsigned int popSnapRead(const unsigned int& nBytes);
+        int addSnapRead();
+        int rmSnapRead();
         void show();
         
     private:
         void* checkWrite(const unsigned int& nBytes);
-        void* checkRead(const unsigned int& nBytes);
+        void* checkRead(unsigned int& nBytes);
+        void* checkSnapRead(unsigned int& nBytes);
         unsigned int afterWrite(const unsigned int& nBytes);
         unsigned int afterRead(const unsigned int& nBytes);
 
@@ -37,6 +43,13 @@ class ringBuffer {
         unsigned int nBufSize;
         std::mutex semMutex;
 
+
+        char *snapWrite;
+        char *snapRead;
+        char *snapLastWrite;
+        std::mutex snapMutex;
+        unsigned int snapSignal;
+        unsigned int snapReadCount;
 };
 
 #endif

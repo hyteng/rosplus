@@ -168,20 +168,25 @@ void daq::runDma(void *para) {
 
     totalDmaSize = 0;
     dmaCount = 0;
-    struct message dmaMsg;
+    struct taskMsg dmaMsg;
     unsigned int buffCount = 0;
     while(1) {
         if(runDmaCtrl == TASK_STOP && totalDmaSize == 0) {
             break;
         }
 
+        /*
         pvme->waitIrq(irqLevel, statusID);
         unsigned int offset = pvme->DMAread(adc0.base, dmaTranSize, A32, D32);
         if(offset < 0) {
             dmaStatus = TASK_ERROR;
             break;
         }
+        */
+
         buffCount++;
+        
+        //if((msgrcv(dmaMsgQue, &dmaMsg, sizeof(dmaMsg), 0, 0)) < 0) {}
 
         dmaRing->dmaWrite(dma.base+offset, dmaTranSize);
         dmaCount++;
@@ -217,8 +222,8 @@ void daq::runPack(void* para) {
 
     packStatus = TASK_RUN;
 
-    struct message dmaMsg;
-    struct message netMsg;
+    struct taskMsg dmaMsg;
+    struct taskMsg netMsg;
     packCount = 0;
     totalPackSize = 0;
     void* tmpBuff0 = malloc(packSize);
@@ -235,7 +240,7 @@ void daq::runPack(void* para) {
         }
 
         unsigned int packTranSize = dmaMsg.size;
-        packStatus = TASK_ERROR;dmaRead(tmpBuff0, packTranSize);
+        dmaRing->dmaRead(tmpBuff0, packTranSize);
         dmaCount -= dmaMsg.count;
         packData(tmpBuff0, tmpBuff1, packTranSize);
 
@@ -246,7 +251,7 @@ void daq::runPack(void* para) {
 
             packCount++;
             totalPackSize += packTranSize;
-            netRing->netWrite(tmpBuff1, packTranSize);
+            netRing->dmaWrite(tmpBuff1, packTranSize);
             if((msgsnd(netMsgQue, &netMsg, sizeof(netMsg), 0)) < 0) {
                 packStatus = TASK_ERROR;
                 break;
@@ -278,23 +283,35 @@ void daq::runNet(void *para) {
 
     unsigned int buffCount = 0;
     unsigned int buffSize = 0;
-    struct message netMsg;
+    struct taskMsg netMsg;
     while(1) {
-        if((msgrcv(netMsgQue, &netMsg, sizeof(netMsg), 0, 0)) < 0) {
-            netStatus = TASK_ERROR;
-            break;
-        }
+        if(runNetCtrl != TASK_STOP)
+            if((msgrcv(netMsgQue, &netMsg, sizeof(netMsg), 0, 0)) < 0) {
+                netStatus = TASK_ERROR;
+                break;
+            }
 
-        if((netMsg.signal == 2 || runNetCtrl == TASK_STOP) && packCount == 0) {
+        if(netMsg.signal == 2)
+            runNetCtrl = TASK_STOP;
+
+        if(runNetCtrl == TASK_STOP && packCount == 0) {
             break;
         }
 
         buffCount += netMsg.count;
         buffSize += netMsg.size;
 
-        if(buffSize >= packSize*5 || runNetCtrl == TASK_STOP) {
+        if(buffCount >= 5 || runNetCtrl == TASK_STOP) {
+            netRing->dmaRead(filePtr, buffSize);
+            packCount -= buffCount;
+            buffCount = 0;
+            buffSize = 0;
         }
-        
+    }
+
+    if(runNetCtrl == TASK_STOP) {
+        if(netStatus == TASK_RUN)
+            netStatus = TASK_EXIT;
     }
 }
 

@@ -3,7 +3,7 @@
 
 #include <string>
 #include <thread>
-#include "ringBuffer.h"
+#include "../src/ringBuffer.h"
 #include "../src/smBase.h"
 
 class daq :public smBase {
@@ -40,7 +40,7 @@ class daq :public smBase {
     private:
         ringBuffer *dmaRing, *netRing;
         unsigned int dmaRingSize, netRingSize, dmaTranSize;
-        unsigned int dmaCount, netCount;
+        unsigned int dmaCount, packCount, netCount;
         unsigned int packSize;
         unsigned int totalDmaSize, totalPackSize, totalNetSize;
         std::thread *t0, *t1, *t2;
@@ -48,7 +48,8 @@ class daq :public smBase {
         int runDmaCtrl, runPackCtrl, runNetCtrl;
         int dmaStatus, packStatus, netStatus;
 
-        VMEBridge *pvme;
+        //VMEBridge *pvme;
+        dataPacker *pack;
 };
 
 #endif
