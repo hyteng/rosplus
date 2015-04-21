@@ -21,11 +21,11 @@ class daq :public smBase {
         virtual int PausedSPTR(int para);
 
     private:
-        int beforDaq();
+        int beforeDaq();
         int afterDaq();
         int startDaq();
         int stopDaq();
-        void runDaq(void* para);
+        void runDaq();
         int sendData(void* p0, const unsigned int& nBytes);
 
     private:
@@ -38,7 +38,7 @@ class daq :public smBase {
         std::thread *t0;
 
         std::string fileName;
-        fstream outFile;
+        std::fstream outFile;
 };
 
 #endif

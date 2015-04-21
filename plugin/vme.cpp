@@ -1,6 +1,8 @@
 #include "vme.h"
 
-vme::vme() {    
+using std::string;
+
+vme::vme(const string& n): smBase(n) {    
 }
 
 vme::~vme() {

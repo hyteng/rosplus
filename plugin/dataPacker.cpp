@@ -60,7 +60,7 @@ int dataPacker::stopPacker() {
     return 1;
 }
 
-void dataPacker::runPack(void* para) {
+void dataPacker::runPack() {
 
     packStatus = TASK_RUN;
 

@@ -1,5 +1,6 @@
 #include "daq.h"
 
+#include <iostream>
 #include <sys/msg.h>
 #include <sys/ipc.h>
 #include <sys/types.h>
@@ -58,7 +59,7 @@ int daq::PausedSPTR(int para) {
 
 int daq::beforeDaq() {
     netMsgQue = dataPool->getNetMsgQue();
-    outFile.open(fileName, ios::out|ios::binary|ios::trunc);
+    outFile.open(fileName, std::ios::out|std::ios::binary|std::ios::trunc);
 
     return 1;
 }
@@ -82,7 +83,7 @@ int daq::stopDaq() {
     return 1;
 }
 
-void daq::runDaq(void *para) {
+void daq::runDaq() {
 
     daqStatus = TASK_RUN;
 
@@ -102,8 +103,8 @@ void daq::runDaq(void *para) {
             netPtr = dataPool->netGetSnapPtr(0, totalDaqSize);
             if(netPtr != NULL) {
                 // 2 threads
-                std::thread t(daq::sendData, netPtr, totalDaqSize, this);
-                outFile.write(netPtr, totalDaqSize);
+                std::thread t(&daq::sendData, this, netPtr, totalDaqSize);
+                outFile.write((const char*)netPtr, totalDaqSize);
                 t.join();
             }
             dataPool->netPopSnap(totalDaqSize);

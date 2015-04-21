@@ -2,7 +2,6 @@
 #define frameEngine_h
 
 #include <map>
-#include <string>
 #include "smBase.h"
 
 class stateMachine;

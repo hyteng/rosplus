@@ -1,8 +1,8 @@
 #ifndef dataPacker_h
 #define dataPacker_h 
 
-#include "../src/smBase.h"
 #include <thread>
+#include "../src/smBase.h"
 
 class dataPacker :public smBase {
 
@@ -19,7 +19,7 @@ class dataPacker :public smBase {
     private:
         int startPacker();
         int stopPacker();
-        void runPack(void* para);
+        void runPack();
         int packData(unsigned int& packSize);
 
     private:

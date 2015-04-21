@@ -5,7 +5,7 @@
 
 class vme :public smBase {
     public:
-        vme();
+        vme(const std::string& n);
         ~vme();
 
     private:
