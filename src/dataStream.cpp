@@ -16,25 +16,25 @@ struct streamMsg {
 };
 */
 dataStream::dataStream() {
-    dmaRing = new ringBuffer();
-    dmaRingSize = RINGSIZE;
-    dmaCount = 0;
-    totalDmaSize = 0;
+    devRing = new ringBuffer();
+    devRingSize = RINGSIZE;
+    devCount = 0;
+    totalDevSize = 0;
 
-    if(dmaRing->isVaild())
-        dmaRing->release();
-    dmaRing->create(dmaRingSize);
+    if(devRing->isVaild())
+        devRing->release();
+    devRing->create(devRingSize);
 
-    key_t dmaKey;
-    if((dmaKey=ftok(".", 'dma')) == -1) {
+    key_t devKey;
+    if((devKey=ftok(".", 'devQue')) == -1) {
         return;
     }
-    if((dmaMsgQue=msgget(dmaKey, 0)) >= 0) {
-        if((msgctl(dmaMsgQue, IPC_RMID, NULL)) < 0){
+    if((devMsgQue=msgget(devKey, 0)) >= 0) {
+        if((msgctl(devMsgQue, IPC_RMID, NULL)) < 0){
             return;
         }
     }
-    if((dmaMsgQue=msgget(dmaKey, IPC_CREAT|IPC_EXCL|0666)) == -1) {
+    if((devMsgQue=msgget(devKey, IPC_CREAT|IPC_EXCL|0666)) == -1) {
         return;
     }
 
@@ -48,7 +48,7 @@ dataStream::dataStream() {
     netRing->create(netRingSize);
 
     key_t netKey;
-    if((netKey=ftok(".", 'net')) == -1) {
+    if((netKey=ftok(".", 'netQue')) == -1) {
         return;
     }
     if((netMsgQue=msgget(netKey, 0)) >= 0) {
@@ -63,46 +63,100 @@ dataStream::dataStream() {
 }
 
 dataStream::~dataStream() {
-    dmaRing->release();
+    devRing->release();
     netRing->release();
-    delete dmaRing;
+    delete devRing;
     delete netRing;
 }
 
-unsigned int dataStream::dmaSend(const void* addr, const unsigned int& nBytes) {
-    std::unique_lock<std::mutex> lock(dmaMutex);
+int dataStream::getDevMsgQue() {
+    return devMsgQue;
+}
 
-    unsigned int sendSize = dmaRing->dmaWrite(addr, nBytes);
-    dmaCount++;
-    totalDmaSize += sendSize;
+int dataStream::getNetMsgQue() {
+    return netMsgQue;
+}
 
-    if(dmaCount >= 5) {
-        dmaMsg.signal = 1;
-        dmaMsg.size = totalDmaSize;
-        dmaMsg.count = dmaCount;
-        if((msgsnd(dmaMsgQue, &dmaMsg, sizeof(dmaMsg), 0)) < 0) {
+unsigned int dataStream::devWrite(const void* addr, const unsigned int& nBytes) {
+    std::unique_lock<std::mutex> lock(devMutex);
+
+    unsigned int sendSize = devRing->dmaWrite(addr, nBytes);
+    devCount++;
+    totalDevSize += sendSize;
+
+    if(devCount >= 5) {
+        devMsg.signal = 1;
+        devMsg.size = totalDevSize;
+        devMsg.count = devCount;
+        if((msgsnd(devMsgQue, &devMsg, sizeof(devMsg), 0)) < 0) {
             return 0;
         }
-        totalDmaSize = 0;
-        dmaCount = 0;
+        totalDevSize = 0;
+        devCount = 0;
     }
     return sendSize;
 }
 
-int dataStream::dmaSetSnap() {
-    std::unique_lock<std::mutex> lock(dmaMutex);
-    return dmaRing->setSnapStatus();
+int dataStream::devSetSnap() {
+    std::unique_lock<std::mutex> lock(devMutex);
+    return devRing->setSnapStatus();
 }
 
-int dataStream::dmaAddSnapRead() {
-    return dmaRing->addSnapRead();
+int dataStream::devAddSnapRead() {
+    return devRing->addSnapRead();
 }
 
-int dataStream::dmaRmSnapRead() {
-    return dmaRing->rmSnapRead();
+int dataStream::devRmSnapRead() {
+    return devRing->rmSnapRead();
 }
 
-void* dataStream::dmaGetSnapPtr(const unsigned int& nBias, const unsigned int& nBytes) {
-    //std::unique_lock<std::mutex> lock(dmaMutex);
-    return dmaRing->getSnapPtr(nBias, nBytes);
+void* dataStream::devGetSnapPtr(const unsigned int& nBias, const unsigned int& nBytes) {
+    //std::unique_lock<std::mutex> lock(devMutex);
+    return devRing->getSnapPtr(nBias, nBytes);
+}
+
+unsigned int dataStream::devPopSnap(const unsigned int& nBytes) {
+    return devRing->popSnapRead(nBytes);
+}
+
+unsigned int dataStream::netWrite(const void* addr, const unsigned int& nBytes) {
+    std::unique_lock<std::mutex> lock(netMutex);
+
+    unsigned int sendSize = netRing->dmaWrite(addr, nBytes);
+    netCount++;
+    totalNetSize += sendSize;
+
+    if(netCount >= 5) {
+        netMsg.signal = 1;
+        netMsg.size = totalNetSize;
+        netMsg.count = netCount;
+        if((msgsnd(netMsgQue, &netMsg, sizeof(netMsg), 0)) < 0) {
+            return 0;
+        }
+        totalNetSize = 0;
+        netCount = 0;
+    }
+    return sendSize;
+}
+
+int dataStream::netSetSnap() {
+    std::unique_lock<std::mutex> lock(netMutex);
+    return netRing->setSnapStatus();
+}
+
+int dataStream::netAddSnapRead() {
+    return netRing->addSnapRead();
+}
+
+int dataStream::netRmSnapRead() {
+    return netRing->rmSnapRead();
+}
+
+void* dataStream::netGetSnapPtr(const unsigned int& nBias, const unsigned int& nBytes) {
+    //std::unique_lock<std::mutex> lock(netMutex);
+    return netRing->getSnapPtr(nBias, nBytes);
+}
+
+unsigned int dataStream::netPopSnap(const unsigned int& nBytes) {
+    return netRing->popSnapRead(nBytes);
 }

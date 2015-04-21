@@ -118,7 +118,7 @@ int frameEngine::loadSharedModule(const string& modeName, const string& devName,
         return 0;
 
     //dev2libMap[devName] = modeName;
-    pModule->init(stMsg, cfgInfo, dataOut);
+    pModule->init(stMsg, cfgInfo, dataPool);
     theFrame->addMode(devName, pModule);
 
     return 1;

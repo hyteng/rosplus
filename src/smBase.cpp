@@ -14,7 +14,7 @@ void smBase::init(stateMessager* msg, configSet* cfg, dataStream* data) {
 
     stMsg = msg;
     cfgInfo = cfg;
-    dataOut = data;
+    dataPool = data;
     
     int i, j;
     for(i = 0; i < MAX_CMD_AMOUNT; i++) {
@@ -43,10 +43,9 @@ void smBase::init(stateMessager* msg, configSet* cfg, dataStream* data) {
     actions[CMID_SATR][STID_Paused] = &smBase::PausedSATR;
     actions[CMID_SPTR][STID_Running] = &smBase::RunningSPTR;
     actions[CMID_SPTR][STID_Ready] = &smBase::SelfTrans;
-    actions[CMID_SPTR][STID_Paused] = &smBase::SelfTrans;
+    actions[CMID_SPTR][STID_Paused] = &smBase::PausedSPTR;
     actions[CMID_STOP][STID_Configured] = &smBase::SelfTrans;
     actions[CMID_STOP][STID_Ready] = &smBase::ReadySTOP;
-    actions[CMID_STOP][STID_Paused] = &smBase::PausedSTOP;
     actions[CMID_PAUS][STID_Paused] = &smBase::SelfTrans;
     actions[CMID_RESU][STID_Paused] = &smBase::PausedRESU;
     actions[CMID_RESU][STID_Running] = &smBase::SelfTrans;

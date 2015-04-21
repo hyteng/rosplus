@@ -18,20 +18,32 @@ class dataStream {
         dataStream();
         ~dataStream();
 
-        unsigned int dmaSend(const void* addr, const unsigned int& nBytes);
-        int dmaSetSnap();
-        int dmaAddSnapRead();
-        int dmaRmSnapRead();
-        void* dmaGetSnapPtr(const unsigned int& nBias, const unsigned int& nBytes);
+        int getDevMsgQue();
+        int getNetMsgQue();
+
+        unsigned int devWrite(const void* addr, const unsigned int& nBytes);
+        int devSetSnap();
+        int devAddSnapRead();
+        int devRmSnapRead();
+        void* devGetSnapPtr(const unsigned int& nBias, const unsigned int& nBytes);
+        unsigned int devPopSnap(const unsigned int& nBytes);
+
+        unsigned int netWrite(const void* addr, const unsigned int& nBytes);
+        int netSetSnap();
+        int netAddSnapRead();
+        int netRmSnapRead();
+        void* netGetSnapPtr(const unsigned int& nBias, const unsigned int& nBytes);
+        unsigned int netPopSnap(const unsigned int& nBytes);
+
     private:
         /* data */
-        ringBuffer *dmaRing, *netRing;
-        unsigned int dmaRingSize, netRingSize;
-        unsigned int dmaCount, netCount;
-        unsigned int totalDmaSize, totalNetSize;
-        int dmaMsgQue, netMsgQue;
-        streamMsg dmaMsg, netMsg;
-        std::mutex dmaMutex, netMutex;
+        ringBuffer *devRing, *netRing;
+        unsigned int devRingSize, netRingSize;
+        unsigned int devCount, netCount;
+        unsigned int totalDevSize, totalNetSize;
+        int devMsgQue, netMsgQue;
+        streamMsg devMsg, netMsg;
+        std::mutex devMutex, netMutex;
 
 };
 

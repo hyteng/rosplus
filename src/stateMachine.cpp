@@ -19,6 +19,7 @@ int stateMachine::init() {
     msg = new stateMessager();
     cfg = new configSet();
     data = new dataStream();
+    //msg->init();
     cfg->infoCreate();
     theEngine = new frameEngine("engine");
     theEngine->setMachine(this);

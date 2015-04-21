@@ -1,10 +1,10 @@
 #ifndef daq_h
 #define daq_h
 
-#include <string>
 #include <thread>
-#include "../src/ringBuffer.h"
+#include <fstream>
 #include "../src/smBase.h"
+
 
 class daq :public smBase {
 
@@ -13,43 +13,32 @@ class daq :public smBase {
         ~daq();
         
     protected:
-        virtual int InitializedLOAD(int para);
-        virtual int LoadedUNLD(int para);
         virtual int LoadedCONF(int para);
-        virtual int ConfiguredUNCF(int para);
         virtual int ConfiguredPREP(int para);
         virtual int ReadySATR(int para);
         virtual int RunningSPTR(int para);
         virtual int ReadySTOP(int para);
-        virtual int RunningPAUS(int para);
-        virtual int PausedSTOP(int para);
-        virtual int PausedRESU(int para);
-        virtual int PausedSATR(int para);
-        virtual int SelfTrans(int para);
-        virtual int AnyIMPO(int para);
-        virtual int AnyEXIT(int para);
+        virtual int PausedSPTR(int para);
 
-        int beforeDaq();
+    private:
+        int beforDaq();
         int afterDaq();
         int startDaq();
         int stopDaq();
-        void runDma(void* para);
-        void runPack(void* para);
-        void runNet(void* para);
+        void runDaq(void* para);
+        int sendData(void* p0, const unsigned int& nBytes);
 
     private:
-        ringBuffer *dmaRing, *netRing;
-        unsigned int dmaRingSize, netRingSize, dmaTranSize;
-        unsigned int dmaCount, packCount, netCount;
-        unsigned int packSize;
-        unsigned int totalDmaSize, totalPackSize, totalNetSize;
-        std::thread *t0, *t1, *t2;
-        int dmaMsgQue, netMsgQue;
-        int runDmaCtrl, runPackCtrl, runNetCtrl;
-        int dmaStatus, packStatus, netStatus;
+        int runDaqCtrl;
+        int daqStatus;
+        int netMsgQue;
+        unsigned int daqCount;
+        unsigned int totalDaqSize;
+        streamMsg daqMsg;
+        std::thread *t0;
 
-        //VMEBridge *pvme;
-        dataPacker *pack;
+        std::string fileName;
+        fstream outFile;
 };
 
 #endif
