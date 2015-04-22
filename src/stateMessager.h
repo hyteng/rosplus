@@ -13,6 +13,7 @@ Version: 0.0.1
 #include <string>
 #include <thread>
 #include <netinet/in.h>
+#include <mutex>
 
 class stateMessager {
 
@@ -25,7 +26,7 @@ class stateMessager {
         int setDataSocket();
         int stateOut(const int& stKey, const std::string& stMsg);
         unsigned int sendMsg(const std::string& msg);
-        unsigned int sendData(void *p0, const unsigned int nBytes);
+        unsigned int sendData(void *p0, unsigned int nBytes);
     private:
         int status;
         int msgSocket, dataSocket; //socket0: message, socket1: data
@@ -33,6 +34,7 @@ class stateMessager {
         struct sockaddr_in hostAddr[2];
         struct sockaddr_in clientAddr[2];
         std::thread *t0, *t1;
+        std::mutex dataMutex, msgMutex;
 };
 
 

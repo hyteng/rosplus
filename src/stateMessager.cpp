@@ -62,7 +62,6 @@ int stateMessager::setMsgSocket() {
         if(clientMsg != -1)
             close(clientMsg);
         clientMsg = remoteMsg;
- 
     }
     close(clientMsg);
     return 1;
@@ -99,14 +98,22 @@ int stateMessager::setDataSocket() {
 }
 
 int stateMessager::stateOut(const int& stKey, const string& stMsg) {
-
     cout << "Key level " << stKey << ", " << stMsg << endl;
     return 1;
 }
 
 unsigned int stateMessager::sendMsg(const string&) {
+    std::unique_lock<std::mutex> lock(msgMutex);
 }
 
-unsigned int stateMessager::sendData(void* p0, const unsigned int nBytes) {
+unsigned int stateMessager::sendData(void* p0, unsigned int nBytes) {
+    std::unique_lock<std::mutex> lock(dataMutex);
+    int tranSize = 0;
+    while(tranSize < nBytes && tranSize != -1) {
+        p0 += tranSize;
+        nBytes -= tranSize;
+        tranSize += send(clientData, (char*)p0, nBytes, 0);
+    }
+    return tranSize;
 }
 
