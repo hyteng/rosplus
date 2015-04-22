@@ -123,7 +123,6 @@ void daq::runDaq() {
 }
 
 int daq::sendData(void* p0, const unsigned int& nBytes) {
-
     return stMsg->sendData(p0, nBytes);
 }
 

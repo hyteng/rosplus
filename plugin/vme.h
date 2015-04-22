@@ -2,6 +2,7 @@
 #define vme_h
 
 #include <../src/smBase.h>
+#include <stdint.h>
 
 class vme :public smBase {
     public:
@@ -9,8 +10,6 @@ class vme :public smBase {
         ~vme();
 
     private:
-        unsigned int base;
-        unsigned int length;
-        unsigned int image;
+        uint32_t dmaBase;
 };
 #endif

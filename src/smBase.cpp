@@ -10,12 +10,13 @@ smBase::smBase(const string& n) {
 smBase::~smBase() {
 }
 
-void smBase::init(stateMessager* msg, configSet* cfg, dataStream* data) {
+void smBase::init(stateMessager* msg, configSet* cfg, dataStream* data, const std::vector< std::pair<std::string, smBase*> > *other) {
 
     stMsg = msg;
     cfgInfo = cfg;
     dataPool = data;
-    
+    list = other;
+
     int i, j;
     for(i = 0; i < MAX_CMD_AMOUNT; i++) {
        for(j = 0; j < MAX_STATES_AMOUNT; j++) {

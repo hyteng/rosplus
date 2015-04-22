@@ -16,6 +16,7 @@ class stateMachine {
 
         int init();
         void addMode(const std::string& name, smBase* mode);
+        const std::vector< std::pair<std::string, smBase*> >& getModuleList();
         std::pair<std::string, smBase*> popMode();
         smBase* eraseMode(const std::string& name);
         int doAction(const smBase::command& cmId);
@@ -25,7 +26,7 @@ class stateMachine {
         int dispatch2();
 
     private:
-        std::vector< std::pair<std::string, smBase*> >moduleList;
+        std::vector< std::pair<std::string, smBase*> > moduleList;
         frameEngine* theEngine;
         smBase::status stId;
 

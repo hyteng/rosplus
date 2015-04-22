@@ -31,6 +31,7 @@
 #include "configSet.h"
 #include "dataStream.h"
 #include <string>
+#include <vector>
 
 class smBase;
 typedef int(smBase::*pFunc)(int para);
@@ -52,7 +53,7 @@ class smBase {
         } status;
         //static int result[MAX_CMD_AMOUNT][MAX_STATES_AMOUNT];
 
-        void init(stateMessager* msg, configSet* cfg, dataStream* data);
+        void init(stateMessager* msg, configSet* cfg, dataStream* data, const std::vector< std::pair<std::string, smBase*> > *other);
         virtual int doAction(command cmId);
 
     protected:
@@ -78,6 +79,7 @@ class smBase {
         stateMessager* stMsg;
         configSet* cfgInfo;
         dataStream* dataPool;
+        const std::vector< std::pair<std::string, smBase*> > *list;
         status stId;
         std::string name;
 };

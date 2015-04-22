@@ -19,11 +19,10 @@ int stateMachine::init() {
     msg = new stateMessager();
     cfg = new configSet();
     data = new dataStream();
-    //msg->init();
     cfg->infoCreate();
     theEngine = new frameEngine("engine");
     theEngine->setMachine(this);
-    theEngine->init(msg, cfg, data);
+    theEngine->init(msg, cfg, data, &moduleList);
     moduleList.push_back(std::pair<string, smBase*>("engine", theEngine));
     stId = smBase::STID_Initialized;
 
@@ -48,6 +47,10 @@ int stateMachine::doAction(const smBase::command& cmId) {
 void stateMachine::addMode(const string& name, smBase* mode) {
     moduleList.push_back(std::pair<string, smBase*>(name, mode));
     return;
+}
+
+const std::vector< std::pair<std::string, smBase*> >& stateMachine::getModuleList() {
+    return moduleList;
 }
 
 std::pair<string, smBase*> stateMachine::popMode() {
