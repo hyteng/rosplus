@@ -15,7 +15,7 @@ void smBase::init(stateMessager* msg, configSet* cfg, dataStream* data, const st
     stMsg = msg;
     cfgInfo = cfg;
     dataPool = data;
-    list = other;
+    helpList = other;
 
     int i, j;
     for(i = 0; i < MAX_CMD_AMOUNT; i++) {

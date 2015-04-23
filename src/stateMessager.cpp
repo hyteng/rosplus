@@ -102,17 +102,30 @@ int stateMessager::stateOut(const int& stKey, const string& stMsg) {
     return 1;
 }
 
-int stateMessager::sendMsg(const string&) {
+unsigned int stateMessager::sendMsg(const string&) {
     std::unique_lock<std::mutex> lock(msgMutex);
+    if(clientMsg==-1)
+        return 0;
+    unsigned int tranSize = 0;
+    return tranSize;
 }
 
-int stateMessager::sendData(void* p0, unsigned int nBytes) {
+unsigned int stateMessager::sendData(void* p0, unsigned int nBytes) {
     std::unique_lock<std::mutex> lock(dataMutex);
-    int tranSize = 0;
-    while(tranSize < nBytes && tranSize != -1) {
-        p0 += tranSize;
-        nBytes -= tranSize;
-        tranSize += send(clientData, (char*)p0, nBytes, 0);
+    if(clientData==-1)
+        return 0;
+    unsigned int tranSize = 0;
+    int result;
+    char* p1 = (char*)p0;
+    while(tranSize < nBytes) {
+        result = send(clientData, (char*)p1, nBytes, 0);
+        if(result < 0)
+            return tranSize;
+        else {
+            p1 += result;
+            nBytes -= result;
+            tranSize += result;
+        }
     }
     return tranSize;
 }

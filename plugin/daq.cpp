@@ -79,7 +79,7 @@ int daq::startDaq() {
 int daq::stopDaq() {
     stMsg->stateOut(1, "stop Daq.");
     runDaqCtrl = TASK_STOP;
-    t0->join();
+    t0->detach();
     return 1;
 }
 
@@ -96,6 +96,7 @@ void daq::runDaq() {
             break;
         }
 
+        stMsg->stateOut(daqMsg.signal, "daq get msg");
         daqCount++;
         totalDaqSize += daqMsg.size;
         if(daqCount >= 5 || daqMsg.signal == 2) {
@@ -116,14 +117,16 @@ void daq::runDaq() {
             break;
 
     }
-    if(runDaqCtrl == TASK_STOP || daqStatus == TASK_ERROR) {
+    //if(runDaqCtrl == TASK_STOP || daqStatus == TASK_ERROR) {
         if(daqStatus == TASK_RUN)
             daqStatus = TASK_EXIT;
-    }
+    //}
 }
 
 int daq::sendData(void* p0, const unsigned int& nBytes) {
+    std::cout << "daq send data to socket... " << std::endl;
     return stMsg->sendData(p0, nBytes);
+    std::cout << "done " << std::endl;
 }
 
 extern "C" smBase* create(const string& n) {

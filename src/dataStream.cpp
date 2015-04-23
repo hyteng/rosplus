@@ -3,7 +3,9 @@
 #include <sys/msg.h>
 #include <sys/ipc.h>
 #include <sys/types.h>
+#include <sys/errno.h>
 
+extern int errno;
 using std::string;
 
 #define RINGSIZE 10000000
@@ -16,6 +18,9 @@ struct streamMsg {
 };
 */
 dataStream::dataStream() {
+}
+
+void dataStream::init() {
     devRing = new ringBuffer();
     devRingSize = RINGSIZE;
     devCount = 0;
@@ -25,12 +30,11 @@ dataStream::dataStream() {
         devRing->release();
     devRing->create(devRingSize);
 
-    key_t devKey;
-    if((devKey=ftok(".", 'devQue')) == -1) {
+    if((devKey=ftok("./ipc", 0)) == -1) {
         return;
     }
     if((devMsgQue=msgget(devKey, 0)) >= 0) {
-        if((msgctl(devMsgQue, IPC_RMID, NULL)) < 0){
+        if((msgctl(devMsgQue, IPC_RMID, NULL)) < 0) {
             return;
         }
     }
@@ -47,19 +51,17 @@ dataStream::dataStream() {
         netRing->release();
     netRing->create(netRingSize);
 
-    key_t netKey;
-    if((netKey=ftok(".", 'netQue')) == -1) {
+    if((netKey=ftok("./ipc", 1)) == -1) {
         return;
     }
     if((netMsgQue=msgget(netKey, 0)) >= 0) {
-        if((msgctl(netMsgQue, IPC_RMID, NULL)) < 0){
+        if((msgctl(netMsgQue, IPC_RMID, NULL)) < 0) {
             return;
         }
     }
     if((netMsgQue=msgget(netKey, IPC_CREAT|IPC_EXCL|0666)) == -1) {
         return;
     }
-
 }
 
 dataStream::~dataStream() {
@@ -81,19 +83,21 @@ unsigned int dataStream::devWrite(const void* addr, const unsigned int& nBytes) 
     std::unique_lock<std::mutex> lock(devMutex);
 
     unsigned int sendSize = devRing->dmaWrite(addr, nBytes);
-    devCount++;
-    totalDevSize += sendSize;
+    //devCount++;
+    //totalDevSize += sendSize;
 
-    if(devCount >= 5) {
+    //if(devCount >= 5) {
         devMsg.signal = 1;
-        devMsg.size = totalDevSize;
-        devMsg.count = devCount;
-        if((msgsnd(devMsgQue, &devMsg, sizeof(devMsg), 0)) < 0) {
+        devMsg.size = sendSize;//totalDevSize;
+        devMsg.count = 1;//devCount;
+        int res;
+        if((res=msgsnd(devMsgQue, &devMsg, sizeof(devMsg)-sizeof(long), 0)) < 0) {
+            std::cout << "error " << errno << ", " << EACCES << ", " << EAGAIN << ", " << EFAULT << ", " << EIDRM << ", " << EINTR << ", " << EINVAL << ", " << ENOMEM << std::endl;
             return 0;
         }
-        totalDevSize = 0;
-        devCount = 0;
-    }
+        //devCount = 0;
+        //totalDevSize = 0;
+    //}
     return sendSize;
 }
 
@@ -123,19 +127,19 @@ unsigned int dataStream::netWrite(const void* addr, const unsigned int& nBytes) 
     std::unique_lock<std::mutex> lock(netMutex);
 
     unsigned int sendSize = netRing->dmaWrite(addr, nBytes);
-    netCount++;
-    totalNetSize += sendSize;
+    //netCount++;
+    //totalNetSize += sendSize;
 
-    if(netCount >= 5) {
+    //if(netCount >= 5) {
         netMsg.signal = 1;
-        netMsg.size = totalNetSize;
-        netMsg.count = netCount;
-        if((msgsnd(netMsgQue, &netMsg, sizeof(netMsg), 0)) < 0) {
+        netMsg.size = sendSize;//totalNetSize;
+        netMsg.count = 1;//netCount;
+        if((msgsnd(netMsgQue, &netMsg, sizeof(netMsg)-sizeof(long), 0)) < 0) {
             return 0;
         }
-        totalNetSize = 0;
-        netCount = 0;
-    }
+        //netCount = 0;
+        //totalNetSize = 0;
+    //}
     return sendSize;
 }
 

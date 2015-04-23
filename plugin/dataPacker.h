@@ -21,6 +21,7 @@ class dataPacker :public smBase {
         int stopPacker();
         void runPack();
         int packData(unsigned int& packSize);
+        int packDataTest(unsigned int& packSize);
 
     private:
         int runPackCtrl;

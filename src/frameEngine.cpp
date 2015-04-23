@@ -37,7 +37,8 @@ int frameEngine::InitializedLOAD(int para) {
     dev2libMap.clear();
     moduleStringSplit(modeList);
     std::map<std::string, std::string>::const_iterator modeIter;
-    for(modeIter=dev2libMap.begin(); modeIter!=dev2libMap.end(); modeIter++) {  
+    for(modeIter=dev2libMap.begin(); modeIter!=dev2libMap.end(); modeIter++) {
+        std::cout << "loop: " << modeIter->second << ", " << modeIter->first << std::endl;
         if(loadSharedModule(modeIter->second, modeIter->first, libDir)) {
             stMsg->stateOut(2, modeIter->first);
         }
@@ -62,15 +63,18 @@ int frameEngine::LoadedUNLD(int para) {
 }
 
 int frameEngine::moduleStringSplit(const string& modeList) {
-
-    stringstream sList, sMode, sLib, sDev;
+    std::cout << modeList << std::endl;
+    stringstream sList;
     string mode, lib, dev;
     sList << modeList;
     while(getline(sList, mode, ';')) {
+        std::cout << mode << std::endl;
+        stringstream sMode;
         sMode << mode;
         getline(sMode, lib, '.');
         getline(sMode, dev, '.');
         dev2libMap[dev] = lib;
+        std::cout << lib << ", " << dev << std::endl;
     }
     return dev2libMap.size();
 }
@@ -78,7 +82,7 @@ int frameEngine::moduleStringSplit(const string& modeList) {
 int frameEngine::loadSharedModule(const string& modeName, const string& devName, const string& dir) {
 
     char* dlsym_error;
-    string libPath = dir+"/lib"+modeName+".so";
+    string libPath = dir+"/"+modeName+".so";
 
     stMsg->stateOut(2, libPath);
     if(sharedLibHandle.find(modeName) == sharedLibHandle.end()) {

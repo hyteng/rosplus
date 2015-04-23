@@ -25,8 +25,8 @@ class stateMessager {
         int setMsgSocket();
         int setDataSocket();
         int stateOut(const int& stKey, const std::string& stMsg);
-        int sendMsg(const std::string& msg);
-        int sendData(void *p0, unsigned int nBytes);
+        unsigned int sendMsg(const std::string& msg);
+        unsigned int sendData(void *p0, unsigned int nBytes);
     private:
         int status;
         int msgSocket, dataSocket; //socket0: message, socket1: data

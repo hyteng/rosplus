@@ -18,6 +18,7 @@ class dataStream {
         dataStream();
         ~dataStream();
 
+        void init();
         int getDevMsgQue();
         int getNetMsgQue();
 
@@ -41,6 +42,7 @@ class dataStream {
         unsigned int devRingSize, netRingSize;
         unsigned int devCount, netCount;
         unsigned int totalDevSize, totalNetSize;
+        key_t devKey, netKey;
         int devMsgQue, netMsgQue;
         streamMsg devMsg, netMsg;
         std::mutex devMutex, netMutex;

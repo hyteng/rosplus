@@ -79,7 +79,7 @@ class smBase {
         stateMessager* stMsg;
         configSet* cfgInfo;
         dataStream* dataPool;
-        const std::vector< std::pair<std::string, smBase*> > *list;
+        const std::vector< std::pair<std::string, smBase*> > *helpList;
         status stId;
         std::string name;
 };

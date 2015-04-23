@@ -20,6 +20,7 @@ int stateMachine::init() {
     cfg = new configSet();
     data = new dataStream();
     cfg->infoCreate();
+    data->init();
     theEngine = new frameEngine("engine");
     theEngine->setMachine(this);
     theEngine->init(msg, cfg, data, &moduleList);
