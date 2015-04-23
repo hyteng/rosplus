@@ -35,7 +35,7 @@ class daq :public smBase {
         unsigned int daqCount;
         unsigned int totalDaqSize;
         streamMsg daqMsg;
-        std::thread *t0;
+        std::thread *t0, *ts;
 
         std::string fileName;
         std::fstream outFile;

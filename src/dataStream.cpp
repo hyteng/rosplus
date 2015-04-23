@@ -115,7 +115,6 @@ int dataStream::devRmSnapRead() {
 }
 
 void* dataStream::devGetSnapPtr(const unsigned int& nBias, const unsigned int& nBytes) {
-    //std::unique_lock<std::mutex> lock(devMutex);
     return devRing->getSnapPtr(nBias, nBytes);
 }
 
@@ -157,7 +156,6 @@ int dataStream::netRmSnapRead() {
 }
 
 void* dataStream::netGetSnapPtr(const unsigned int& nBias, const unsigned int& nBytes) {
-    //std::unique_lock<std::mutex> lock(netMutex);
     return netRing->getSnapPtr(nBias, nBytes);
 }
 

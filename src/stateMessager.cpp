@@ -11,6 +11,7 @@
 #define BACKLOG 10
 
 using std::string;
+using std::stringstream;
 using std::cout;
 using std::endl;
 using std::thread;
@@ -35,6 +36,17 @@ int stateMessager::finish() {
     t0->join();
     t1->join();
     return 0;
+}
+
+int stateMessager::stateOut(const int& stKey, const string& stMsg) {
+    cout << "Key level " << stKey << ", " << stMsg << endl;
+    return 1;
+}
+
+int stateMessager::stateOut(stringstream& msg) {
+    cout << msg.str() << endl;
+    msg.str("");
+    return 1;
 }
 
 int stateMessager::setMsgSocket() {
@@ -97,24 +109,33 @@ int stateMessager::setDataSocket() {
     return 1;
 }
 
-int stateMessager::stateOut(const int& stKey, const string& stMsg) {
-    cout << "Key level " << stKey << ", " << stMsg << endl;
-    return 1;
-}
-
-unsigned int stateMessager::sendMsg(const string&) {
+int stateMessager::sendMsg(const string& msg) {
     std::unique_lock<std::mutex> lock(msgMutex);
     if(clientMsg==-1)
         return 0;
-    unsigned int tranSize = 0;
+    int tranSize = 0;
+    int result;
+    char* p1 = (char*)msg.c_str();
+    unsigned int nBytes = strlen(msg.c_str())+1;
+    while(tranSize < nBytes) {
+        result = send(clientData, (char*)p1, nBytes, 0);
+        if(result < 0)
+            return tranSize;
+        else {
+            p1 += result;
+            nBytes -= result;
+            tranSize += result;
+        }
+    }
     return tranSize;
 }
 
-unsigned int stateMessager::sendData(void* p0, unsigned int nBytes) {
+int stateMessager::sendData(void* p0, int nBytes) {
     std::unique_lock<std::mutex> lock(dataMutex);
+    std::cout << "send " << nBytes << " data to socket " << clientData << std::endl;
     if(clientData==-1)
         return 0;
-    unsigned int tranSize = 0;
+    int tranSize = 0;
     int result;
     char* p1 = (char*)p0;
     while(tranSize < nBytes) {

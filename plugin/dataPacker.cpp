@@ -7,6 +7,8 @@
 
 using std::string;
 using std::thread;
+using std::cout;
+using std::endl;
 
 #define TASK_START 1
 #define TASK_STOP 0
@@ -56,7 +58,7 @@ int dataPacker::startPacker() {
 int dataPacker::stopPacker() {
     stMsg->stateOut(1, "stop packer.");
     runPackCtrl = TASK_STOP;
-    t0->detach();
+    t0->join();
     return 1;
 }
 
@@ -66,6 +68,8 @@ void dataPacker::runPack() {
 
     packCount = 0;
     totalPackSize = 0;
+    unsigned int recSize = 0;
+    unsigned int sndSize = 0;
     while(1) {
         if((msgrcv(devMsgQue, &packMsg, sizeof(packMsg), 0, 0)) < 0) {
             packStatus = TASK_ERROR;
@@ -73,15 +77,24 @@ void dataPacker::runPack() {
         }
         stMsg->stateOut(1, "packer get msg");
 
+        debugMsg << "packer fetch devMsg " << packMsg.size << endl;
+        stMsg->stateOut(debugMsg);
+
         packCount += packMsg.count;
         totalPackSize += packMsg.size;
-
         if(packMsg.signal == 2 || totalPackSize >= 72) {
+ 
             unsigned int packTranSize = totalPackSize;
             if(!packDataTest(packTranSize)) {
                 packStatus = TASK_ERROR;
                 break;
             }
+            
+            recSize += totalPackSize;
+            sndSize += packTranSize;
+            debugMsg << "packer read" << recSize << "data and send " << sndSize << endl;
+            stMsg->stateOut(debugMsg);
+
             packCount = 0;
             totalPackSize = 0;
         }
@@ -95,14 +108,21 @@ void dataPacker::runPack() {
         packMsg.signal = 2;
         packMsg.size = 0;
         std::cout << "pack send stop to daq: "  << std::endl;
-        if((msgsnd(netMsgQue, &packMsg, sizeof(packMsg)-sizeof(long), 0)) < 0) {
+        int stopSend = msgsnd(netMsgQue, &packMsg, sizeof(packMsg)-sizeof(long), 0);
+        if(stopSend < 0) {
             std::cout << "pack msg fail"  << std::endl;
             packStatus = TASK_ERROR;
         }
 
+        debugMsg << "packer send stop to netMsg and return " << stopSend << endl;
+        stMsg->stateOut(debugMsg);
+
         if(packStatus == TASK_RUN)
             packStatus = TASK_EXIT;
     //}
+
+    debugMsg << "packer stop thread" << endl;
+    stMsg->stateOut(debugMsg);
 }
 
 int dataPacker::packData(unsigned int& packSize) {
@@ -212,6 +232,7 @@ int dataPacker::packDataTest(unsigned int& packSize) {
         // reserved data
         */
         dataPool->netWrite(p, 4);
+        tranSize += 4;
     }
 
     unsigned int popSize = dataPool->devPopSnap(packSize);

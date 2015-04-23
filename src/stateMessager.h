@@ -14,6 +14,7 @@ Version: 0.0.1
 #include <thread>
 #include <netinet/in.h>
 #include <mutex>
+#include <sstream>
 
 class stateMessager {
 
@@ -22,11 +23,12 @@ class stateMessager {
         ~stateMessager();
         int init();
         int finish();
+        int stateOut(const int& stKey, const std::string& stMsg);
+        int stateOut(std::stringstream& msg);
         int setMsgSocket();
         int setDataSocket();
-        int stateOut(const int& stKey, const std::string& stMsg);
-        unsigned int sendMsg(const std::string& msg);
-        unsigned int sendData(void *p0, unsigned int nBytes);
+        int sendMsg(const std::string& msg);
+        int sendData(void *p0, int nBytes);
     private:
         int status;
         int msgSocket, dataSocket; //socket0: message, socket1: data

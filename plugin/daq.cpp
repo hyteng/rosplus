@@ -7,6 +7,8 @@
 
 using std::string;
 using std::thread;
+using std::cout;
+using std::endl;
 
 #define TASK_START 1
 #define TASK_STOP 0
@@ -79,7 +81,7 @@ int daq::startDaq() {
 int daq::stopDaq() {
     stMsg->stateOut(1, "stop Daq.");
     runDaqCtrl = TASK_STOP;
-    t0->detach();
+    t0->join();
     return 1;
 }
 
@@ -89,14 +91,17 @@ void daq::runDaq() {
 
     daqCount = 0;
     totalDaqSize = 0;
+    unsigned int recSize = 0;
     void* netPtr = NULL;
     while(1) {
         if((msgrcv(netMsgQue, &daqMsg, sizeof(daqMsg), 0, 0)) < 0) {
             daqStatus = TASK_ERROR;
             break;
         }
+        
+        debugMsg << "daq fetch netMsg " << daqMsg.size << daqMsg.signal << endl;
+        stMsg->stateOut(debugMsg);
 
-        stMsg->stateOut(daqMsg.signal, "daq get msg");
         daqCount++;
         totalDaqSize += daqMsg.size;
         if(daqCount >= 5 || daqMsg.signal == 2) {
@@ -104,29 +109,36 @@ void daq::runDaq() {
             netPtr = dataPool->netGetSnapPtr(0, totalDaqSize);
             if(netPtr != NULL) {
                 // 2 threads
-                std::thread t(&daq::sendData, this, netPtr, totalDaqSize);
+                ts = new thread(&daq::sendData, this, netPtr, totalDaqSize);
                 outFile.write((const char*)netPtr, totalDaqSize);
-                t.join();
+                cout << "done" << endl;
+                ts->join();
+
+                recSize += totalDaqSize;
+                debugMsg << "daq save " << recSize << "data" << endl;
             }
             dataPool->netPopSnap(totalDaqSize);
+
             daqCount = 0;
             totalDaqSize = 0;
         }
 
         if(daqMsg.signal == 2)
             break;
-
     }
     //if(runDaqCtrl == TASK_STOP || daqStatus == TASK_ERROR) {
         if(daqStatus == TASK_RUN)
             daqStatus = TASK_EXIT;
     //}
+
+    debugMsg << "daq stop thread" << endl;
+    stMsg->stateOut(debugMsg);
 }
 
 int daq::sendData(void* p0, const unsigned int& nBytes) {
     std::cout << "daq send data to socket... " << std::endl;
-    return stMsg->sendData(p0, nBytes);
-    std::cout << "done " << std::endl;
+    int sndSize = stMsg->sendData(p0, nBytes);
+    return sndSize;
 }
 
 extern "C" smBase* create(const string& n) {

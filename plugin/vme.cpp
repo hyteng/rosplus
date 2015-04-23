@@ -7,6 +7,8 @@
 
 using std::string;
 using std::thread;
+using std::cout;
+using std::endl;
 
 #define TASK_START 1
 #define TASK_STOP 0
@@ -65,7 +67,7 @@ int vme::startVme() {
 int vme::stopVme() {
     stMsg->stateOut(1, "stop Vme.");
     runVmeCtrl = TASK_STOP;
-    t0->detach();
+    t0->join();
     return 1;
 }
 
@@ -76,6 +78,8 @@ void vme::runVme() {
 
     vmeCount = 0;
     totalVmeSize = 0;
+    unsigned int genSize = 0;
+    unsigned int sndSize = 0;
     char *tmp = "ABCDEFGH";
     while(1) {
 
@@ -93,6 +97,12 @@ void vme::runVme() {
         //dataPool->devWrite(dmaBase+offset, dmaSize);
         sleep(1);
         unsigned int tranSize = dataPool->devWrite(tmp, dmaSize);
+
+        genSize += 8;
+        sndSize += tranSize;
+        debugMsg << "vme send " << genSize << " data, devMsg send " << sndSize << endl;
+        stMsg->stateOut(debugMsg);
+
         //vmeCount++;
         //totalVmeSize += dmaSize;
     }
@@ -100,13 +110,20 @@ void vme::runVme() {
     if(runVmeCtrl == TASK_STOP || vmeStatus == TASK_ERROR) {
         vmeMsg.signal = 2;
         vmeMsg.size = 0;
-        if((msgsnd(devMsgQue, &vmeMsg, sizeof(vmeMsg)-sizeof(long), 0)) < 0) {
+        int stopSend = msgsnd(devMsgQue, &vmeMsg, sizeof(vmeMsg)-sizeof(long), 0);
+        if(stopSend < 0) {
             vmeStatus = TASK_ERROR;
         }
+
+        debugMsg << "vme send stop to devMsg and return " << stopSend << endl;
+        stMsg->stateOut(debugMsg);
 
         if(vmeStatus == TASK_RUN)
             vmeStatus = TASK_EXIT;
     }
+
+    debugMsg << "vme stop thread" << endl;
+    stMsg->stateOut(debugMsg);
 }
 
 extern "C" smBase* create(const string& n) {

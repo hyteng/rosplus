@@ -2,12 +2,9 @@
 #include "stateMachine.h"
 #include <dlfcn.h>
 #include <sstream>
-//#include <fstream>
-//#include <stdint.h>
 
 using std::string;
 using std::stringstream;
-//using std::ifstream;
 
 frameEngine::frameEngine(const string& n) : smBase(n) {
 }
@@ -69,8 +66,7 @@ int frameEngine::moduleStringSplit(const string& modeList) {
     sList << modeList;
     while(getline(sList, mode, ';')) {
         std::cout << mode << std::endl;
-        stringstream sMode;
-        sMode << mode;
+        stringstream sMode(mode);
         getline(sMode, lib, '.');
         getline(sMode, dev, '.');
         dev2libMap[dev] = lib;

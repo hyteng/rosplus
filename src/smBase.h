@@ -32,6 +32,7 @@
 #include "dataStream.h"
 #include <string>
 #include <vector>
+#include <sstream>
 
 class smBase;
 typedef int(smBase::*pFunc)(int para);
@@ -82,6 +83,7 @@ class smBase {
         const std::vector< std::pair<std::string, smBase*> > *helpList;
         status stId;
         std::string name;
+        std::stringstream debugMsg;
 };
 
 typedef pBase (*pCreate)(const std::string& name);
