@@ -67,7 +67,7 @@ int vme::startVme() {
 int vme::stopVme() {
     stMsg->stateOut(1, "stop Vme.");
     runVmeCtrl = TASK_STOP;
-    t0->join();
+    //t0->join();
     return 1;
 }
 
@@ -95,7 +95,7 @@ void vme::runVme() {
         }
         */
         //dataPool->devWrite(dmaBase+offset, dmaSize);
-        sleep(1);
+        //sleep(1);
         unsigned int tranSize = dataPool->devWrite(tmp, dmaSize);
 
         genSize += 8;
@@ -110,7 +110,7 @@ void vme::runVme() {
     if(runVmeCtrl == TASK_STOP || vmeStatus == TASK_ERROR) {
         vmeMsg.signal = 2;
         vmeMsg.size = 0;
-        int stopSend = msgsnd(devMsgQue, &vmeMsg, sizeof(vmeMsg)-sizeof(long), 0);
+        int stopSend = msgsnd(devMsgQue, &vmeMsg, sizeof(vmeMsg), 0);
         if(stopSend < 0) {
             vmeStatus = TASK_ERROR;
         }
@@ -122,7 +122,7 @@ void vme::runVme() {
             vmeStatus = TASK_EXIT;
     }
 
-    debugMsg << "vme stop thread" << endl;
+    debugMsg << "vme stop thread" << vmeStatus << endl;
     stMsg->stateOut(debugMsg);
 }
 

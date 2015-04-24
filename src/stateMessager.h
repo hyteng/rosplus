@@ -36,7 +36,7 @@ class stateMessager {
         struct sockaddr_in hostAddr[2];
         struct sockaddr_in clientAddr[2];
         std::thread *t0, *t1;
-        std::mutex dataMutex, msgMutex;
+        std::mutex dataMutex, msgMutex, debugMutex;
 };
 
 

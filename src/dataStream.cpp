@@ -30,7 +30,7 @@ void dataStream::init() {
         devRing->release();
     devRing->create(devRingSize);
 
-    if((devKey=ftok("./ipc", 0)) == -1) {
+    if((devKey=ftok("./dev", 0)) == -1) {
         return;
     }
     if((devMsgQue=msgget(devKey, 0)) >= 0) {
@@ -51,7 +51,7 @@ void dataStream::init() {
         netRing->release();
     netRing->create(netRingSize);
 
-    if((netKey=ftok("./ipc", 1)) == -1) {
+    if((netKey=ftok("./net", 1)) == -1) {
         return;
     }
     if((netMsgQue=msgget(netKey, 0)) >= 0) {
@@ -83,15 +83,17 @@ unsigned int dataStream::devWrite(const void* addr, const unsigned int& nBytes) 
     std::unique_lock<std::mutex> lock(devMutex);
 
     unsigned int sendSize = devRing->dmaWrite(addr, nBytes);
+    if(sendSize == 0)
+        return 0;
+
     //devCount++;
     //totalDevSize += sendSize;
-
     //if(devCount >= 5) {
         devMsg.signal = 1;
         devMsg.size = sendSize;//totalDevSize;
         devMsg.count = 1;//devCount;
         int res;
-        if((res=msgsnd(devMsgQue, &devMsg, sizeof(devMsg)-sizeof(long), 0)) < 0) {
+        if((res=msgsnd(devMsgQue, &devMsg, sizeof(devMsg), 0)) < 0) {
             std::cout << "error " << errno << ", " << EACCES << ", " << EAGAIN << ", " << EFAULT << ", " << EIDRM << ", " << EINTR << ", " << EINVAL << ", " << ENOMEM << std::endl;
             return 0;
         }
@@ -102,7 +104,7 @@ unsigned int dataStream::devWrite(const void* addr, const unsigned int& nBytes) 
 }
 
 int dataStream::devSetSnap() {
-    std::unique_lock<std::mutex> lock(devMutex);
+    //std::unique_lock<std::mutex> lock(devMutex);
     return devRing->setSnapStatus();
 }
 
@@ -126,14 +128,16 @@ unsigned int dataStream::netWrite(const void* addr, const unsigned int& nBytes) 
     std::unique_lock<std::mutex> lock(netMutex);
 
     unsigned int sendSize = netRing->dmaWrite(addr, nBytes);
+    if(sendSize == 0)
+        return 0;
+
     //netCount++;
     //totalNetSize += sendSize;
-
     //if(netCount >= 5) {
         netMsg.signal = 1;
         netMsg.size = sendSize;//totalNetSize;
         netMsg.count = 1;//netCount;
-        if((msgsnd(netMsgQue, &netMsg, sizeof(netMsg)-sizeof(long), 0)) < 0) {
+        if((msgsnd(netMsgQue, &netMsg, sizeof(netMsg), 0)) < 0) {
             return 0;
         }
         //netCount = 0;
@@ -143,7 +147,7 @@ unsigned int dataStream::netWrite(const void* addr, const unsigned int& nBytes) 
 }
 
 int dataStream::netSetSnap() {
-    std::unique_lock<std::mutex> lock(netMutex);
+    //std::unique_lock<std::mutex> lock(netMutex);
     return netRing->setSnapStatus();
 }
 

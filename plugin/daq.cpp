@@ -81,11 +81,13 @@ int daq::startDaq() {
 int daq::stopDaq() {
     stMsg->stateOut(1, "stop Daq.");
     runDaqCtrl = TASK_STOP;
-    t0->join();
+    //t0->join();
     return 1;
 }
 
 void daq::runDaq() {
+
+    stMsg->stateOut(1, "running Daq.");
 
     daqStatus = TASK_RUN;
 
@@ -109,13 +111,16 @@ void daq::runDaq() {
             netPtr = dataPool->netGetSnapPtr(0, totalDaqSize);
             if(netPtr != NULL) {
                 // 2 threads
-                ts = new thread(&daq::sendData, this, netPtr, totalDaqSize);
+                //ts = new thread(&daq::sendData, this, netPtr, totalDaqSize);
                 outFile.write((const char*)netPtr, totalDaqSize);
-                cout << "done" << endl;
-                ts->join();
+                //ts->join();
 
                 recSize += totalDaqSize;
                 debugMsg << "daq save " << recSize << "data" << endl;
+            }
+            else {
+                daqStatus = TASK_ERROR;
+                break;
             }
             dataPool->netPopSnap(totalDaqSize);
 
@@ -131,12 +136,11 @@ void daq::runDaq() {
             daqStatus = TASK_EXIT;
     //}
 
-    debugMsg << "daq stop thread" << endl;
+    debugMsg << "daq stop thread" << daqStatus << endl;
     stMsg->stateOut(debugMsg);
 }
 
 int daq::sendData(void* p0, const unsigned int& nBytes) {
-    std::cout << "daq send data to socket... " << std::endl;
     int sndSize = stMsg->sendData(p0, nBytes);
     return sndSize;
 }

@@ -39,11 +39,13 @@ int stateMessager::finish() {
 }
 
 int stateMessager::stateOut(const int& stKey, const string& stMsg) {
+    std::unique_lock<std::mutex> lock(debugMutex);
     cout << "Key level " << stKey << ", " << stMsg << endl;
     return 1;
 }
 
 int stateMessager::stateOut(stringstream& msg) {
+    std::unique_lock<std::mutex> lock(debugMutex);
     cout << msg.str() << endl;
     msg.str("");
     return 1;
@@ -132,7 +134,6 @@ int stateMessager::sendMsg(const string& msg) {
 
 int stateMessager::sendData(void* p0, int nBytes) {
     std::unique_lock<std::mutex> lock(dataMutex);
-    std::cout << "send " << nBytes << " data to socket " << clientData << std::endl;
     if(clientData==-1)
         return 0;
     int tranSize = 0;

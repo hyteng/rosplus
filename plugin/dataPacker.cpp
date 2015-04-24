@@ -58,7 +58,7 @@ int dataPacker::startPacker() {
 int dataPacker::stopPacker() {
     stMsg->stateOut(1, "stop packer.");
     runPackCtrl = TASK_STOP;
-    t0->join();
+    //t0->join();
     return 1;
 }
 
@@ -75,10 +75,9 @@ void dataPacker::runPack() {
             packStatus = TASK_ERROR;
             break;
         }
-        stMsg->stateOut(1, "packer get msg");
 
-        debugMsg << "packer fetch devMsg " << packMsg.size << endl;
-        stMsg->stateOut(debugMsg);
+        //debugMsg << "packer fetch devMsg " << packMsg.size << endl;
+        //stMsg->stateOut(debugMsg);
 
         packCount += packMsg.count;
         totalPackSize += packMsg.size;
@@ -121,7 +120,7 @@ void dataPacker::runPack() {
             packStatus = TASK_EXIT;
     //}
 
-    debugMsg << "packer stop thread" << endl;
+    debugMsg << "packer stop thread" << packStatus << endl;
     stMsg->stateOut(debugMsg);
 }
 
@@ -187,14 +186,12 @@ int dataPacker::packDataTest(unsigned int& packSize) {
     unsigned int tmp[18];
     unsigned int tmpIdx;
 
-    std::cout << "pack in: " << packSize << std::endl;
     dataPool->devSetSnap();
     unsigned int bias = 0;
     void* p;
     unsigned int value;
     unsigned int tranSize = 0;
     for(unsigned int i=0; i<packSize/4; i++,bias+=4) {
-        std::cout << "packiter: " << bias << std::endl;
         p = dataPool->devGetSnapPtr(bias, 4);
         if(p == NULL)
             return 0;
