@@ -16,11 +16,12 @@ stateMachine::~stateMachine() {
 
 int stateMachine::init() {
     stId = smBase::STID_Waiting;
-    msg = new stateMessager();
     cfg = new configSet();
     data = new dataStream();
+    msg = new stateMessager();
     cfg->infoCreate();
     data->init();
+    msg->init(this);
     theEngine = new frameEngine("engine");
     theEngine->setMachine(this);
     theEngine->init(msg, cfg, data, &moduleList);
@@ -136,7 +137,36 @@ int stateMachine::dispatch1() {
     return 1;
 }
 
-int stateMachine::dispatch2() {
+int stateMachine::dispatch2(const string& ctrl) {
+
+    string type, dev, value;
+    stringstream sCtrl(ctrl);
+    getline(sCtrl, type, '#');
+    getline(sCtrl, dev, '#');
+    getline(sCtrl, value, '#');
+
+    int res = 0;
+    if(type == "cmd") {
+        stringstream sValue(value);
+        int v;
+        sValue >> v;
+        smBase::command cmd = smBase::command(v);
+        if(cmd != smBase::CMID_UNKNCM && cmd != smBase::MAX_CMD_AMOUNT) {
+            if(dev == "all")
+                res = doAction(cmd);
+            else {
+            }
+
+            if(res != 1) {
+                msg->stateOut(1, "stateMachine::dispatch1 doAction error.");
+                return 0;
+            }
+            else {
+                if(cmd == smBase::CMID_EXIT)
+                    return 1;
+            }
+        }
+    }
 
     return 1;
 }

@@ -4,6 +4,7 @@
 #include <thread>
 #include <stdint.h>
 #include <../src/smBase.h>
+#include <../universeII/vmelib/vmelib.h>
 
 class vme :public smBase {
     public:
@@ -32,7 +33,7 @@ class vme :public smBase {
         streamMsg vmeMsg;
         std::thread *t0;
 
-        //VMEBridge *pvme;
+        VMEBridge *pvme;
         uint32_t dmaBase;
         uint32_t dmaSize;
         uint32_t adc0Base;

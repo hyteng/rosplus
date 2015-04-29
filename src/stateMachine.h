@@ -23,7 +23,7 @@ class stateMachine {
         smBase::command getCommand();
 
         int dispatch1();
-        int dispatch2();
+        int dispatch2(const std::string& ctrl);
 
     private:
         std::vector< std::pair<std::string, smBase*> > moduleList;

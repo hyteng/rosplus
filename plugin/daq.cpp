@@ -101,8 +101,8 @@ void daq::runDaq() {
             break;
         }
         
-        debugMsg << "daq fetch netMsg " << daqMsg.size << daqMsg.signal << endl;
-        stMsg->stateOut(debugMsg);
+        //debugMsg << "daq fetch netMsg " << daqMsg.size << daqMsg.signal << endl;
+        //stMsg->stateOut(debugMsg);
 
         daqCount++;
         totalDaqSize += daqMsg.size;

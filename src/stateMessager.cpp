@@ -1,4 +1,5 @@
 #include "stateMessager.h"
+#include "stateMachine.h"
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -9,6 +10,7 @@
 #define MESSAGEPORT 4000
 #define DATAPORT 4001
 #define BACKLOG 10
+#define MAXMSG 200
 
 using std::string;
 using std::stringstream;
@@ -16,18 +18,22 @@ using std::cout;
 using std::endl;
 using std::thread;
 
+typedef int callFunc(const string&);
+
 stateMessager::stateMessager() {
-    init();
 }
 
 stateMessager::~stateMessager() {
     finish();
 }
 
-int stateMessager::init() {
+int stateMessager::init(stateMachine* m) {
     status = 1;
+    pMachine = m;
+    //dispatch = func;
     t0 = new thread(&stateMessager::setMsgSocket, this);
     t1 = new thread(&stateMessager::setDataSocket, this);
+    //t2 = new thread(&stateMessager::contrlMsg, this);
     return 1;
 }
 
@@ -35,6 +41,7 @@ int stateMessager::finish() {
     status = 0;
     t0->join();
     t1->join();
+    //t2->join();
     return 0;
 }
 
@@ -108,6 +115,33 @@ int stateMessager::setDataSocket() {
         clientData = remoteData;
     }
     close(clientData);
+    return 1;
+}
+
+int stateMessager::contrlMsg() {
+
+    int rval, res;
+    char msg[MAXMSG];
+    while(status) {
+
+        if(clientMsg == -1) {
+            break;
+            //waitConnect();
+        }
+        
+        if(ctrlSocket != clientMsg)
+            ctrlSocket = clientMsg;
+
+        if ((rval = read(ctrlSocket, msg, MAXMSG)) < 0) {
+            continue;
+        }
+
+        ctrlMsg = string(msg);
+        res = pMachine->dispatch2(msg);
+        if(res == 0)
+            break;
+    }
+
     return 1;
 }
 
