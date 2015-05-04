@@ -87,7 +87,7 @@ class VMEBridge
     int getImage(unsigned int base, unsigned int size,
                  int vas, int vdw, int ms);
     void releaseImage(int image);
-    unsigned int getPciBaseAddr(int image);
+    uintptr_t getPciBaseAddr(int image);
 
 // Options
 
@@ -113,8 +113,8 @@ class VMEBridge
 
 // DMA
 
-    unsigned int requestDMA(void);
-    unsigned int requestDMA(int);
+    uintptr_t requestDMA(void);
+    uintptr_t requestDMA(int);
     void releaseDMA(void);
     int DMAread(unsigned int source, unsigned int count, int vas, int vdw);
     int DMAread(unsigned int source, unsigned int count, int vas, int vdw,

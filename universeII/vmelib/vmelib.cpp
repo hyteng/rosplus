@@ -539,7 +539,7 @@ int VMEBridge::releaseMBX(int mailbox)
 //----------------------------------------------------------------------------
 //  Request ownership of UniverseII onboard DMA and setup multiple buffer
 //----------------------------------------------------------------------------
-unsigned int VMEBridge::requestDMA(int nrOfBufs) {
+uintptr_t VMEBridge::requestDMA(int nrOfBufs) {
     
     int result, i = 0;
 
@@ -577,7 +577,7 @@ unsigned int VMEBridge::requestDMA(int nrOfBufs) {
 }
 
 
-unsigned int VMEBridge::requestDMA(void) {
+uintptr_t VMEBridge::requestDMA(void) {
     return requestDMA(1);
 }
 
@@ -780,7 +780,7 @@ int VMEBridge::execCmdPktList(int list)
 //----------------------------------------------------------------------------
 //  Get PCI base address to access VME directly
 //----------------------------------------------------------------------------
-unsigned int VMEBridge::getPciBaseAddr(int image)
+uintptr_t VMEBridge::getPciBaseAddr(int image)
 {
     if ((image < 0) || (image > 17)) {
         *Err << "getPciBaseAddr: Image nr. " << image << " is invalid!\n";
