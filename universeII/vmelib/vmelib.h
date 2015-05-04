@@ -67,15 +67,15 @@ class VMEBridge
 
     unsigned int listPtr, dma_ctl;
     unsigned int vmeBaseAddr[8];
-    unsigned int vmeImageBase[18], vmeImageSize[18];
-    unsigned int dmaImageBase, dmaImageSize, dmaBufSize, dmaMaxBuf;
+    uintptr_t vmeImageBase[18], dmaImageBase;
+    unsigned int vmeImageSize[18], dmaImageSize, dmaBufSize, dmaMaxBuf;
      vector < int >usedLists;
 
     int there(unsigned int addr, unsigned int mode);
     int checkIrqParamter(unsigned int level, unsigned int statusID);
     int checkMbxNr(int mailbox);
     int checkDmaParam(unsigned int count, unsigned int bufNr);
-    unsigned int getAddr(int, int);
+    uintptr_t getAddr(int, int);
     int vmemap(int, unsigned int, unsigned int, unsigned int, int);
 
   public:

@@ -103,7 +103,8 @@ static int universeII_ioctl(struct file *, unsigned int,
                             unsigned long);
 static int universeII_mmap(struct file *, struct vm_area_struct *);
 
-static int universeII_procinfo(char *buf, char **start, off_t fpos, int lenght, int *eof, void *data);
+//static int universeII_procinfo(char *buf, char **start, off_t fpos, int lenght, int *eof, void *data);
+static int universeII_procinfo(struct file *filp,char *buf,size_t count,loff_t *offp);
 static int universeII_proc_show(struct seq_file *m, void *v);
 static int universeII_proc_open(struct inode *inode, struct  file *file);
 
@@ -131,7 +132,7 @@ static struct proc_dir_entry* universeII_file;
 static const struct file_operations universeII_proc_fops = {
   .owner = THIS_MODULE,
   .open = universeII_proc_open,
-  .read = seq_read,//universeII_procinfo,
+  .read = universeII_procinfo,
   .llseek = seq_lseek,
   .release = single_release,
 };
@@ -402,6 +403,7 @@ static irqreturn_t irq_handler(int irq, void *dev_id)
 //  universeII_procinfo()
 //
 //----------------------------------------------------------------------------
+/*
 static int universeII_procinfo(char *buf, char **start, off_t fpos, int lenght,
                                int *eof, void *data)
 {
@@ -491,7 +493,94 @@ static int universeII_procinfo(char *buf, char **start, off_t fpos, int lenght,
     *eof = 1;
     return p - buf;
 }
+*/
+static int universeII_procinfo(struct file *filp,char *buf,size_t count,loff_t *offp) {
+    const char *const Axx[8] = { "A16", "A24", "A32", "Reserved", "Reserved",
+                                 "CR/SCR", "User1", "User2" };
+    const char *const Dxx[4] = { "D8", "D16", "D32", "D64" };
 
+    char *p;
+    int i, index;
+    u32 ctl, bs, bd, to;
+
+    p = buf;
+    p += sprintf(p, "UniverseII driver version %s\n", Version);
+
+    p += sprintf(p, "  baseaddr = %08X\n\n", (int) baseaddr);
+
+    if (vrai_bs != 0)
+        p += sprintf(p, "Access to universeII registers from VME at: "
+                        "0x%08x\n\n", vrai_bs);
+
+    p += sprintf(p, "  Status variables:          DMA: ");
+    if (dma_in_use)
+        p += sprintf(p, "in use\n\n");
+    else
+        p += sprintf(p, "free\n\n");
+
+    p += sprintf(p, "    reads      = %li\n    writes     = %li\n"
+                    "    ioctls     = %li\n    irqs       = %li\n"
+                    "    DMA errors = %li\n    timeouts   = %li \n\n", 
+                 statistics.reads, statistics.writes, statistics.ioctls, 
+                 statistics.irqs, statistics.dmaErrors, statistics.timeouts);
+
+    p += sprintf(p, "Allocated master images:\n");
+
+    for (i = 0; i < 8; i++) {
+        if (image[i].opened) {
+            ctl = ioread32(baseaddr + aCTL[i]);
+            bs = ioread32(baseaddr + aBS[i]);
+            bd = ioread32(baseaddr + aBD[i]);
+            to = ioread32(baseaddr + aTO[i]);
+
+            p += sprintf(p, "  Image %i:\n", i);
+            p += sprintf(p, "    Registers                VMEBus range\n");
+            p += sprintf(p, "    LSI%i_CTL = %08x        %s/%s\n", i, ctl,
+                         Axx[(ctl >> 16) & 0x7], Dxx[(ctl >> 22) & 0x3]);
+            p += sprintf(p, "    LSI%i_BS  = %08x\n", i, bs);
+            p += sprintf(p, "    LSI%i_BD  = %08x       %08x\n", i, bd,
+                         bs + to);
+            p += sprintf(p, "    LSI%i_TO  = %08x       %08x\n\n", i, to,
+                         bd + to);
+        }
+    }
+
+    p += sprintf(p, "Allocated slave images:\n");
+
+    for (i = 10; i < 18; i++) {
+        if (image[i].opened) {
+            ctl = ioread32(baseaddr + aCTL[i]);
+            bs = ioread32(baseaddr + aBS[i]);
+            bd = ioread32(baseaddr + aBD[i]);
+            to = ioread32(baseaddr + aTO[i]);
+
+            p += sprintf(p, "  Image %i:\n", i);
+            p += sprintf(p, "    Registers                VMEBus range\n");
+            p += sprintf(p, "    VSI%i_CTL = %08x          %s\n", i, ctl,
+                         Axx[(ctl >> 16) & 0x7]);
+            p += sprintf(p, "    VSI%i_BS  = %08x\n", i, bs);
+            p += sprintf(p, "    VSI%i_BD  = %08x       %08x\n", i, bd, bs);
+            p += sprintf(p, "    VSI%i_TO  = %08x       %08x\n\n", i, to, bd);
+        }
+    }
+
+    p += sprintf(p, "\nNumber of occured VMEBus errors: %li\n", statistics.berrs);
+
+    if (statistics.berrs > 0) {
+        p += sprintf(p, "Showing last 32 BERRs (maximum)\n"
+                     " BERR address   AM code     MERR\n");
+        for (i = 0; i < 32; i++) {
+            index = (statistics.berrs - 31 + i) & 0x1F;
+            if (vmeBerrList[index].valid)
+                p += sprintf(p, "   %08x       %02x         %01x\n",
+                             vmeBerrList[index].address, vmeBerrList[index].AM,
+                             vmeBerrList[index].merr);
+        }
+    }
+
+    count =  p - buf;
+    return count;
+}
 
 //----------------------------------------------------------------------------
 //

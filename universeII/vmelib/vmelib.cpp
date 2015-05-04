@@ -62,7 +62,7 @@ int VMEBridge::resetDriver()
 //----------------------------------------------------------------------------
 //  get memory mapped address of an image
 //----------------------------------------------------------------------------
-unsigned int VMEBridge::getAddr(int handle, int size)
+uintptr_t VMEBridge::getAddr(int handle, int size)
 {
     char *mapped_data;
 
@@ -74,7 +74,7 @@ unsigned int VMEBridge::getAddr(int handle, int size)
         return 0;
     }
 
-    return (unsigned int) mapped_data;
+    return (uintptr_t) mapped_data;
 }
 
 

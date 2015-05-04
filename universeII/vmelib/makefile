@@ -1,6 +1,6 @@
 CC          = g++ -Wall -g -O2
 AR	    = ar rs
-SO_VERSION  = 0.9.3
+SO_VERSION  = 0.9.4
 
 vmelib: vmelib.o
 	@echo Generating static link library
@@ -12,15 +12,14 @@ vmelib: vmelib.o
 	-o libvmelib.so.$(SO_VERSION) vmelib.o -lc
 
 vmelib.o: vmelib.cpp
-	$(CC) -fPIC -I../driver-2.6 vmelib.cpp -c -o vmelib.o
+	$(CC) -fPIC -I../driver-3.10 vmelib.cpp -c -o vmelib.o
 
 install:
-	cp libvmelib.so.$(SO_VERSION) /usr/local/lib
+	mv libvmelib.so.$(SO_VERSION) /usr/local/lib
 	ln -s /usr/local/lib/libvmelib.so.$(SO_VERSION) /usr/local/lib/libvmelib.so
-	cp libvmelib.so.$(SO_VERSION) /lib
-	ln -s /lib/libvmelib.so.$(SO_VERSION) /lib/libvmelib.so
 	ldconfig
 
 clean:
 	rm -f *.o libvmelib.a libvmelib.so.$(SO_VERSION)
+	rm -rf /usr/local/lib/libvmelib.so.*
 	rm -rf /usr/local/lib/libvmelib.so
