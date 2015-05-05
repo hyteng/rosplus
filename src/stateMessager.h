@@ -14,6 +14,7 @@ Version: 0.0.1
 #include <thread>
 #include <netinet/in.h>
 #include <mutex>
+#include <condition_variable>
 #include <sstream>
 
 class stateMachine;
@@ -44,7 +45,8 @@ class stateMessager {
         struct sockaddr_in clientAddr[2];
         std::string ctrlMsg;
         std::thread *t0, *t1, *t2;
-        std::mutex dataMutex, msgMutex, debugMutex;
+        std::mutex dataMutex, msgMutex, debugMutex, cvMutex;
+        std::condition_variable cv;
 };
 
 

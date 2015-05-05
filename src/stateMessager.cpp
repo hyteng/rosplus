@@ -80,9 +80,12 @@ int stateMessager::setMsgSocket() {
         if((remoteMsg=accept(msgSocket, (struct sockaddr*)&clientAddr[0], (socklen_t*)&sinSize)) == -1)
             continue;
 
+        std::unique_lock <std::mutex> lck(cvMutex);
+
         if(clientMsg != -1)
             close(clientMsg);
         clientMsg = remoteMsg;
+        cv.notify_all();
     }
     close(clientMsg);
     return 1;
@@ -120,12 +123,13 @@ int stateMessager::setDataSocket() {
 
 int stateMessager::contrlMsg() {
 
+    std::unique_lock <std::mutex> lck(cvMutex);
     int rval, res;
     char msg[MAXMSG];
     while(status) {
 
         if(clientMsg == -1) {
-            break;
+            cv.wait(lck);
             //waitConnect();
         }
         
