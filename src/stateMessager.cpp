@@ -80,13 +80,19 @@ int stateMessager::setMsgSocket() {
         if((remoteMsg=accept(msgSocket, (struct sockaddr*)&clientAddr[0], (socklen_t*)&sinSize)) == -1)
             continue;
 
-        std::unique_lock <std::mutex> lck(cvMutex);
-
-        if(clientMsg != -1)
+        std::unique_lock <std::mutex> lck(msgMutex);
+        std::unique_lock <std::mutex> cvlck(cvMutex);
+        if(clientMsg != -1) {
+            t2->join();
             close(clientMsg);
+        }
         clientMsg = remoteMsg;
-        cv.notify_all();
+        t2 = new thread(&stateMessager::contrlMsg, this);
+        //if(clientMsg == -1)
+            //cv.notify_all();
+        lck.unlock();
     }
+    t2->join();
     close(clientMsg);
     return 1;
 }
@@ -112,10 +118,11 @@ int stateMessager::setDataSocket() {
         int sinSize = sizeof(struct sockaddr_in);
         if((remoteData=accept(dataSocket, (struct sockaddr*)&clientAddr[0], (socklen_t*)&sinSize)) == -1)
             continue;
-
+        std::unique_lock<std::mutex> lock(dataMutex);
         if(clientData != -1)
             close(clientData);
         clientData = remoteData;
+        lock.unlock();
     }
     close(clientData);
     return 1;
@@ -129,16 +136,17 @@ int stateMessager::contrlMsg() {
     while(status) {
 
         if(clientMsg == -1) {
-            cv.wait(lck);
-            //waitConnect();
+            //cv.wait(lck);
+            return 1;
         }
         
-        if(ctrlSocket != clientMsg)
-            ctrlSocket = clientMsg;
+        //if(ctrlSocket != clientMsg)
+            //ctrlSocket = clientMsg;
 
         if ((rval = read(ctrlSocket, msg, MAXMSG)) < 0) {
             continue;
         }
+
 
         ctrlMsg = string(msg);
         res = pMachine->dispatch2(msg);
