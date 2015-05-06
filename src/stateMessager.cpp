@@ -59,7 +59,6 @@ int stateMessager::stateOut(stringstream& msg) {
 }
 
 int stateMessager::setMsgSocket() {
-
     hostAddr[0].sin_family = AF_INET; // host byte order
     hostAddr[0].sin_port = htons(MESSAGEPORT); // short, network byte order
     hostAddr[0].sin_addr.s_addr = htonl(INADDR_ANY); // auto-fill with my IP
@@ -97,7 +96,6 @@ int stateMessager::setMsgSocket() {
 }
 
 int stateMessager::setDataSocket() {
-
     hostAddr[1].sin_family = AF_INET; // host byte order
     hostAddr[1].sin_port = htons(DATAPORT); // short, network byte order
     hostAddr[1].sin_addr.s_addr = htonl(INADDR_ANY); // auto-fill with my IP
@@ -165,7 +163,7 @@ int stateMessager::sendMsg(const string& msg) {
     unsigned int nBytes = msg.length()+1;//strlen(msg.c_str())+1;
     while(tranSize < nBytes) {
         result = send(clientData, (char*)p1, nBytes, 0);
-        if(result < 0)
+        if(result <= 0)
             return tranSize;
         else {
             p1 += result;
@@ -185,7 +183,7 @@ int stateMessager::sendData(void* p0, int nBytes) {
     char* p1 = (char*)p0;
     while(tranSize < nBytes) {
         result = send(clientData, (char*)p1, nBytes, 0);
-        if(result < 0)
+        if(result <= 0)
             return tranSize;
         else {
             p1 += result;
