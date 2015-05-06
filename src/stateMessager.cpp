@@ -90,8 +90,8 @@ int stateMessager::setMsgSocket() {
         lock.unlock();
         lock.release();
     }
-    t2->join();
     close(clientMsg);
+    t2->join();
     return 1;
 }
 
@@ -137,10 +137,11 @@ int stateMessager::contrlMsg(int socketMsg) {
         }
         
         //lock(ctrlMutex);
-        if ((rval = read(socketMsg, msg, MAXMSG)) < 0) {
+        if ((rval = read(socketMsg, msg, 10)) < 0) {
             continue;
         }
         ctrlMsg = string(msg);
+        cout << "ctrlMsg: " << ctrlMsg << endl;
         if(ctrlMsg == "cmd#ctrl#quitMsgThread")
             return 1;
         res = pMachine->dispatch2(msg);

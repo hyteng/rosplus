@@ -145,12 +145,14 @@ int stateMachine::dispatch2(const string& ctrl) {
     getline(sCtrl, dev, '#');
     getline(sCtrl, value, '#');
 
+    cout << "type: " << type << ", dev: " << dev << ", value: " << value << endl;
     int res = 0;
     if(type == "cmd") {
         stringstream sValue(value);
         int v;
         sValue >> v;
         smBase::command cmd = smBase::command(v);
+        cout << "cmd: " << v << ", id: " << cmd << endl;
         if(cmd != smBase::CMID_UNKNCM && cmd != smBase::MAX_CMD_AMOUNT) {
             if(dev == "all")
                 res = doAction(cmd);
@@ -158,7 +160,7 @@ int stateMachine::dispatch2(const string& ctrl) {
             }
 
             if(res != 1) {
-                msg->stateOut(1, "stateMachine::dispatch1 doAction error.");
+                msg->stateOut(1, "stateMachine::dispatch2 doAction error.");
                 return 0;
             }
             else {
