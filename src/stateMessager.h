@@ -22,7 +22,6 @@ class stateMachine;
 class stateMessager {
 
     //typedef int (stateMachine::*callFunc)(const std::string&);
-
     public:
         stateMessager();
         ~stateMessager();
@@ -32,7 +31,7 @@ class stateMessager {
         int stateOut(std::stringstream& msg);
         int setMsgSocket();
         int setDataSocket();
-        int contrlMsg();
+        int contrlMsg(int socketMsg);
         int sendMsg(const std::string& msg);
         int sendData(void *p0, int nBytes);
     private:
@@ -43,9 +42,8 @@ class stateMessager {
         int clientMsg, clientData, ctrlSocket;
         struct sockaddr_in hostAddr[2];
         struct sockaddr_in clientAddr[2];
-        std::string ctrlMsg;
         std::thread *t0, *t1, *t2;
-        std::mutex dataMutex, msgMutex, debugMutex, cvMutex;
+        std::mutex dataMutex, msgMutex, debugMutex, ctrlMutex;
         std::condition_variable cv;
 };
 

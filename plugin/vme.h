@@ -3,8 +3,8 @@
 
 #include <thread>
 #include <stdint.h>
-#include <../src/smBase.h>
-#include <../universeII/vmelib/vmelib.h>
+#include "../src/smBase.h"
+#include "vmelib.h"
 
 class vme :public smBase {
     public:

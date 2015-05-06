@@ -73,24 +73,23 @@ int stateMessager::setMsgSocket() {
     if(listen(msgSocket, BACKLOG) == -1)
         return 0;
 
+    string quitMsg = "cmd#ctrl#quitMsgThread";
     clientMsg = -1;
     int remoteMsg;
     while(status) {
         int sinSize = sizeof(struct sockaddr_in);
         if((remoteMsg=accept(msgSocket, (struct sockaddr*)&clientAddr[0], (socklen_t*)&sinSize)) == -1)
             continue;
-
-        std::unique_lock <std::mutex> lck(msgMutex);
-        std::unique_lock <std::mutex> cvlck(cvMutex);
+        std::unique_lock <std::mutex> lock(msgMutex);
         if(clientMsg != -1) {
-            t2->join();
             close(clientMsg);
+            //int result = send(clientMsg, quitMsg.c_str(), quitMsg.length()+1, 0);
+            t2->join();
         }
         clientMsg = remoteMsg;
-        t2 = new thread(&stateMessager::contrlMsg, this);
-        //if(clientMsg == -1)
-            //cv.notify_all();
-        lck.unlock();
+        t2 = new thread(&stateMessager::contrlMsg, this, clientMsg);
+        lock.unlock();
+        lock.release();
     }
     t2->join();
     close(clientMsg);
@@ -123,37 +122,36 @@ int stateMessager::setDataSocket() {
             close(clientData);
         clientData = remoteData;
         lock.unlock();
+        lock.release();
     }
     close(clientData);
     return 1;
 }
 
-int stateMessager::contrlMsg() {
-
-    std::unique_lock <std::mutex> lck(cvMutex);
+int stateMessager::contrlMsg(int socketMsg) {
+    std::unique_lock<std::mutex> lock(ctrlMutex);
     int rval, res;
     char msg[MAXMSG];
+    string ctrlMsg;
     while(status) {
-
-        if(clientMsg == -1) {
-            //cv.wait(lck);
-            return 1;
+        if(socketMsg < 0) {
+            return 0;
         }
         
-        //if(ctrlSocket != clientMsg)
-            //ctrlSocket = clientMsg;
-
-        if ((rval = read(ctrlSocket, msg, MAXMSG)) < 0) {
+        //lock(ctrlMutex);
+        if ((rval = read(socketMsg, msg, MAXMSG)) < 0) {
             continue;
         }
-
-
         ctrlMsg = string(msg);
+        if(ctrlMsg == "cmd#ctrl#quitMsgThread")
+            return 1;
         res = pMachine->dispatch2(msg);
         if(res == 0)
             break;
-    }
 
+        //lock.unlock();
+        //lock.release();
+    }
     return 1;
 }
 
@@ -164,7 +162,7 @@ int stateMessager::sendMsg(const string& msg) {
     int tranSize = 0;
     int result;
     char* p1 = (char*)msg.c_str();
-    unsigned int nBytes = strlen(msg.c_str())+1;
+    unsigned int nBytes = msg.length()+1;//strlen(msg.c_str())+1;
     while(tranSize < nBytes) {
         result = send(clientData, (char*)p1, nBytes, 0);
         if(result < 0)
