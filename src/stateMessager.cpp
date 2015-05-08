@@ -5,10 +5,12 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <netdb.h>
+#include <fcntl.h>
 #include <string.h>
 
 #define MESSAGEPORT 4000
 #define DATAPORT 4001
+#define CTRLPORT 4002
 #define BACKLOG 10
 #define MAXMSG 200
 
@@ -18,7 +20,7 @@ using std::cout;
 using std::endl;
 using std::thread;
 
-typedef int callFunc(const string&);
+//typedef int callFunc(const string&);
 
 stateMessager::stateMessager() {
 }
@@ -33,7 +35,7 @@ int stateMessager::init(stateMachine* m) {
     //dispatch = func;
     t0 = new thread(&stateMessager::setMsgSocket, this);
     t1 = new thread(&stateMessager::setDataSocket, this);
-    //t2 = new thread(&stateMessager::contrlMsg, this);
+    t2 = new thread(&stateMessager::setCtrlSocket, this);
     return 1;
 }
 
@@ -41,7 +43,7 @@ int stateMessager::finish() {
     status = 0;
     t0->join();
     t1->join();
-    //t2->join();
+    t2->join();
     return 0;
 }
 
@@ -80,18 +82,19 @@ int stateMessager::setMsgSocket() {
         if((remoteMsg=accept(msgSocket, (struct sockaddr*)&clientAddr[0], (socklen_t*)&sinSize)) == -1)
             continue;
         std::unique_lock <std::mutex> lock(msgMutex);
-        if(clientMsg != -1) {
-            close(clientMsg);
-            //int result = send(clientMsg, quitMsg.c_str(), quitMsg.length()+1, 0);
-            t2->join();
+        int flags = fcntl(remoteMsg, F_GETFL, 0);
+        if(flags < 0) {
+            shutdown(remoteMsg, 2);
+            continue;
         }
+        fcntl(remoteMsg, F_SETFL, flags|O_NONBLOCK);
+        if(clientMsg != -1)
+            shutdown(clientMsg, 2);
         clientMsg = remoteMsg;
-        t2 = new thread(&stateMessager::contrlMsg, this, clientMsg);
         lock.unlock();
         lock.release();
     }
-    close(clientMsg);
-    t2->join();
+    shutdown(clientMsg, 2);
     return 1;
 }
 
@@ -116,13 +119,56 @@ int stateMessager::setDataSocket() {
         if((remoteData=accept(dataSocket, (struct sockaddr*)&clientAddr[0], (socklen_t*)&sinSize)) == -1)
             continue;
         std::unique_lock<std::mutex> lock(dataMutex);
+        int flags = fcntl(remoteData, F_GETFL, O_NONBLOCK);
+        if(flags < 0) {
+            shutdown(remoteData, 2);
+            continue;
+        }
+        fcntl(remoteData, F_SETFL, flags|O_NONBLOCK);
         if(clientData != -1)
-            close(clientData);
+            shutdown(clientData, 2);
         clientData = remoteData;
         lock.unlock();
         lock.release();
     }
-    close(clientData);
+    shutdown(clientData, 2);
+    return 1;
+}
+
+int stateMessager::setCtrlSocket() {
+    hostAddr[2].sin_family = AF_INET; // host byte order
+    hostAddr[2].sin_port = htons(CTRLPORT); // short, network byte order
+    hostAddr[2].sin_addr.s_addr = htonl(INADDR_ANY); // auto-fill with my IP
+    //bzero(&(hostAddr[2].sin_zero), 8); // zero the rest of the struct, need stream.h
+    memset(&(hostAddr[2].sin_zero), 0, 8*sizeof(unsigned char));
+
+    if((ctrlSocket=socket(AF_INET, SOCK_STREAM, 0)) == -1)
+        return 0;
+    if((bind(ctrlSocket, (struct sockaddr *)&hostAddr[2], sizeof(struct sockaddr))) == -1)
+        return 0;
+    if(listen(ctrlSocket, BACKLOG) == -1)
+        return 0;
+
+    string quitMsg = "cmd#ctrl#quitMsgThread";
+    clientCtrl = -1;
+    int remoteCtrl;
+    while(status) {
+        int sinSize = sizeof(struct sockaddr_in);
+        if((remoteCtrl=accept(ctrlSocket, (struct sockaddr*)&clientAddr[2], (socklen_t*)&sinSize)) == -1)
+            continue;
+        std::unique_lock <std::mutex> lock(ctrlMutex);
+        if(clientCtrl != -1) {
+            shutdown(clientCtrl, 2);
+            //int result = send(clientCtrl, quitMsg.c_str(), quitMsg.length()+1, 0);
+            tc->join();
+        }
+        clientCtrl = remoteCtrl;
+        tc = new thread(&stateMessager::contrlMsg, this, clientCtrl);
+        lock.unlock();
+        lock.release();
+    }
+    shutdown(clientCtrl, 2);
+    tc->join();
     return 1;
 }
 

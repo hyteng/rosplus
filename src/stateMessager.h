@@ -31,6 +31,7 @@ class stateMessager {
         int stateOut(std::stringstream& msg);
         int setMsgSocket();
         int setDataSocket();
+        int setCtrlSocket();
         int contrlMsg(int socketMsg);
         int sendMsg(const std::string& msg);
         int sendData(void *p0, int nBytes);
@@ -38,13 +39,13 @@ class stateMessager {
         stateMachine* pMachine;
         //callFunc dispatch;
         int status;
-        int msgSocket, dataSocket; //socket0: message, socket1: data
-        int clientMsg, clientData, ctrlSocket;
-        struct sockaddr_in hostAddr[2];
-        struct sockaddr_in clientAddr[2];
-        std::thread *t0, *t1, *t2;
+        int msgSocket, dataSocket, ctrlSocket; //socket0: message, socket1: data
+        int clientMsg, clientData, clientCtrl;
+        struct sockaddr_in hostAddr[3];
+        struct sockaddr_in clientAddr[3];
+        std::thread *t0, *t1, *t2, *tc;
         std::mutex dataMutex, msgMutex, debugMutex, ctrlMutex;
-        std::condition_variable cv;
+        //std::condition_variable cv;
 };
 
 
