@@ -76,7 +76,7 @@ void dataPacker::runPack() {
             break;
         }
 
-        //debugMsg << "packer fetch devMsg " << packMsg.size << endl;
+        //debugMsg << "packer fetch devMsg " << packMsg.size;
         //stMsg->stateOut(debugMsg);
 
         packCount += packMsg.count;
@@ -113,14 +113,14 @@ void dataPacker::runPack() {
             packStatus = TASK_ERROR;
         }
 
-        debugMsg << "packer send stop to netMsg and return " << stopSend << endl;
+        debugMsg << "packer send stop to netMsg and return " << stopSend;
         stMsg->stateOut(debugMsg);
 
         if(packStatus == TASK_RUN)
             packStatus = TASK_EXIT;
     //}
 
-    debugMsg << "packer stop thread" << packStatus << endl;
+    debugMsg << "packer stop thread" << packStatus;
     stMsg->stateOut(debugMsg);
 }
 

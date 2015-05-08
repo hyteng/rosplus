@@ -101,7 +101,7 @@ void daq::runDaq() {
             break;
         }
         
-        //debugMsg << "daq fetch netMsg " << daqMsg.size << daqMsg.signal << endl;
+        //debugMsg << "daq fetch netMsg " << daqMsg.size << daqMsg.signal;
         //stMsg->stateOut(debugMsg);
 
         daqCount++;
@@ -136,7 +136,7 @@ void daq::runDaq() {
             daqStatus = TASK_EXIT;
     //}
 
-    debugMsg << "daq stop thread" << daqStatus << endl;
+    debugMsg << "daq stop thread" << daqStatus;
     stMsg->stateOut(debugMsg);
 }
 

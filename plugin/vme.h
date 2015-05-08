@@ -12,14 +12,20 @@ class vme :public smBase {
         ~vme();
 
     protected:
+        virtual int InitializedLOAD(int para);
+        virtual int LoadedUNLD(int para);
         virtual int LoadedCONF(int para);
+        virtual int ConfiguredUNCF(int para);
         virtual int ConfiguredPREP(int para);
         virtual int ReadySATR(int para);
         virtual int RunningSPTR(int para);
         virtual int ReadySTOP(int para);
 
+        virtual void* getHelp() {return (void*)pvme;};
     private:
         int configVme();
+        int releaseVme();
+        int prepVme();
         int startVme();
         int stopVme();
         void runVme();
@@ -34,8 +40,7 @@ class vme :public smBase {
         std::thread *t0;
 
         VMEBridge *pvme;
-        uint32_t dmaBase;
-        uint32_t dmaSize;
-        uint32_t adc0Base;
+        unsigned int dmaNumber;
+        uint32_t dmaBase, dmaSize;
 };
 #endif

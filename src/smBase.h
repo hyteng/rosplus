@@ -56,6 +56,7 @@ class smBase {
 
         void init(stateMessager* msg, configSet* cfg, dataStream* data, const std::vector< std::pair<std::string, smBase*> > *other);
         virtual int doAction(command cmId);
+        virtual void* getHelp() {return NULL;};
 
     protected:
         virtual int InitializedLOAD(int para) {return 2;};

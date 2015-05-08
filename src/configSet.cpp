@@ -1,10 +1,13 @@
 #include "configSet.h"
 #include <sstream>
 #include <fstream>
+#include <iostream>
 
 using std::string;
 using std::ifstream;
 using std::stringstream;
+using std::cout;
+using std::endl;
 
 configSet::configSet() {
     isCreated = false;
@@ -164,7 +167,7 @@ int configSet::infoSetUint(const string& name, const uint32_t& value) {
         return 0;
     }
 
-    std::cout << "infoSet" << name << ", " << value << std::endl;
+    cout << "infoSet" << name << ", " << value << endl;
     return 1;
 }
 
@@ -182,7 +185,7 @@ int configSet::infoSetUlong(const string& name, const uint64_t& value) {
         return 0;
     }
 
-    std::cout << "infoSet" << name << ", " << value << std::endl;
+    cout << "infoSet" << name << ", " << value << endl;
     return 1;
 }
 
@@ -200,7 +203,7 @@ int configSet::infoSetDouble(const string& name, const double& value) {
         return 0;
     }
 
-    std::cout << "infoSet" << name << ", " << value << std::endl;
+    cout << "infoSet" << name << ", " << value << endl;
     return 1;
 }
 
@@ -218,7 +221,7 @@ int configSet::infoSetString(const string& name, const string& value) {
         return 0;
     }
 
-    std::cout << "infoSet" << name << ", " << value << std::endl;
+    cout << "infoSet" << name << ", " << value << endl;
     return 1;
 
 }
@@ -312,7 +315,7 @@ int configSet::readConfig(const string& cfg) {
         sType >> t;
         configSet::infoType type = configSet::infoType(t);
         infoAdd(s[1], type);
-        std::cout << "type: " << t << ", name " << s[1] << std::endl;
+        cout << "type: " << t << ", name " << s[1] << endl;
 
         if(type == configSet::UINT) {
             uint32_t v;

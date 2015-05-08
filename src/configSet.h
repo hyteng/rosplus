@@ -4,7 +4,6 @@
 #include <string>
 #include <map>
 #include <stdint.h>
-#include <iostream>
 
 class configSet {
 

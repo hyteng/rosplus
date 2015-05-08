@@ -24,13 +24,29 @@ vme::vme(const string& n): smBase(n) {
 vme::~vme() {
 }
 
+int vme::InitializedLOAD(int para) {
+    pvme = new VMEBridge;
+    return 2;
+}
+
+int vme::LoadedUNLD(int para) {
+    delete pvme;
+    return 1;
+}
+
 int vme::LoadedCONF(int para) {
     configVme();
     return 3;
 }
 
+int vme::ConfiguredUNCF(int para) {
+    releaseVme();
+    return 2;
+}
+
 int vme::ConfiguredPREP(int para) {
     devMsgQue = dataPool->getDevMsgQue();
+    prepVme();
     return 4;
 }
 int vme::ReadySATR(int para) {
@@ -51,9 +67,48 @@ int vme::ReadySTOP(int para) {
 }
 
 int vme::configVme() {
-    cfgInfo->infoGetUint("vme.maBase", dmaBase); 
-    cfgInfo->infoGetUint("vme.maBase", dmaBase); 
-    cfgInfo->infoGetUint("vme.maBase", dmaBase); 
+    pvme->resetDriver();
+    int res;
+ 
+    uint32_t PCI_CSR, MISC_CTL, MAST_CTL, LSI0_CTL;
+    PCI_CSR = pvme->readUniReg(0x004);
+    MISC_CTL = pvme->readUniReg(0x404);
+    MAST_CTL = pvme->readUniReg(0x400);
+    LSI0_CTL = pvme->readUniReg(0x100);
+    debugMsg << name+"# " << "PCI_CSR: " << PCI_CSR << ", MISC_CTL: " << MISC_CTL << ", MAST_CTL: " << MAST_CTL << ", LSI0_CTL: " << LSI0_CTL;
+    stMsg->stateOut(debugMsg);
+    if(PCI_CSR&0xF9000000)
+        pvme->writeUniReg(0x004, 0xF9000007);
+    PCI_CSR = pvme->readUniReg(0x004);
+    MISC_CTL = pvme->readUniReg(0x404);
+    MAST_CTL = pvme->readUniReg(0x400);
+    LSI0_CTL = pvme->readUniReg(0x100);
+    debugMsg << name+"# " << "UniverseII Register after writing 0xF9000007 to register 0x004:" << endl;
+    debugMsg << name+"# " << "PCI_CSR: " << PCI_CSR << ", MISC_CTL: " << MISC_CTL << ", MAST_CTL: " << MAST_CTL << ", LSI0_CTL: " << LSI0_CTL;
+    stMsg->stateOut(debugMsg);
+
+    if((res=cfgInfo->infoGetUint("config."+name+".dmaNumber", dmaNumber)) != 1) {
+        debugMsg << name+"# " << "config."+name+".dmaNumber not found.";
+        stMsg->stateOut(debugMsg);
+        dmaNumber = 1;
+    }
+    dmaBase = pvme->requestDMA(dmaNumber);
+    pvme->setOption(DMA, BLT_ON);
+
+    return 1;
+}
+
+int vme::releaseVme() {
+    pvme->releaseDMA();
+    return 1;
+}
+
+int vme::prepVme() {
+    // recover the 16bit data transfer to 32bit mode
+    uint32_t lsi0_ctl = pvme->readUniReg(0x100);
+    lsi0_ctl &= 0xFF3FFFFF;
+    lsi0_ctl |= D32;
+    pvme->writeUniReg(0x100, lsi0_ctl);
     return 1;
 }
 

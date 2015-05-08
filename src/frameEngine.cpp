@@ -21,12 +21,13 @@ int frameEngine::InitializedLOAD(int para) {
     cfgInfo->infoClear();
     cfgInfo->readConfig("runSet.conf");
 
+    int res;
     string modeList;
-    if(!cfgInfo->infoGetString("config.module", modeList)) {
+    if((res=cfgInfo->infoGetString("config.module", modeList)) != 1) {
         return -1;
     }                    
 
-    if(!cfgInfo->infoGetString("config.lib_dir", libDir)) {
+    if((res=cfgInfo->infoGetString("config.lib_dir", libDir)) != 1) {
         return -1;       
     }                    
     

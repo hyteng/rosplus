@@ -59,7 +59,6 @@ int smBase::doAction(command cmId) {
     stMsg->stateOut(2, name+" doAction");
     res = (this->*actions[cmId][stId])(para);
     if (res == -1) {
-        //messager("action fail");
         stId = STID_Invaild;
         return 0;
     }
