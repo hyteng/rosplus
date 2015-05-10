@@ -127,12 +127,13 @@ class switch(threading.Thread):
         print "switch is running for "
         print self.devList
         while True :
-            data = self.socket.recv(8)
+            data = self.socket.recv(80)
             if data=='' :
                 break
-            if self.frame!=-1 :
-                txt = self.frame.output0
-                txt.AppendText(data)
+            print "%s"%(data)
+            #if self.frame!=-1 :
+                #txt = self.frame.output0
+                #txt.AppendText(data)
         print "switch is finished."
 
 

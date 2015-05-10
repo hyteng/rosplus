@@ -211,7 +211,7 @@ int stateMessager::sendMsg(const string& msg) {
     char* p1 = (char*)msg.c_str();
     unsigned int nBytes = msg.length()+1;//strlen(msg.c_str())+1;
     while(tranSize < nBytes) {
-        result = send(clientData, (char*)p1, nBytes, 0);
+        result = send(clientMsg, (char*)p1, nBytes, 0);
         if(result <= 0)
             return tranSize;
         else {
