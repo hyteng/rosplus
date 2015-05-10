@@ -34,7 +34,7 @@ class stateMessager {
         int setCtrlSocket();
         int contrlMsg(int socketMsg);
         int sendMsg(const std::string& msg);
-        int sendData(void *p0, int nBytes);
+        int sendData(void *p0, const unsigned int &nBytes);
     private:
         stateMachine* pMachine;
         //callFunc dispatch;

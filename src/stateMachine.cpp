@@ -67,6 +67,7 @@ smBase* stateMachine::eraseMode(const string& name) {
         std::pair<string, smBase*> pMode = moduleList[i];
         if(pMode.first == name) {
             pModule = pMode.second;
+            moduleList.erase(moduleList.begin()+i);
             break;
         }
     }
@@ -151,21 +152,24 @@ int stateMachine::dispatch2(const string& ctrl) {
         stringstream sValue(value);
         int v;
         sValue >> v;
-        smBase::command cmd = smBase::command(v);
-        cout << "cmd: " << v << ", id: " << cmd << endl;
-        if(cmd != smBase::CMID_UNKNCM && cmd != smBase::MAX_CMD_AMOUNT) {
-            if(dev == "all")
-                res = doAction(cmd);
-            else {
-            }
+        if(v >= (int)smBase::CMID_UNKNCM && v < (int)smBase::MAX_CMD_AMOUNT) {
+            smBase::command cmd = smBase::command(v);
+            cout << "cmd: " << v << ", id: " << cmd << endl;
+            if(cmd != smBase::CMID_UNKNCM) {
+                if(dev == "all")
+                    res = doAction(cmd);
+                else {
+                    res = 1;
+                }
 
-            if(res != 1) {
-                msg->stateOut(1, "stateMachine::dispatch2 doAction error.");
-                return 0;
-            }
-            else {
-                if(cmd == smBase::CMID_EXIT)
-                    return 1;
+                if(res != 1) {
+                    msg->stateOut(1, "stateMachine::dispatch2 doAction error.");
+                    return 0;
+                }
+                else {
+                    if(cmd == smBase::CMID_EXIT)
+                        return 1;
+                }
             }
         }
     }

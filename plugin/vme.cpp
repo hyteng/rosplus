@@ -25,28 +25,28 @@ vme::~vme() {
 }
 
 int vme::InitializedLOAD(int para) {
-    pvme = new VMEBridge;
+    //pvme = new VMEBridge;
     return 2;
 }
 
 int vme::LoadedUNLD(int para) {
-    delete pvme;
+    //delete pvme;
     return 1;
 }
 
 int vme::LoadedCONF(int para) {
-    configVme();
+    //configVme();
     return 3;
 }
 
 int vme::ConfiguredUNCF(int para) {
-    releaseVme();
+    //releaseVme();
     return 2;
 }
 
 int vme::ConfiguredPREP(int para) {
     devMsgQue = dataPool->getDevMsgQue();
-    prepVme();
+    //prepVme();
     return 4;
 }
 int vme::ReadySATR(int para) {
@@ -122,7 +122,7 @@ int vme::startVme() {
 int vme::stopVme() {
     stMsg->stateOut(1, "stop Vme.");
     runVmeCtrl = TASK_STOP;
-    //t0->join();
+    t0->join();
     return 1;
 }
 

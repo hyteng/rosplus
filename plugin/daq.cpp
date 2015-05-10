@@ -113,10 +113,12 @@ void daq::runDaq() {
                 // 2 threads
                 //ts = new thread(&daq::sendData, this, netPtr, totalDaqSize);
                 outFile.write((const char*)netPtr, totalDaqSize);
+                sendData(netPtr, totalDaqSize);
                 //ts->join();
 
                 recSize += totalDaqSize;
-                debugMsg << "daq save " << recSize << "data" << endl;
+                debugMsg << "daq save " << recSize << "data";
+                stMsg->stateOut(debugMsg);
             }
             else {
                 daqStatus = TASK_ERROR;

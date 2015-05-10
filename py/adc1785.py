@@ -121,9 +121,9 @@ class devApp:
     def __init__(self, n):
         #wx.InitAllImageHandlers()
         #dev0 = devFrame(None, wx.ID_ANY, "")
-        self.frame = 0
         #self.SetTopWindow(dev0)
         self.name = n;
+        self.frame = -1
         self.th = [[0 for i in range(8)] for j in range(2)]
         self.hist = [[0 for i in range(8)] for j in range(2)]
         for idx0 in (0,1) :

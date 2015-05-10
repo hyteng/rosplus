@@ -183,8 +183,9 @@ int stateMessager::contrlMsg(int socketMsg) {
         }
         
         //lock(ctrlMutex);
-        if ((rval = read(socketMsg, msg, 10)) < 0) {
-            continue;
+        memset(msg, '\0', MAXMSG);
+        if ((rval = read(socketMsg, msg, MAXMSG)) <= 0) {
+            break;
         }
         ctrlMsg = string(msg);
         cout << "ctrlMsg: " << ctrlMsg << endl;
@@ -204,7 +205,7 @@ int stateMessager::sendMsg(const string& msg) {
     std::unique_lock<std::mutex> lock(msgMutex);
     if(clientMsg==-1)
         return 0;
-    int tranSize = 0;
+    unsigned int tranSize = 0;
     int result;
     char* p1 = (char*)msg.c_str();
     unsigned int nBytes = msg.length()+1;//strlen(msg.c_str())+1;
@@ -221,23 +222,24 @@ int stateMessager::sendMsg(const string& msg) {
     return tranSize;
 }
 
-int stateMessager::sendData(void* p0, int nBytes) {
+int stateMessager::sendData(void* p0, const unsigned int &nBytes) {
     std::unique_lock<std::mutex> lock(dataMutex);
     if(clientData==-1)
         return 0;
-    int tranSize = 0;
+    unsigned int tranSize=0, totalSize=nBytes;
     int result;
     char* p1 = (char*)p0;
-    while(tranSize < nBytes) {
-        result = send(clientData, (char*)p1, nBytes, 0);
+    while(tranSize < totalSize) {
+        result = send(clientData, p1, totalSize, 0);
         if(result <= 0)
             return tranSize;
         else {
             p1 += result;
-            nBytes -= result;
+            totalSize -= result;
             tranSize += result;
         }
     }
+    //cout << "stateMessager: sendData " << nBytes << ", transfer " << tranSize << " bytes." << endl;
     return tranSize;
 }
 

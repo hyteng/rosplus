@@ -5,6 +5,10 @@
 #
 
 import wx
+import threading
+import time
+from socket import *
+
 import adc1785
 
 # begin wxGlade: dependencies
@@ -14,6 +18,10 @@ import gettext
 # begin wxGlade: extracode
 # end wxGlade
 
+HOST='127.0.0.1'
+MSGPORT=4000
+DATAPORT=4001
+CTRLPORT=4002
 
 class ctrlFrame(wx.Frame):
     def __init__(self, *args, **kwds):
@@ -33,6 +41,7 @@ class ctrlFrame(wx.Frame):
         self.button_End = wx.Button(self, wx.ID_ANY, _("End"))
         self.button_Stop = wx.Button(self, wx.ID_ANY, _("Stop"))
         self.button_Exit = wx.Button(self, wx.ID_ANY, _("Exit"))
+        self.socket = -1
 
         self.__set_properties()
         self.__do_layout()
@@ -71,21 +80,94 @@ class ctrlFrame(wx.Frame):
 
     def sendMsg(self, event):  # wxGlade: ctrlFrame.<event_handler>
         print "Event handler 'sendMsg' not implemented!"
+        txt = event.GetEventObject()
+        n = txt.GetNumberOfLines()
+        if (n>=1) and (self.socket!=-1) :
+            msg = txt.GetLineText(n)
+            print "send msg %s to socket"%(msg)
+            self.socket.send(msg.encode('utf8'))
+
         event.Skip()
+
+    def setSocket(self, s):
+        self.socket = s
+
+
+class switch(threading.Thread):
+    def __init__(self, s, l):
+        super(switch, self).__init__()
+        self.socket = s
+        self.devList = l
+
+    def run(self):
+        print "switch is running for "
+        print self.devList
+        while True :
+            data = self.socket.recv(8)
+            if data=='' :
+                break
+            print "recv: %s\n"%(data)
+
+        print "switch is finished."
+
 
 # end of class ctrlFrame
 class ctrlApp(wx.App):
     def OnInit(self):
         wx.InitAllImageHandlers()
         frame0 = ctrlFrame(None, wx.ID_ANY, "")
-        frame1 = adc1785.devFrame(None, wx.ID_ANY, "")
-        dev1 = adc1785.devApp("adc1785")
-        frame1.setDev(dev1)
-        dev1.setFrame(frame1)
+        self.frame1 = adc1785.devFrame(None, wx.ID_ANY, "")
+        self.dev1 = adc1785.devApp("adc1785")
+        self.frame1.setDev(self.dev1)
+        self.dev1.setFrame(self.frame1)
+        self.devList = []
+        self.devList.append(self.dev1)
+
+        self.addrMsg = (HOST, MSGPORT)
+        self.socketMsg = socket(AF_INET, SOCK_STREAM)
+        self.addrData = (HOST, DATAPORT)
+        self.socketData = socket(AF_INET, SOCK_STREAM)
+        self.addrCtrl = (HOST, CTRLPORT)
+        self.socketCtrl = socket(AF_INET, SOCK_STREAM)
+
+        self.thpool = []
+        self.thpool.append(switch(self.socketMsg, self.devList))
+        self.thpool.append(switch(self.socketData, self.devList))
+
+        frame0.setSocket(self.socketCtrl)
         self.SetTopWindow(frame0)
         frame0.Show()
-        frame1.Show()
+        self.frame1.Show()
+
         return 1
+
+    def start(self):
+        self.socketMsg.connect(self.addrMsg)
+        self.socketData.connect(self.addrData)
+        self.socketCtrl.connect(self.addrCtrl)
+
+        for th in self.thpool :
+            th.start()
+
+        return 1
+
+    def stop(self):
+        self.socketMsg.close()
+        self.socketData.close()
+        for th in self.thpool :
+            th.join()
+
+        return 1
+
+    def OnExit(self):
+        self.stop()
+        if frame0!=None :
+            frame0.Destroy()
+        if self.frame1!=None :
+            self.frame1.Destroy()
+
+        return 1
+
 
 # end of class ctrlApp
 
@@ -93,4 +175,6 @@ if __name__ == "__main__":
     gettext.install("ctrl0") # replace with the appropriate catalog name
 
     ctrl0 = ctrlApp(0)
+    ctrl0.start()
+    ctrl0.dev1.fillCh(0, 1000)
     ctrl0.MainLoop()

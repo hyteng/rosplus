@@ -147,8 +147,8 @@ int adc1785::InitializedLOAD(int para) {
         if(iter->first == vmeModeName)
             pvme = (VMEBridge*)(iter->second->getHelp());
     }
-    if(pvme == NULL)
-        return -1;
+    //if(pvme == NULL)
+        //return -1;
     return 2;
 }
 
@@ -158,29 +158,29 @@ int adc1785::LoadedUNLD(int para) {
 }
 
 int adc1785::LoadedCONF(int para) {
-    configAdc();
+    //configAdc();
     return 3;
 }
 
 int adc1785::ConfiguredUNCF(int para) {
-    releaseAdc();
+    //releaseAdc();
     return 2;
 }
 
 int adc1785::ConfiguredPREP(int para) {
-    prepAdc();
+    //prepAdc();
     return 4;
 }
 int adc1785::ReadySATR(int para) {
     stMsg->stateOut(1, "adc1785 ReadySATR");
-    stopAdc();
-    startAdc();
+    //stopAdc();
+    //startAdc();
     return 5;
 }
 
 int adc1785::RunningSPTR(int para) {
     stMsg->stateOut(1, "adc1785 RunningSPTR");
-    stopAdc();
+    //stopAdc();
     return 4;
 }
 

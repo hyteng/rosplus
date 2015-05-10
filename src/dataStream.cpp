@@ -30,7 +30,7 @@ void dataStream::init() {
         devRing->release();
     devRing->create(devRingSize);
 
-    if((devKey=ftok("./dev", 0)) == -1) {
+    if((devKey=ftok(".", 0)) == -1) {
         return;
     }
     if((devMsgQue=msgget(devKey, 0)) >= 0) {
@@ -51,7 +51,7 @@ void dataStream::init() {
         netRing->release();
     netRing->create(netRingSize);
 
-    if((netKey=ftok("./net", 1)) == -1) {
+    if((netKey=ftok(".", 1)) == -1) {
         return;
     }
     if((netMsgQue=msgget(netKey, 0)) >= 0) {

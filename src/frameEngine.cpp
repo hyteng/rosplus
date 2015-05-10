@@ -51,7 +51,7 @@ int frameEngine::LoadedUNLD(int para) {
     std::map<std::string, std::string>::const_iterator modeIter;
     for(modeIter=dev2libMap.begin(); modeIter!=dev2libMap.end(); modeIter++) {
         if(unloadSharedModule(modeIter->first)) {
-            stMsg->stateOut(2, modeIter->first+" loaded");
+            stMsg->stateOut(2, modeIter->first+" unloaded");
         }
         else {
             return -1;

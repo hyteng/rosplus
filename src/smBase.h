@@ -71,7 +71,7 @@ class smBase {
         virtual int PausedSPTR(int para) {return 4;};
         virtual int PausedRESU(int para) {return stId;};
         virtual int PausedSATR(int para) {return 5;};
-        virtual int SelfTrans(int para) {return 7;};
+        virtual int SelfTrans(int para) {return stId;};
         virtual int AnyIMPO(int para) {return stId;};
         virtual int AnyEXIT(int para) {return 0;};
 
