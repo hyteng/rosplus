@@ -130,8 +130,6 @@ unsigned int confDefault[]={0,0xAA,7,0,0x00CC,0x0000,8,0,0,0,0,1,1,1,1,1,1,1,1,1
 
 
 adc1785::adc1785(const string& n): smBase(n) {
-    //regValue.reserve(regSize);
-    //confValue.reserve(confSize);
 }
 
 adc1785::~adc1785() {
@@ -140,82 +138,85 @@ adc1785::~adc1785() {
 int adc1785::InitializedLOAD(int para) {
     debugMsg << name << "# " << "InitializedLOAD";
     stMsg->stateOut(debugMsg);
-
-    pvme = NULL;
-    string vmeModeName;
-    cfgInfo->infoGetString("config."+name+".vmeModeName", vmeModeName);
-
-    std::vector< std::pair<std::string, smBase*> >::const_iterator iter;
-    for(iter=helpList->begin(); iter!=helpList->end(); iter++) {
-        if(iter->first == vmeModeName)
-            pvme = (VMEBridge*)(iter->second->getHelp());
-    }
-    //if(pvme == NULL)
-        //return -1;
     return 2;
 }
 
 int adc1785::LoadedUNLD(int para) {
     debugMsg << name << "# " << "LoadedUNLD";
     stMsg->stateOut(debugMsg);
-    pvme = NULL;
     return 1;
 }
 
 int adc1785::LoadedCONF(int para) {
     debugMsg << name << "# " << "LoadedCONF";
     stMsg->stateOut(debugMsg);
-    //configAdc();
+    if(!configAdc())
+        return -1;
     return 3;
 }
 
 int adc1785::ConfiguredUNCF(int para) {
     debugMsg << name << "# " << "ConfiguredUNCF";
     stMsg->stateOut(debugMsg);
-    //releaseAdc();
+    releaseAdc();
     return 2;
 }
 
 int adc1785::ConfiguredPREP(int para) {
     debugMsg << name << "# " << "ConfiguredPREP";
     stMsg->stateOut(debugMsg);
-    //prepAdc();
+    prepAdc();
     return 4;
 }
 int adc1785::ReadySATR(int para) {
     debugMsg << name << "# " << "ReadySATR";
     stMsg->stateOut(debugMsg);
-    //stopAdc();
-    //startAdc();
+    stopAdc();
+    startAdc();
     return 5;
 }
 
 int adc1785::RunningSPTR(int para) {
     debugMsg << name << "# " << "RunningSPTR";
     stMsg->stateOut(debugMsg);
-    //stopAdc();
+    stopAdc();
     return 4;
 }
 
 int adc1785::ReadySTOP(int para) {
     debugMsg << name << "# " << "ReadySTOP";
     stMsg->stateOut(debugMsg);
-    //finishAdc();
+    finishAdc();
     return 3;
 }
 
 int adc1785::configAdc() {
     int res;
 
+    pvme = NULL;
+    string vmeModeName;
+    if((res=cfgInfo->infoGetString("config."+name+".vmeModeName", vmeModeName)) == 1) {
+        std::vector< std::pair<std::string, smBase*> >::const_iterator iter;
+        for(iter=helpList->begin(); iter!=helpList->end(); iter++) {
+            if(iter->first == vmeModeName)
+                pvme = (VMEBridge*)(iter->second->getHelp());
+        }
+    }
+    if(pvme == NULL) {
+        debugMsg << name << "# " << "helper " << vmeModeName << " not found.";
+        stMsg->stateOut(debugMsg);
+        return 0;
+    }
+
     base = ((confDefault[AddrHigh]&ADC1785_AddrHigh_Mask)<<24) + ((regValue[AddrLow]&ADC1785_AddrLow_Mask)<<16);
     if((res=cfgInfo->infoGetUint("config."+name+".base", base)) != 1) {
-        debugMsg << name << "# " << "config."+name+".base "+"not found.";
+        debugMsg << name << "# " << "config."+name+".base" << " not found.";
         stMsg->stateOut(debugMsg);
         //return 0;
     }
     length = ADC1785_BASE;
     if((res=cfgInfo->infoGetUint("config."+name+".length", length)) != 1) {
-        debugMsg << name << "# " << "config."+name+".length "+"not found.";
+        debugMsg << name << "# " << "config."+name+".length" << " not found.";
         stMsg->stateOut(debugMsg);
         //return 0;
     }
@@ -240,7 +241,7 @@ int adc1785::configAdc() {
     unsigned int adcReg;
     for(i=0; i<confSize-confRO; i++) {
         if((res=cfgInfo->infoGetUint("config."+name+"."+confName[i], adcReg)) != 1) {
-            debugMsg << name << "# " << "config."+name+"."+confName[i] + "not found.";
+            debugMsg << name << "# " << "config."+name+"."+confName[i] << " not found.";
             stMsg->stateOut(debugMsg);
             //return 0;
         }

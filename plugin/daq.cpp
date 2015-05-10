@@ -119,12 +119,8 @@ void daq::runDaq() {
             dataPool->netSetSnap();
             netPtr = dataPool->netGetSnapPtr(0, totalDaqSize);
             if(netPtr != NULL) {
-                // 2 threads
-                //ts = new thread(&daq::sendData, this, netPtr, totalDaqSize);
                 outFile.write((const char*)netPtr, totalDaqSize);
                 sendData(netPtr, totalDaqSize);
-                //ts->join();
-
                 recSize += totalDaqSize;
                 debugMsg << name << "# " << "save " << recSize << "data";
                 stMsg->stateOut(debugMsg);

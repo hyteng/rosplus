@@ -16,7 +16,7 @@ using std::endl;
 #define TASK_EXIT 0
 #define TASK_ERROR 2
 
-#define dmaSize 8
+#define DMASIZE 72
 
 vme::vme(const string& n): smBase(n) {    
 }
@@ -27,35 +27,36 @@ vme::~vme() {
 int vme::InitializedLOAD(int para) {
     debugMsg << name << "# " << "InitializedLOAD";
     stMsg->stateOut(debugMsg); 
-    //pvme = new VMEBridge;
+    pvme = new VMEBridge;
     return 2;
 }
 
 int vme::LoadedUNLD(int para) {
     debugMsg << name << "# " << "LoadedUNLD";
     stMsg->stateOut(debugMsg);
-    //delete pvme;
+    delete pvme;
     return 1;
 }
 
 int vme::LoadedCONF(int para) {
     debugMsg << name << "# " << "LoadedCONF";
     stMsg->stateOut(debugMsg);
-    //configVme();
+    configVme();
     return 3;
 }
 
 int vme::ConfiguredUNCF(int para) {
     debugMsg << name << "# " << "ConfiguredUNCF";
     stMsg->stateOut(debugMsg);
-    //releaseVme();
+    releaseVme();
     return 2;
 }
 
 int vme::ConfiguredPREP(int para) {
     debugMsg << name << "# " << "ConfiguredPREP";
     stMsg->stateOut(debugMsg);
-    prepVme();
+    if(!prepVme())
+        return -1;
     return 4;
 }
 int vme::ReadySATR(int para) {
@@ -115,6 +116,11 @@ int vme::configVme() {
     dmaBase = pvme->requestDMA(dmaNumber);
     pvme->setOption(DMA, BLT_ON);
 
+    if((res=cfgInfo->infoGetUint("config."+name+".dmaSize", dmaSize)) != 1) {
+        debugMsg << name << "# " << "config."+name+".dmaSize not found.";
+        stMsg->stateOut(debugMsg);
+        dmaSize = DMASIZE;
+    }
     return 1;
 }
 
@@ -123,12 +129,29 @@ int vme::releaseVme() {
     return 1;
 }
 
-int vme::finishVme() {
+int vme::prepVme() {
+
+    adc0Base = -1;
+    string adcModeName;
+    int res;
+    if((res=cfgInfo->infoGetString("config."+name+".adcModeName", adcModeName)) == 1) {
+        std::vector< std::pair<std::string, smBase*> >::const_iterator iter;
+        for(iter=helpList->begin(); iter!=helpList->end(); iter++) {
+            if(iter->first == adcModeName)
+                adc0Base = *(uint32_t*)(iter->second->getHelp());
+        }
+    }
+    if(adc0Base == -1) {
+        debugMsg << name << "# " << "helper " << adcModeName << " not found.";
+        stMsg->stateOut(debugMsg);
+        return 0;
+    }
+
+    devMsgQue = dataPool->getDevMsgQue();
     return 1;
 }
 
-int vme::prepVme() {
-    devMsgQue = dataPool->getDevMsgQue();
+int vme::finishVme() {
     return 1;
 }
 
@@ -157,25 +180,24 @@ void vme::runVme() {
         if(runVmeCtrl == TASK_STOP) {
             break;
         }
-        /*
+        
         pvme->waitIrq(7, 0);
         int offset = pvme->DMAread(adc0Base, dmaSize, A32, D32);
         if(offset < 0) {
             vmeStatus = TASK_ERROR;
             break;
         }
-        */
-        //dataPool->devWrite(dmaBase+offset, dmaSize);
+        unsigned int tranSize = dataPool->devWrite((void*)(dmaBase+offset), dmaSize);
+
         //sleep(1);
-        unsigned int tranSize = dataPool->devWrite(tmp, dmaSize);
+        //unsigned int tranSize = dataPool->devWrite(tmp, dmaSize);
 
-        genSize += 8;
+        genSize += dmaSize;
         sndSize += tranSize;
-        debugMsg << name << "# " << "vme send " << genSize << " data, devMsg send " << sndSize << endl;
-        stMsg->stateOut(debugMsg);
-
         //vmeCount++;
         //totalVmeSize += dmaSize;
+        debugMsg << name << "# " << "vme generate " << dmaSize << " bytes data, pool write " << tranSize << " bytes. total gen " << genSize << ", total send " << sndSize << " bytes";
+        stMsg->stateOut(debugMsg);
     }
 
     if(runVmeCtrl == TASK_STOP || vmeStatus == TASK_ERROR) {

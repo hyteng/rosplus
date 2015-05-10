@@ -8,6 +8,7 @@ class adc1785 :public smBase {
     public:
         adc1785(const std::string& n);
         ~adc1785();
+        virtual void* getHelp() {return (void*)&base;};
 
     protected:
         virtual int InitializedLOAD(int para);

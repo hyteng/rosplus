@@ -45,7 +45,6 @@ class smBase {
         virtual ~smBase();
 
     public:
-
         typedef enum {
             CMID_UNKNCM=-1, CMID_LOAD, CMID_UNLD, CMID_CONF, CMID_UNCF, CMID_PREP, CMID_SATR, CMID_SPTR, CMID_STOP, CMID_PAUS, CMID_RESU, CMID_EXIT, CMID_NONE_TRANS, MAX_CMD_AMOUNT
         } command;

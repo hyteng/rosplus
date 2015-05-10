@@ -10,6 +10,7 @@ class vme :public smBase {
     public:
         vme(const std::string& n);
         ~vme();
+        virtual void* getHelp() {return (void*)pvme;};
 
     protected:
         virtual int InitializedLOAD(int para);
@@ -22,7 +23,6 @@ class vme :public smBase {
         virtual int ReadySTOP(int para);
         virtual int PausedSPTR(int para);
 
-        virtual void* getHelp() {return (void*)pvme;};
     private:
         int configVme();
         int releaseVme();
@@ -43,6 +43,7 @@ class vme :public smBase {
 
         VMEBridge *pvme;
         unsigned int dmaNumber;
-        uint32_t dmaBase, dmaSize;
+        uint32_t dmaSize, adc0Base;
+        uintptr_t dmaBase;
 };
 #endif
