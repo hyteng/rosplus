@@ -18,7 +18,7 @@ import gettext
 # begin wxGlade: extracode
 # end wxGlade
 
-HOST='127.0.0.1'
+HOST='192.168.1.120'
 MSGPORT=4000
 DATAPORT=4001
 CTRLPORT=4002
@@ -40,13 +40,24 @@ class ctrlFrame(wx.Frame):
         self.button_unConf = wx.Button(self, wx.ID_ANY, _("unConf"))
         self.button_End = wx.Button(self, wx.ID_ANY, _("End"))
         self.button_Stop = wx.Button(self, wx.ID_ANY, _("Stop"))
-        self.button_Exit = wx.Button(self, wx.ID_ANY, _("Exit"))
+        self.button_Resu = wx.Button(self, wx.ID_ANY, _("Resu"))
         self.socket = -1
 
         self.__set_properties()
         self.__do_layout()
 
         self.Bind(wx.EVT_TEXT_ENTER, self.sendMsg, self.input0)
+        self.Bind(wx.EVT_BUTTON, lambda evt, cmdId=0: self.sendCmd(evt, cmdId), self.button_Load)
+        self.Bind(wx.EVT_BUTTON, lambda evt, cmdId=2: self.sendCmd(evt, cmdId), self.button_Conf)
+        self.Bind(wx.EVT_BUTTON, lambda evt, cmdId=4: self.sendCmd(evt, cmdId), self.button_Prep)
+        self.Bind(wx.EVT_BUTTON, lambda evt, cmdId=5: self.sendCmd(evt, cmdId), self.button_Star)
+        self.Bind(wx.EVT_BUTTON, lambda evt, cmdId=6: self.sendCmd(evt, cmdId), self.button_Paus)
+        self.Bind(wx.EVT_BUTTON, lambda evt, cmdId=1: self.sendCmd(evt, cmdId), self.button_unLoad)
+        self.Bind(wx.EVT_BUTTON, lambda evt, cmdId=3: self.sendCmd(evt, cmdId), self.button_unConf)
+        self.Bind(wx.EVT_BUTTON, lambda evt, cmdId=7: self.sendCmd(evt, cmdId), self.button_End)
+        self.Bind(wx.EVT_BUTTON, lambda evt, cmdId=10: self.sendCmd(evt, cmdId), self.button_Stop)
+        self.Bind(wx.EVT_BUTTON, lambda evt, cmdId=9: self.sendCmd(evt, cmdId), self.button_Resu)
+ 
         # end wxGlade
 
     def __set_properties(self):
@@ -71,7 +82,7 @@ class ctrlFrame(wx.Frame):
         grid_sizer_1.Add(self.button_unConf, 1, wx.ALL | wx.EXPAND | wx.FIXED_MINSIZE, 1)
         grid_sizer_1.Add(self.button_End, 1, wx.ALL | wx.EXPAND | wx.FIXED_MINSIZE, 1)
         grid_sizer_1.Add(self.button_Stop, 1, wx.ALL | wx.EXPAND | wx.FIXED_MINSIZE, 1)
-        grid_sizer_1.Add(self.button_Exit, 1, wx.ALL | wx.EXPAND | wx.FIXED_MINSIZE, 1)
+        grid_sizer_1.Add(self.button_Resu, 1, wx.ALL | wx.EXPAND | wx.FIXED_MINSIZE, 1)
         sizer_1.Add(grid_sizer_1, 0, wx.ALL | wx.EXPAND | wx.FIXED_MINSIZE, 0)
         self.SetSizer(sizer_1)
         sizer_1.Fit(self)
@@ -79,7 +90,7 @@ class ctrlFrame(wx.Frame):
         # end wxGlade
 
     def sendMsg(self, event):  # wxGlade: ctrlFrame.<event_handler>
-        print "Event handler 'sendMsg' not implemented!"
+        print "Event handler 'sendMsg'"
         txt = event.GetEventObject()
         n = txt.GetNumberOfLines()
         if (n>=1) and (self.socket!=-1) :
@@ -89,14 +100,27 @@ class ctrlFrame(wx.Frame):
 
         event.Skip()
 
+    def sendCmd(self, event, cmdId):  # wxGlade: ctrlFrame.<event_handler>
+        print "Event handler 'sendCmd'"
+        #if cmdId==8 :
+            #b = event.GetEventObject()
+            #st = b.GetValue()
+            #cmdId += st
+        msg = "cmd#all#"+str(cmdId)
+        self.socket.send(msg.encode('utf8'))
+        event.Skip()
+
     def setSocket(self, s):
         self.socket = s
 
+# end of class ctrlFrame
+
 
 class switch(threading.Thread):
-    def __init__(self, s, l):
+    def __init__(self, s, f, l):
         super(switch, self).__init__()
         self.socket = s
+        self.frame = f
         self.devList = l
 
     def run(self):
@@ -106,12 +130,12 @@ class switch(threading.Thread):
             data = self.socket.recv(8)
             if data=='' :
                 break
-            print "recv: %s\n"%(data)
-
+            if self.frame!=-1 :
+                txt = self.frame.output0
+                txt.AppendText(data)
         print "switch is finished."
 
 
-# end of class ctrlFrame
 class ctrlApp(wx.App):
     def OnInit(self):
         wx.InitAllImageHandlers()
@@ -131,8 +155,8 @@ class ctrlApp(wx.App):
         self.socketCtrl = socket(AF_INET, SOCK_STREAM)
 
         self.thpool = []
-        self.thpool.append(switch(self.socketMsg, self.devList))
-        self.thpool.append(switch(self.socketData, self.devList))
+        self.thpool.append(switch(self.socketMsg, frame0, self.devList))
+        self.thpool.append(switch(self.socketData, -1, self.devList))
 
         frame0.setSocket(self.socketCtrl)
         self.SetTopWindow(frame0)
