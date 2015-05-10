@@ -138,6 +138,9 @@ adc1785::~adc1785() {
 }
 
 int adc1785::InitializedLOAD(int para) {
+    debugMsg << "adc1785: InitializedLOAD";
+    stMsg->stateOut(debugMsg);
+
     pvme = NULL;
     string vmeModeName;
     cfgInfo->infoGetString("config."+name+".vmeModeName", vmeModeName);
@@ -153,49 +156,56 @@ int adc1785::InitializedLOAD(int para) {
 }
 
 int adc1785::LoadedUNLD(int para) {
+    debugMsg << "adc1785: LoadedUNLD";
+    stMsg->stateOut(debugMsg);
     pvme = NULL;
     return 1;
 }
 
 int adc1785::LoadedCONF(int para) {
+    debugMsg << "adc1785: LoadedCONF";
+    stMsg->stateOut(debugMsg);
     //configAdc();
     return 3;
 }
 
 int adc1785::ConfiguredUNCF(int para) {
+    debugMsg << "adc1785: ConfiguredUNCF";
+    stMsg->stateOut(debugMsg);
     //releaseAdc();
     return 2;
 }
 
 int adc1785::ConfiguredPREP(int para) {
+    debugMsg << "adc1785: ConfiguredPREP";
+    stMsg->stateOut(debugMsg);
     //prepAdc();
     return 4;
 }
 int adc1785::ReadySATR(int para) {
-    stMsg->stateOut(1, "adc1785 ReadySATR");
+    debugMsg << "adc1785: ReadySATR";
+    stMsg->stateOut(debugMsg);
     //stopAdc();
     //startAdc();
     return 5;
 }
 
 int adc1785::RunningSPTR(int para) {
-    stMsg->stateOut(1, "adc1785 RunningSPTR");
+    debugMsg << "adc1785: RunningSPTR";
+    stMsg->stateOut(debugMsg);
     //stopAdc();
     return 4;
 }
 
 int adc1785::ReadySTOP(int para) {
-    stMsg->stateOut(1, "adc1785 ReadySPTR");
+    debugMsg << "adc1785: ReadySTOP";
+    stMsg->stateOut(debugMsg);
+    //finishAdc();
     return 3;
 }
 
 int adc1785::configAdc() {
     int res;
-
-    //regValue.resize(regSize);
-    //confValue.resize(confSize);
-    //regValue.clear();
-    //confValue.clear();
 
     base = ((confDefault[AddrHigh]&ADC1785_AddrHigh_Mask)<<24) + ((regValue[AddrLow]&ADC1785_AddrLow_Mask)<<16);
     if((res=cfgInfo->infoGetUint("config."+name+".base", base)) != 1) {
@@ -390,6 +400,17 @@ int adc1785::releaseAdc() {
 }
 
 int adc1785::prepAdc() {
+    // D16 to D32
+    uint32_t lsi0_ctl = pvme->readUniReg(0x100);
+    lsi0_ctl &= 0xFF3FFFFF;
+    lsi0_ctl |= D32;
+    pvme->writeUniReg(0x100, lsi0_ctl);
+    return 1;
+}
+
+int adc1785::finishAdc() {
+    // D32 to D16
+    return 1;
 }
 
 int adc1785::startAdc() {

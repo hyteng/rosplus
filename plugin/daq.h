@@ -21,8 +21,9 @@ class daq :public smBase {
         virtual int PausedSPTR(int para);
 
     private:
-        int beforeDaq();
-        int afterDaq();
+        int configDaq();
+        int prepDaq();
+        int finishDaq();
         int startDaq();
         int stopDaq();
         void runDaq();

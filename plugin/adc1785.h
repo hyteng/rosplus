@@ -23,6 +23,7 @@ class adc1785 :public smBase {
         int configAdc();
         int releaseAdc();
         int prepAdc();
+        int finishAdc();
         int startAdc();
         int stopAdc();
         int getStatus();

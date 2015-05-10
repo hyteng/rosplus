@@ -20,12 +20,14 @@ class vme :public smBase {
         virtual int ReadySATR(int para);
         virtual int RunningSPTR(int para);
         virtual int ReadySTOP(int para);
+        virtual int PausedSPTR(int para);
 
         virtual void* getHelp() {return (void*)pvme;};
     private:
         int configVme();
         int releaseVme();
         int prepVme();
+        int finishVme();
         int startVme();
         int stopVme();
         void runVme();

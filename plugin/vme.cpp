@@ -25,45 +25,65 @@ vme::~vme() {
 }
 
 int vme::InitializedLOAD(int para) {
+    debugMsg << "vme: InitializedLOAD";
+    stMsg->stateOut(debugMsg); 
     //pvme = new VMEBridge;
     return 2;
 }
 
 int vme::LoadedUNLD(int para) {
+    debugMsg << "vme: LoadedUNLD";
+    stMsg->stateOut(debugMsg);
     //delete pvme;
     return 1;
 }
 
 int vme::LoadedCONF(int para) {
+    debugMsg << "vme: LoadedCONF";
+    stMsg->stateOut(debugMsg);
     //configVme();
     return 3;
 }
 
 int vme::ConfiguredUNCF(int para) {
+    debugMsg << "vme: ConfiguredUNCF";
+    stMsg->stateOut(debugMsg);
     //releaseVme();
     return 2;
 }
 
 int vme::ConfiguredPREP(int para) {
-    devMsgQue = dataPool->getDevMsgQue();
-    //prepVme();
+    debugMsg << "vme: ConfiguredPREP";
+    stMsg->stateOut(debugMsg);
+    prepVme();
     return 4;
 }
 int vme::ReadySATR(int para) {
-    stMsg->stateOut(1, "vme ReadySATR");
+    debugMsg << "vme: ReadySATR";
+    stMsg->stateOut(debugMsg);
     startVme();
     return 5;
 }
 
 int vme::RunningSPTR(int para) {
-    stMsg->stateOut(1, "vme RunningSPTR");
+    debugMsg << "vme: RunningSPTR";
+    stMsg->stateOut(debugMsg);
     stopVme();
     return 4;
 }
 
 int vme::ReadySTOP(int para) {
-    stMsg->stateOut(1, "vme ReadySPTR");
+    debugMsg << "vme: ReadySTOP";
+    stMsg->stateOut(debugMsg);
+    finishVme();
     return 3;
+}
+
+int vme::PausedSPTR(int para) {
+    debugMsg << "vme: PausedSPTR";
+    stMsg->stateOut(debugMsg);
+    stopVme();
+    return 4;
 }
 
 int vme::configVme() {
@@ -103,12 +123,12 @@ int vme::releaseVme() {
     return 1;
 }
 
+int vme::finishVme() {
+    return 1;
+}
+
 int vme::prepVme() {
-    // recover the 16bit data transfer to 32bit mode
-    uint32_t lsi0_ctl = pvme->readUniReg(0x100);
-    lsi0_ctl &= 0xFF3FFFFF;
-    lsi0_ctl |= D32;
-    pvme->writeUniReg(0x100, lsi0_ctl);
+    devMsgQue = dataPool->getDevMsgQue();
     return 1;
 }
 

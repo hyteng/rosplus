@@ -24,39 +24,46 @@ dataPacker::~dataPacker() {
 }
 
 int dataPacker::ConfiguredPREP(int para) {
-    devMsgQue = dataPool->getDevMsgQue();
-    netMsgQue = dataPool->getNetMsgQue();
+    debugMsg << "dataPacker: ConfiguredPREP";
+    stMsg->stateOut(debugMsg);
+    prepPacker();
     return 4;
 }
 
 int dataPacker::ReadySATR(int para) {
-    stMsg->stateOut(1, "dataPacker ReadySATR");
+    debugMsg << "dataPacker: ReadySATR";
+    stMsg->stateOut(debugMsg);
     startPacker();
     return 5;
 }
 
 int dataPacker::RunningSPTR(int para) {
-    stMsg->stateOut(1, "dataPacker RunningSPTR");
+    debugMsg << "dataPacker: RunningSPTR";
+    stMsg->stateOut(debugMsg);
     stopPacker();
     return 4;
 }
 
 int dataPacker::PausedSPTR(int para) {
-    stMsg->stateOut(1, "dataPacker PausedSPTR");
+    debugMsg << "dataPacker: PausedSPTR";
+    stMsg->stateOut(debugMsg);
     stopPacker();
     return 4;
 }
 
+int dataPacker::prepPacker() {
+    devMsgQue = dataPool->getDevMsgQue();
+    netMsgQue = dataPool->getNetMsgQue();
+    return 1;
+}
 
 int dataPacker::startPacker() {
-    stMsg->stateOut(1, "start packer.");
     runPackCtrl = TASK_START;
     t0 = new thread(&dataPacker::runPack, this);
     return 1;
 }
 
 int dataPacker::stopPacker() {
-    stMsg->stateOut(1, "stop packer.");
     runPackCtrl = TASK_STOP;
     //t0->join();
     return 1;

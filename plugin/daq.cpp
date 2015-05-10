@@ -24,71 +24,80 @@ daq::~daq() {
 }
 
 int daq::LoadedCONF(int para) {
-    if(!cfgInfo->infoGetString("config.daq.fileName", fileName))
-        return -1;
+    debugMsg << "daq: LoadedCONF";
+    stMsg->stateOut(debugMsg);
+    configDaq();
     return 3;
 }
 
 int daq::ConfiguredPREP(int para) {
-    stMsg->stateOut(1, "daq ConfiguredPREP");
-    beforeDaq();
+    debugMsg << "daq: ConfiguredPREP";
+    stMsg->stateOut(debugMsg);
+    prepDaq();
     return 4;
 }
 
 int daq::ReadySATR(int para) {
-    stMsg->stateOut(1, "daq ReadySATR");
+    debugMsg << "daq: ReadySATR";
+    stMsg->stateOut(debugMsg);
     startDaq();
     return 5;
 }
 
 int daq::RunningSPTR(int para) {
-    stMsg->stateOut(1, "daq RunningSPTR");
+    debugMsg << "daq: RunningSPTR";
+    stMsg->stateOut(debugMsg);
     stopDaq();
     return 4;
 }
 
 int daq::ReadySTOP(int para) {
-    stMsg->stateOut(1, "daq ReadySPTR");
-    afterDaq();
+    debugMsg << "daq: ReadySTOP";
+    stMsg->stateOut(debugMsg);
+    finishDaq();
     return 3;
 }
 
 int daq::PausedSPTR(int para) {
-    stMsg->stateOut(1, "daq PausedSPTR");
+    debugMsg << "daq: PausedSPTR";
+    stMsg->stateOut(debugMsg);
     stopDaq();
     return 4;
 }
 
-int daq::beforeDaq() {
-    netMsgQue = dataPool->getNetMsgQue();
-    outFile.open(fileName, std::ios::out|std::ios::binary|std::ios::trunc);
-
+int daq::configDaq() {
+    fileName = "data_sample.txt";
+    if(!cfgInfo->infoGetString("config.daq.fileName", fileName)) {
+        debugMsg << "daq: config: could not get config.daq.fileName";
+        stMsg->stateOut(debugMsg);
+    }
     return 1;
 }
 
-int daq::afterDaq() {
+int daq::prepDaq() {
+    netMsgQue = dataPool->getNetMsgQue();
+    outFile.open(fileName, std::ios::out|std::ios::binary|std::ios::trunc);
+    return 1;
+}
+
+int daq::finishDaq() {
     outFile.close();
     return 1;
 }
 
 int daq::startDaq() {
-    stMsg->stateOut(1, "start Daq.");
     runDaqCtrl = TASK_START;
     t0 = new thread(&daq::runDaq, this);
     return 1;
 }
 
 int daq::stopDaq() {
-    stMsg->stateOut(1, "stop Daq.");
     runDaqCtrl = TASK_STOP;
     //t0->join();
     return 1;
 }
 
 void daq::runDaq() {
-
-    stMsg->stateOut(1, "running Daq.");
-
     daqStatus = TASK_RUN;
 
     daqCount = 0;

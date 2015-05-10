@@ -17,6 +17,7 @@ class dataPacker :public smBase {
         virtual int PausedSPTR(int para);
 
     private:
+        int prepPacker();
         int startPacker();
         int stopPacker();
         void runPack();
