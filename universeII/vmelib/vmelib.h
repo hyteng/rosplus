@@ -172,6 +172,9 @@ class VMEBridge
 
     int bridge_error;
 
+    uint32_t swap32(const uint32_t &v) {uint32_t t=((v&0xFF000000)>>24)|((v&0x00FF0000)>>8)|((v&0x0000FF00)<<8)|((v&0x000000FF)<<24);return t;};
+    uint16_t swap16(const uint16_t &v) {uint16_t t=((v&0xFF00)>>8)|((v&0x00FF)<<8);return t;};
+
   protected:   // logging streams
 
     ostream * Std;

@@ -96,7 +96,7 @@ int vme::configVme() {
     MISC_CTL = pvme->readUniReg(0x404);
     MAST_CTL = pvme->readUniReg(0x400);
     LSI0_CTL = pvme->readUniReg(0x100);
-    debugMsg << name << "# " << "PCI_CSR: " << PCI_CSR << ", MISC_CTL: " << MISC_CTL << ", MAST_CTL: " << MAST_CTL << ", LSI0_CTL: " << LSI0_CTL;
+    debugMsg << name << "# " << std::hex << "PCI_CSR: " << PCI_CSR << ", MISC_CTL: " << MISC_CTL << ", MAST_CTL: " << MAST_CTL << ", LSI0_CTL: " << LSI0_CTL;
     stMsg->stateOut(debugMsg);
     if(PCI_CSR&0xF9000000)
         pvme->writeUniReg(0x004, 0xF9000007);
@@ -105,7 +105,7 @@ int vme::configVme() {
     MAST_CTL = pvme->readUniReg(0x400);
     LSI0_CTL = pvme->readUniReg(0x100);
     debugMsg << name << "# " << "UniverseII Register after writing 0xF9000007 to register 0x004:" << endl;
-    debugMsg << name << "# " << "PCI_CSR: " << PCI_CSR << ", MISC_CTL: " << MISC_CTL << ", MAST_CTL: " << MAST_CTL << ", LSI0_CTL: " << LSI0_CTL;
+    debugMsg << name << "# " << std::hex << "PCI_CSR: " << PCI_CSR << ", MISC_CTL: " << MISC_CTL << ", MAST_CTL: " << MAST_CTL << ", LSI0_CTL: " << LSI0_CTL;
     stMsg->stateOut(debugMsg);
 
     if((res=cfgInfo->infoGetUint("config."+name+".dmaNumber", dmaNumber)) != 1) {
@@ -163,7 +163,8 @@ int vme::startVme() {
 
 int vme::stopVme() {
     runVmeCtrl = TASK_STOP;
-    t0->join();
+    //t0->join();
+    t0->detach();
     return 1;
 }
 
