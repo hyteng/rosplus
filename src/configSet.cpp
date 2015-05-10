@@ -307,7 +307,8 @@ int configSet::readConfig(const string& cfg) {
 
         int bit = infoExist(s[1]);
         if(bit != 0) {
-            return 0;
+            cout << "conflict! type: " << s[0] << ", name: " << s[1] << ", value: " << s[2] << endl;
+            continue;
         }
 
         int t;
@@ -319,12 +320,18 @@ int configSet::readConfig(const string& cfg) {
 
         if(type == configSet::UINT) {
             uint32_t v;
-            sValue >> v;
+            if(s[2].substr(0,2) == "0x" || s[2].substr(0,2) == "0X")
+                sValue >> std::hex >> v;
+            else
+                sValue >> v;
             infoSetUint(s[1], v);
         }
         if(type == configSet::ULONG) {
             uint64_t v;
-            sValue >> v;
+            if(s[2].substr(0,2) == "0x" || s[2].substr(0,2) == "0X")
+                sValue >> std::hex >> v;
+            else
+                sValue >> v;
             infoSetUlong(s[1], v);
         }
         if(type == configSet::DOUBLE) {

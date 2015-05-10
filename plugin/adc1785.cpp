@@ -214,17 +214,20 @@ int adc1785::configAdc() {
         stMsg->stateOut(debugMsg);
         //return 0;
     }
-    length = ADC1785_BASE;
+    length = ADC1785_LENGTH;
     if((res=cfgInfo->infoGetUint("config."+name+".length", length)) != 1) {
         debugMsg << name << "# " << "config."+name+".length" << " not found.";
         stMsg->stateOut(debugMsg);
         //return 0;
     }
+    cout << name << "# " << "base: " << std::hex << base << ", length: " << std::hex << length << endl;
 
     int i;
     for(i=0; i<confSize-confRO; i++)
         confValue[i]=confDefault[i];
-
+    
+    debugMsg << name << "# " << "base: " << hex << base << ", length: " << hex << length;
+    stMsg->stateOut(debugMsg);
     image = pvme->getImage(base, length, A32, D16, MASTER);
     if(image < MIN_IMAGE || image > MAX_IMAGE)
         return 0;
