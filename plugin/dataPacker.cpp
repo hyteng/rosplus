@@ -24,28 +24,28 @@ dataPacker::~dataPacker() {
 }
 
 int dataPacker::ConfiguredPREP(int para) {
-    debugMsg << "dataPacker: ConfiguredPREP";
+    debugMsg << name << "# " << "ConfiguredPREP";
     stMsg->stateOut(debugMsg);
     prepPacker();
     return 4;
 }
 
 int dataPacker::ReadySATR(int para) {
-    debugMsg << "dataPacker: ReadySATR";
+    debugMsg << name << "# " << "ReadySATR";
     stMsg->stateOut(debugMsg);
     startPacker();
     return 5;
 }
 
 int dataPacker::RunningSPTR(int para) {
-    debugMsg << "dataPacker: RunningSPTR";
+    debugMsg << name << "# " << "RunningSPTR";
     stMsg->stateOut(debugMsg);
     stopPacker();
     return 4;
 }
 
 int dataPacker::PausedSPTR(int para) {
-    debugMsg << "dataPacker: PausedSPTR";
+    debugMsg << name << "# " << "PausedSPTR";
     stMsg->stateOut(debugMsg);
     stopPacker();
     return 4;
@@ -83,7 +83,7 @@ void dataPacker::runPack() {
             break;
         }
 
-        //debugMsg << "packer fetch devMsg " << packMsg.size;
+        //debugMsg << name << "# " << "fetch devMsg " << packMsg.size;
         //stMsg->stateOut(debugMsg);
 
         packCount += packMsg.count;
@@ -98,7 +98,7 @@ void dataPacker::runPack() {
             
             recSize += totalPackSize;
             sndSize += packTranSize;
-            debugMsg << "packer read" << recSize << "data and send " << sndSize << endl;
+            debugMsg << name << "# " << "read" << recSize << "data and send " << sndSize << endl;
             stMsg->stateOut(debugMsg);
 
             packCount = 0;
@@ -113,21 +113,20 @@ void dataPacker::runPack() {
     //if(runPackCtrl == TASK_STOP || packStatus == TASK_ERROR) {
         packMsg.signal = 2;
         packMsg.size = 0;
-        std::cout << "pack send stop to daq: "  << std::endl;
         int stopSend = msgsnd(netMsgQue, &packMsg, sizeof(packMsg)-sizeof(long), 0);
         if(stopSend < 0) {
             std::cout << "pack msg fail"  << std::endl;
             packStatus = TASK_ERROR;
         }
 
-        debugMsg << "packer send stop to netMsg and return " << stopSend;
+        debugMsg << name << "# " << "send stop to netMsg and return " << stopSend;
         stMsg->stateOut(debugMsg);
 
         if(packStatus == TASK_RUN)
             packStatus = TASK_EXIT;
     //}
 
-    debugMsg << "packer stop thread" << packStatus;
+    debugMsg << name << "# " << "stop thread" << packStatus;
     stMsg->stateOut(debugMsg);
 }
 
@@ -136,14 +135,12 @@ int dataPacker::packData(unsigned int& packSize) {
     unsigned int tmp[18];
     unsigned int tmpIdx;
 
-    std::cout << "pack in: " << packSize << std::endl;
     dataPool->devSetSnap();
     unsigned int bias = 0;
     void* p;
     unsigned int value;
     unsigned int tranSize = 0;
     for(unsigned int i=0; i<packSize/4; i++,bias+=4) {
-        std::cout << "packiter: " << bias << std::endl;
         p = dataPool->devGetSnapPtr(bias, 4);
         if(p == NULL)
             return 0;

@@ -24,42 +24,42 @@ daq::~daq() {
 }
 
 int daq::LoadedCONF(int para) {
-    debugMsg << "daq: LoadedCONF";
+    debugMsg << name << "# " << "LoadedCONF";
     stMsg->stateOut(debugMsg);
     configDaq();
     return 3;
 }
 
 int daq::ConfiguredPREP(int para) {
-    debugMsg << "daq: ConfiguredPREP";
+    debugMsg << name << "# " << "ConfiguredPREP";
     stMsg->stateOut(debugMsg);
     prepDaq();
     return 4;
 }
 
 int daq::ReadySATR(int para) {
-    debugMsg << "daq: ReadySATR";
+    debugMsg << name << "# " << "ReadySATR";
     stMsg->stateOut(debugMsg);
     startDaq();
     return 5;
 }
 
 int daq::RunningSPTR(int para) {
-    debugMsg << "daq: RunningSPTR";
+    debugMsg << name << "# " << "RunningSPTR";
     stMsg->stateOut(debugMsg);
     stopDaq();
     return 4;
 }
 
 int daq::ReadySTOP(int para) {
-    debugMsg << "daq: ReadySTOP";
+    debugMsg << name << "# " << "ReadySTOP";
     stMsg->stateOut(debugMsg);
     finishDaq();
     return 3;
 }
 
 int daq::PausedSPTR(int para) {
-    debugMsg << "daq: PausedSPTR";
+    debugMsg << name << "# " << "PausedSPTR";
     stMsg->stateOut(debugMsg);
     stopDaq();
     return 4;
@@ -68,7 +68,7 @@ int daq::PausedSPTR(int para) {
 int daq::configDaq() {
     fileName = "data_sample.txt";
     if(!cfgInfo->infoGetString("config.daq.fileName", fileName)) {
-        debugMsg << "daq: config: could not get config.daq.fileName";
+        debugMsg << name << "# " << "config: could not get config.daq.fileName";
         stMsg->stateOut(debugMsg);
     }
     return 1;
@@ -110,7 +110,7 @@ void daq::runDaq() {
             break;
         }
         
-        //debugMsg << "daq fetch netMsg " << daqMsg.size << daqMsg.signal;
+        //debugMsg << name << "# " << "fetch netMsg " << daqMsg.size << daqMsg.signal;
         //stMsg->stateOut(debugMsg);
 
         daqCount++;
@@ -126,7 +126,7 @@ void daq::runDaq() {
                 //ts->join();
 
                 recSize += totalDaqSize;
-                debugMsg << "daq save " << recSize << "data";
+                debugMsg << name << "# " << "save " << recSize << "data";
                 stMsg->stateOut(debugMsg);
             }
             else {
@@ -147,7 +147,7 @@ void daq::runDaq() {
             daqStatus = TASK_EXIT;
     //}
 
-    debugMsg << "daq stop thread" << daqStatus;
+    debugMsg << name << "# " << "stop thread" << daqStatus;
     stMsg->stateOut(debugMsg);
 }
 

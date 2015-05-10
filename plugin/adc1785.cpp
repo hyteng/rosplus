@@ -138,7 +138,7 @@ adc1785::~adc1785() {
 }
 
 int adc1785::InitializedLOAD(int para) {
-    debugMsg << "adc1785: InitializedLOAD";
+    debugMsg << name << "# " << "InitializedLOAD";
     stMsg->stateOut(debugMsg);
 
     pvme = NULL;
@@ -156,34 +156,34 @@ int adc1785::InitializedLOAD(int para) {
 }
 
 int adc1785::LoadedUNLD(int para) {
-    debugMsg << "adc1785: LoadedUNLD";
+    debugMsg << name << "# " << "LoadedUNLD";
     stMsg->stateOut(debugMsg);
     pvme = NULL;
     return 1;
 }
 
 int adc1785::LoadedCONF(int para) {
-    debugMsg << "adc1785: LoadedCONF";
+    debugMsg << name << "# " << "LoadedCONF";
     stMsg->stateOut(debugMsg);
     //configAdc();
     return 3;
 }
 
 int adc1785::ConfiguredUNCF(int para) {
-    debugMsg << "adc1785: ConfiguredUNCF";
+    debugMsg << name << "# " << "ConfiguredUNCF";
     stMsg->stateOut(debugMsg);
     //releaseAdc();
     return 2;
 }
 
 int adc1785::ConfiguredPREP(int para) {
-    debugMsg << "adc1785: ConfiguredPREP";
+    debugMsg << name << "# " << "ConfiguredPREP";
     stMsg->stateOut(debugMsg);
     //prepAdc();
     return 4;
 }
 int adc1785::ReadySATR(int para) {
-    debugMsg << "adc1785: ReadySATR";
+    debugMsg << name << "# " << "ReadySATR";
     stMsg->stateOut(debugMsg);
     //stopAdc();
     //startAdc();
@@ -191,14 +191,14 @@ int adc1785::ReadySATR(int para) {
 }
 
 int adc1785::RunningSPTR(int para) {
-    debugMsg << "adc1785: RunningSPTR";
+    debugMsg << name << "# " << "RunningSPTR";
     stMsg->stateOut(debugMsg);
     //stopAdc();
     return 4;
 }
 
 int adc1785::ReadySTOP(int para) {
-    debugMsg << "adc1785: ReadySTOP";
+    debugMsg << name << "# " << "ReadySTOP";
     stMsg->stateOut(debugMsg);
     //finishAdc();
     return 3;
@@ -209,13 +209,13 @@ int adc1785::configAdc() {
 
     base = ((confDefault[AddrHigh]&ADC1785_AddrHigh_Mask)<<24) + ((regValue[AddrLow]&ADC1785_AddrLow_Mask)<<16);
     if((res=cfgInfo->infoGetUint("config."+name+".base", base)) != 1) {
-        debugMsg << name+"# " << "config."+name+".base "+"not found.";
+        debugMsg << name << "# " << "config."+name+".base "+"not found.";
         stMsg->stateOut(debugMsg);
         //return 0;
     }
     length = ADC1785_BASE;
     if((res=cfgInfo->infoGetUint("config."+name+".length", length)) != 1) {
-        debugMsg << name+"# " << "config."+name+".length "+"not found.";
+        debugMsg << name << "# " << "config."+name+".length "+"not found.";
         stMsg->stateOut(debugMsg);
         //return 0;
     }
@@ -234,20 +234,20 @@ int adc1785::configAdc() {
     pvme->rw(image, base+ADC1785_Ctrl1_Offset, &regCtrl1);
     pvme->rw(image, base+ADC1785_Status1_Offset, &regStatus1);
     pvme->rw(image, base+ADC1785_Status2_Offset, &regStatus2);
-    debugMsg << name+"# " << "BitSet1: " << regBitSet1 << ", BitSet2: " << regBitSet2 << ", Ctrl1: " << regCtrl1 << ", Status1: " << regStatus1 << ", Status2: " << regStatus2;
+    debugMsg << name << "# " << "BitSet1: " << regBitSet1 << ", BitSet2: " << regBitSet2 << ", Ctrl1: " << regCtrl1 << ", Status1: " << regStatus1 << ", Status2: " << regStatus2;
     stMsg->stateOut(debugMsg);
 
     unsigned int adcReg;
     for(i=0; i<confSize-confRO; i++) {
         if((res=cfgInfo->infoGetUint("config."+name+"."+confName[i], adcReg)) != 1) {
-            debugMsg << name+"# " << "config."+name+"."+confName[i] + "not found.";
+            debugMsg << name << "# " << "config."+name+"."+confName[i] + "not found.";
             stMsg->stateOut(debugMsg);
             //return 0;
         }
         else
             confValue[i] = adcReg;
 
-        debugMsg << name+"# " << "" << confName[i] << ": " << confValue[i];
+        debugMsg << name << "# " << "" << confName[i] << ": " << confValue[i];
         stMsg->stateOut(debugMsg);
     }
 
@@ -261,7 +261,7 @@ int adc1785::configAdc() {
     regValue[Ctrl1] = ((confValue[blkend]&0x0001)<<2)+((confValue[progResetMod]&0x0001)<<4)+((confValue[busError]&0x0001)<<5)+((confValue[align64]&0x0001)<<6);
     // BitSet2
     regValue[BitSet2] = ((confValue[mode]&0x0001)<<0)+((confValue[offline]&0x0001)<<1)+((confValue[clearData]&0x0001)<<2)+((confValue[overRange]&0x0001)<<3)+((confValue[lowTh]&0x0001)<<4)+((confValue[testACQ]&0x0001)<<6)+((confValue[slideScale]&0x0001)<<7)+((confValue[stepTh]&0x0001)<<8)+((confValue[autoInc]&0x0001)<<11)+((confValue[emptyProg]&0x0001)<<12)+((confValue[slideSub]&0x0001)<<13)+((confValue[allTrigger]&0x0001)<<14);
-    debugMsg << name+"# " << "BitSet1: " << regValue[BitSet1] << ", Ctrl1: " << regValue[Ctrl1] << ", BitSet2: " << regValue[BitSet2];
+    debugMsg << name << "# " << "BitSet1: " << regValue[BitSet1] << ", Ctrl1: " << regValue[Ctrl1] << ", BitSet2: " << regValue[BitSet2];
     stMsg->stateOut(debugMsg);
 
     // set normal register value
@@ -310,14 +310,14 @@ int adc1785::configAdc() {
     pvme->rw(image, base+ADC1785_Ctrl1_Offset, &regCtrl1);
     pvme->rw(image, base+ADC1785_Status1_Offset, &regStatus1);
     pvme->rw(image, base+ADC1785_Status2_Offset, &regStatus2);
-    debugMsg << name+"# " << "BitSet1: " << regBitSet1 << ", BitSet2: " << regBitSet2 << ", Ctrl1: " << regCtrl1 << ", Status1: " << regStatus1 << ", Status2: " << regStatus2;
+    debugMsg << name << "# " << "BitSet1: " << regBitSet1 << ", BitSet2: " << regBitSet2 << ", Ctrl1: " << regCtrl1 << ", Status1: " << regStatus1 << ", Status2: " << regStatus2;
     stMsg->stateOut(debugMsg);
 
     // mode 
     if((confValue[mode]&0x0003)==0) {
         // test ACQ mode 
         if((confValue[testACQ]&0x0001)==1) {
-            debugMsg << name+"# " << "test ACQ mode";
+            debugMsg << name << "# " << "test ACQ mode";
             stMsg->stateOut(debugMsg);
             // set offline
             pvme->ww(image, base+ADC1785_BitSet2_Offset, (uint16_t)0x0002);
@@ -349,7 +349,7 @@ int adc1785::configAdc() {
         }
         // normal mode
         if((confValue[testACQ]&0x0001)==0) {
-            debugMsg << name+"# " << "normal mode";
+            debugMsg << name << "# " << "normal mode";
             stMsg->stateOut(debugMsg);
             // set offline
             pvme->ww(image, base+ADC1785_BitSet2_Offset, (uint16_t)0x0002);
@@ -360,7 +360,7 @@ int adc1785::configAdc() {
     }
     // MSCT/CBLT mode
     if((confValue[mode]&0x0003)==2) {
-        debugMsg << name+"# " << "MSCT/CBLT mode";
+        debugMsg << name << "# " << "MSCT/CBLT mode";
         stMsg->stateOut(debugMsg);
         // set offline
         pvme->ww(image, base+ADC1785_BitSet2_Offset, (uint16_t)0x0002);
@@ -377,7 +377,7 @@ int adc1785::configAdc() {
     }
     // memeory test mode
     if((confValue[mode]&0x0003)==1) {
-        debugMsg << name+"# " << "mem test mode";
+        debugMsg << name << "# " << "mem test mode";
         stMsg->stateOut(debugMsg);
         // clear data
         pvme->ww(image, base+ADC1785_BitSet2_Offset, (uint16_t)0x0004);
@@ -421,7 +421,7 @@ int adc1785::startAdc() {
     // enable adc
     uint16_t regBitSet2;
     pvme->rw(image, base+ADC1785_BitSet2_Offset, &regBitSet2);
-    debugMsg << name+"# " << "regBitSet2 before enable adc: " << regBitSet2;
+    debugMsg << name << "# " << "regBitSet2 before enable adc: " << regBitSet2;
     stMsg->stateOut(debugMsg);
     regBitSet2 &= 0x0002;
     pvme->ww(image, base+ADC1785_BitClear2_Offset, regBitSet2);
@@ -430,7 +430,7 @@ int adc1785::startAdc() {
 }
 
 int adc1785::stopAdc() {
-    debugMsg << name+"# " << "flush " << confValue[eventTh] << " events in the buffer.";
+    debugMsg << name << "# " << "flush " << confValue[eventTh] << " events in the buffer.";
     stMsg->stateOut(debugMsg); 
     for(int i=0; i<confValue[eventTh]; i++) {
         pvme->ww(image, base+ADC1785_SWComm_Offset, 0x0001);
@@ -439,7 +439,7 @@ int adc1785::stopAdc() {
     // disable adc
     uint16_t regBitSet2;
     pvme->rw(image, base+ADC1785_BitSet2_Offset, &regBitSet2);
-    debugMsg << name+"# " << "regBitSet2 before disable adc: " << regBitSet2;
+    debugMsg << name << "# " << "regBitSet2 before disable adc: " << regBitSet2;
     stMsg->stateOut(debugMsg);
     pvme->ww(image, base+ADC1785_BitClear2_Offset, 0x0002);
 

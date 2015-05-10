@@ -25,62 +25,62 @@ vme::~vme() {
 }
 
 int vme::InitializedLOAD(int para) {
-    debugMsg << "vme: InitializedLOAD";
+    debugMsg << name << "# " << "InitializedLOAD";
     stMsg->stateOut(debugMsg); 
     //pvme = new VMEBridge;
     return 2;
 }
 
 int vme::LoadedUNLD(int para) {
-    debugMsg << "vme: LoadedUNLD";
+    debugMsg << name << "# " << "LoadedUNLD";
     stMsg->stateOut(debugMsg);
     //delete pvme;
     return 1;
 }
 
 int vme::LoadedCONF(int para) {
-    debugMsg << "vme: LoadedCONF";
+    debugMsg << name << "# " << "LoadedCONF";
     stMsg->stateOut(debugMsg);
     //configVme();
     return 3;
 }
 
 int vme::ConfiguredUNCF(int para) {
-    debugMsg << "vme: ConfiguredUNCF";
+    debugMsg << name << "# " << "ConfiguredUNCF";
     stMsg->stateOut(debugMsg);
     //releaseVme();
     return 2;
 }
 
 int vme::ConfiguredPREP(int para) {
-    debugMsg << "vme: ConfiguredPREP";
+    debugMsg << name << "# " << "ConfiguredPREP";
     stMsg->stateOut(debugMsg);
     prepVme();
     return 4;
 }
 int vme::ReadySATR(int para) {
-    debugMsg << "vme: ReadySATR";
+    debugMsg << name << "# " << "ReadySATR";
     stMsg->stateOut(debugMsg);
     startVme();
     return 5;
 }
 
 int vme::RunningSPTR(int para) {
-    debugMsg << "vme: RunningSPTR";
+    debugMsg << name << "# " << "RunningSPTR";
     stMsg->stateOut(debugMsg);
     stopVme();
     return 4;
 }
 
 int vme::ReadySTOP(int para) {
-    debugMsg << "vme: ReadySTOP";
+    debugMsg << name << "# " << "ReadySTOP";
     stMsg->stateOut(debugMsg);
     finishVme();
     return 3;
 }
 
 int vme::PausedSPTR(int para) {
-    debugMsg << "vme: PausedSPTR";
+    debugMsg << name << "# " << "PausedSPTR";
     stMsg->stateOut(debugMsg);
     stopVme();
     return 4;
@@ -95,7 +95,7 @@ int vme::configVme() {
     MISC_CTL = pvme->readUniReg(0x404);
     MAST_CTL = pvme->readUniReg(0x400);
     LSI0_CTL = pvme->readUniReg(0x100);
-    debugMsg << name+"# " << "PCI_CSR: " << PCI_CSR << ", MISC_CTL: " << MISC_CTL << ", MAST_CTL: " << MAST_CTL << ", LSI0_CTL: " << LSI0_CTL;
+    debugMsg << name << "# " << "PCI_CSR: " << PCI_CSR << ", MISC_CTL: " << MISC_CTL << ", MAST_CTL: " << MAST_CTL << ", LSI0_CTL: " << LSI0_CTL;
     stMsg->stateOut(debugMsg);
     if(PCI_CSR&0xF9000000)
         pvme->writeUniReg(0x004, 0xF9000007);
@@ -103,12 +103,12 @@ int vme::configVme() {
     MISC_CTL = pvme->readUniReg(0x404);
     MAST_CTL = pvme->readUniReg(0x400);
     LSI0_CTL = pvme->readUniReg(0x100);
-    debugMsg << name+"# " << "UniverseII Register after writing 0xF9000007 to register 0x004:" << endl;
-    debugMsg << name+"# " << "PCI_CSR: " << PCI_CSR << ", MISC_CTL: " << MISC_CTL << ", MAST_CTL: " << MAST_CTL << ", LSI0_CTL: " << LSI0_CTL;
+    debugMsg << name << "# " << "UniverseII Register after writing 0xF9000007 to register 0x004:" << endl;
+    debugMsg << name << "# " << "PCI_CSR: " << PCI_CSR << ", MISC_CTL: " << MISC_CTL << ", MAST_CTL: " << MAST_CTL << ", LSI0_CTL: " << LSI0_CTL;
     stMsg->stateOut(debugMsg);
 
     if((res=cfgInfo->infoGetUint("config."+name+".dmaNumber", dmaNumber)) != 1) {
-        debugMsg << name+"# " << "config."+name+".dmaNumber not found.";
+        debugMsg << name << "# " << "config."+name+".dmaNumber not found.";
         stMsg->stateOut(debugMsg);
         dmaNumber = 1;
     }
@@ -133,22 +133,18 @@ int vme::prepVme() {
 }
 
 int vme::startVme() {
-    stMsg->stateOut(1, "start Vme.");
     runVmeCtrl = TASK_START;
     t0 = new thread(&vme::runVme, this);
     return 1;
 }
 
 int vme::stopVme() {
-    stMsg->stateOut(1, "stop Vme.");
     runVmeCtrl = TASK_STOP;
     t0->join();
     return 1;
 }
 
 void vme::runVme() {
-
-    stMsg->stateOut(1, "running Vme.");
     vmeStatus = TASK_RUN;
 
     vmeCount = 0;
@@ -175,7 +171,7 @@ void vme::runVme() {
 
         genSize += 8;
         sndSize += tranSize;
-        debugMsg << "vme send " << genSize << " data, devMsg send " << sndSize << endl;
+        debugMsg << name << "# " << "vme send " << genSize << " data, devMsg send " << sndSize << endl;
         stMsg->stateOut(debugMsg);
 
         //vmeCount++;
@@ -190,14 +186,14 @@ void vme::runVme() {
             vmeStatus = TASK_ERROR;
         }
 
-        debugMsg << "vme send stop to devMsg and return " << stopSend << endl;
+        debugMsg << name << "# " << "vme send stop to devMsg and return " << stopSend << endl;
         stMsg->stateOut(debugMsg);
 
         if(vmeStatus == TASK_RUN)
             vmeStatus = TASK_EXIT;
     }
 
-    debugMsg << "vme stop thread" << vmeStatus << endl;
+    debugMsg << name << "# " << "vme stop thread" << vmeStatus << endl;
     stMsg->stateOut(debugMsg);
 }
 
