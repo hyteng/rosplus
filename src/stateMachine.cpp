@@ -114,7 +114,6 @@ smBase::command stateMachine::getCommand() {
     cmdId << (int)cmd;
     string result;
     cmdId >> result;
-    msg->stateOut(1, result);
     return cmd;
 }
 
