@@ -18,7 +18,7 @@ import gettext
 # begin wxGlade: extracode
 # end wxGlade
 
-HOST='192.168.1.120'
+HOST='127.0.0.1'
 MSGPORT=4000
 DATAPORT=4001
 CTRLPORT=4002
@@ -29,8 +29,8 @@ class ctrlFrame(wx.Frame):
         wx.Frame.__init__(self, *args, **kwds)
         self.devList = wx.Notebook(self, wx.ID_ANY)
         self.devPanel = wx.Panel(self.devList, wx.ID_ANY)
-        self.output0 = wx.TextCtrl(self, wx.ID_ANY, _("ctrlMsg"), style=wx.HSCROLL | wx.TE_MULTILINE | wx.TE_READONLY)
-        self.input0 = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.HSCROLL | wx.TE_MULTILINE | wx.TE_PROCESS_ENTER)
+        self.output0 = wx.TextCtrl(self, wx.ID_ANY, _("ctrlMsg"), style=wx.HSCROLL | wx.TE_BESTWRAP | wx.TE_MULTILINE | wx.TE_READONLY)
+        self.input0 = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.HSCROLL | wx.TE_BESTWRAP | wx.TE_MULTILINE | wx.TE_PROCESS_ENTER)
         self.button_Load = wx.Button(self, wx.ID_ANY, _("Load"))
         self.button_Conf = wx.Button(self, wx.ID_ANY, _("Conf"))
         self.button_Prep = wx.Button(self, wx.ID_ANY, _("Prep"))
@@ -127,13 +127,14 @@ class switch(threading.Thread):
         print "switch is running for "
         print self.devList
         while True :
-            data = self.socket.recv(80)
+            data = self.socket.recv(4)
             if data=='' :
                 break
-            print "%s"%(data)
-            #if self.frame!=-1 :
-                #txt = self.frame.output0
-                #txt.AppendText(data)
+            #print "%s"%(data)
+            if (self.frame!=-1) and (self.frame!=None) :
+                txt = self.frame.output0
+                if txt!=None :
+                    wx.CallAfter(txt.AppendText, data)
         print "switch is finished."
 
 
