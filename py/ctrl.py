@@ -116,38 +116,84 @@ class ctrlFrame(wx.Frame):
 # end of class ctrlFrame
 
 
-class switch(threading.Thread):
-    def __init__(self, s, f, l):
-        super(switch, self).__init__()
+class msgSwitch(threading.Thread):
+    def __init__(self, s, fl, nl):
+        super(msgSwitch, self).__init__()
         self.socket = s
-        self.frame = f
-        self.devList = l
+        self.frameList = fl
+        self.nameList = nl
 
     def run(self):
-        print "switch is running for "
-        print self.devList
+        print "msgSwitch is running"
+        line = ""
         while True :
             data = self.socket.recv(4)
             if data=='' :
                 break
-            #print "%s"%(data)
-            if (self.frame!=-1) and (self.frame!=None) :
-                txt = self.frame.output0
-                if txt!=None :
-                    wx.CallAfter(txt.AppendText, data)
-        print "switch is finished."
+            line += data
+            idx = line.find('\0')
+            if idx<0 :
+                continue
+            else :
+                msg = line[:idx]
+                line = line[idx+1:]
+            #print "%s"%(msg)
+            name = msg[:msg.find('#')]
+            frame = -1
+            #print name
+            #print self.nameList
+            if self.nameList.count(name)==1 : 
+                i = self.nameList.index(name)
+                #print "message from %s in devList %dth"%(name,i)
+                frame = self.frameList[i]
+                if (frame!=-1) and (frame!=None) :
+                    txt = frame.output0
+                    wx.CallAfter(txt.AppendText, msg)
+        print "msgSwitch is finished."
 
+class dataSwitch(threading.Thread):
+    def __init__(self, s, dl, nl):
+        super(dataSwitch, self).__init__()
+        self.socket = s
+        self.devList = dl
+        self.nameList = nl
+
+    def run(self):
+        print "dataSwitch is running"
+        buf=''
+        while True :
+            data = self.socket.recv(4)
+            if data=='' :
+                break
+            buf += data
+            idx = buf.find('\0\0\0\0')
+            if idx<0 :
+                continue;
+            else :
+                event = buf[:idx]
+                buf = buf[idx+4:]
+            
+            
+            #print "%s"%(data)
+        print "dataSwitch is finished."
 
 class ctrlApp(wx.App):
     def OnInit(self):
         wx.InitAllImageHandlers()
         frame0 = ctrlFrame(None, wx.ID_ANY, "")
-        self.frame1 = adc1785.devFrame(None, wx.ID_ANY, "")
-        self.dev1 = adc1785.devApp("adc1785")
-        self.frame1.setDev(self.dev1)
-        self.dev1.setFrame(self.frame1)
-        self.devList = []
-        self.devList.append(self.dev1)
+        
+        self.frames = []
+        self.devs = []
+        self.names = []
+        self.frames.append(frame0)
+        self.devs.append(self)
+        self.names.append("ctrl")
+        
+        self.frames.append(adc1785.devFrame(None, wx.ID_ANY, ""))
+        self.devs.append(adc1785.devApp("vme1-adc1785-0"))
+        self.names.append("vme1-adc1785-0")
+        self.frames[-1].setDev(self.devs[-1])
+        self.devs[-1].setFrame(self.frames[-1])
 
         self.addrMsg = (HOST, MSGPORT)
         self.socketMsg = socket(AF_INET, SOCK_STREAM)
@@ -157,13 +203,13 @@ class ctrlApp(wx.App):
         self.socketCtrl = socket(AF_INET, SOCK_STREAM)
 
         self.thpool = []
-        self.thpool.append(switch(self.socketMsg, frame0, self.devList))
-        self.thpool.append(switch(self.socketData, -1, self.devList))
+        self.thpool.append(msgSwitch(self.socketMsg, self.frames, self.names))
+        #self.thpool.append(dataSwitch(self.socketData, self.devs, self.names))
 
         frame0.setSocket(self.socketCtrl)
         self.SetTopWindow(frame0)
         frame0.Show()
-        self.frame1.Show()
+        self.frames[1].Show()
 
         return 1
 
@@ -202,5 +248,5 @@ if __name__ == "__main__":
 
     ctrl0 = ctrlApp(0)
     ctrl0.start()
-    ctrl0.dev1.fillCh(0, 1000)
+    #ctrl0.devs[1].fillCh(0, 1000)
     ctrl0.MainLoop()

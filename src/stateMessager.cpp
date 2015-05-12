@@ -56,7 +56,7 @@ int stateMessager::stateOut(const int& stKey, const string& stMsg) {
 int stateMessager::stateOut(stringstream& msg) {
     std::unique_lock<std::mutex> lock(debugMutex);
     cout << msg.str() << endl;
-    sendMsg(msg.str()+"\r\n");
+    sendMsg(msg.str()+"\n");
     msg.str("");
     return 1;
 }
