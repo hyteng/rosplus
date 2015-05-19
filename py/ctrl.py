@@ -5,11 +5,12 @@
 #
 
 import wx
+import os
 import threading
 import time
 from socket import *
 
-import adc1785
+#import adc1785
 
 # begin wxGlade: dependencies
 import gettext
@@ -27,8 +28,13 @@ class ctrlFrame(wx.Frame):
     def __init__(self, *args, **kwds):
         # begin wxGlade: ctrlFrame.__init__
         wx.Frame.__init__(self, *args, **kwds)
-        self.devList = wx.Notebook(self, wx.ID_ANY)
-        self.devPanel = wx.Panel(self.devList, wx.ID_ANY)
+
+        self.dName = []
+        self.dCount = 0
+        self.dev_button = []
+        for i in range(self.dCount) :
+            self.dev_button.append( wx.ToggleButton(self, wx.ID_ANY, _(self.dName[i])))
+
         self.output0 = wx.TextCtrl(self, wx.ID_ANY, _("ctrlMsg"), style=wx.HSCROLL | wx.TE_BESTWRAP | wx.TE_MULTILINE | wx.TE_READONLY)
         self.input0 = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.HSCROLL | wx.TE_BESTWRAP | wx.TE_MULTILINE | wx.TE_PROCESS_ENTER)
         self.button_Load = wx.Button(self, wx.ID_ANY, _("Load"))
@@ -69,8 +75,13 @@ class ctrlFrame(wx.Frame):
         # begin wxGlade: ctrlFrame.__do_layout
         sizer_1 = wx.BoxSizer(wx.VERTICAL)
         grid_sizer_1 = wx.GridSizer(2, 5, 0, 0)
-        self.devList.AddPage(self.devPanel, _("tab1"))
-        sizer_1.Add(self.devList, 1, wx.ALL | wx.EXPAND, 0)
+
+        grid_sizer_2 = wx.FlexGridSizer(1, self.dCount, 0, 0)
+        for i in range(self.dCount) :
+            grid_sizer_2.Add(self.dev_button[i], 0, 0, 0)
+        grid_sizer_2.AddGrowableRow(0)
+
+        sizer_1.Add(grid_sizer_2, 1, wx.ALL | wx.EXPAND, 0)
         sizer_1.Add(self.output0, 3, wx.ALL | wx.EXPAND, 1)
         sizer_1.Add(self.input0, 0, wx.ALL | wx.EXPAND, 1)
         grid_sizer_1.Add(self.button_Load, 1, wx.ALL | wx.EXPAND | wx.FIXED_MINSIZE, 1)
@@ -180,6 +191,24 @@ class dataSwitch(threading.Thread):
 class ctrlApp(wx.App):
     def OnInit(self):
         wx.InitAllImageHandlers()
+    
+        self.isCfg=os.path.exists("./mlist.txt")
+        self.cfgFile = None
+        self.modules = []
+        self.mName = []
+        self.dName = []
+        self.dCount = 0
+        if self.isCfg==True :
+            self.cfgFile = open("./mlist.txt", 'r')
+            self.modules = self.cfgFile.readlines()
+            for idx in self.modules :
+                m = idx[:idx.find(' ')]
+                n = idx[idx.find(' ')+1:]
+                import m
+                self.mName.append(m)
+                self.dName.append(n)
+                self.dCount++
+
         frame0 = ctrlFrame(None, wx.ID_ANY, "")
         
         self.frames = []
