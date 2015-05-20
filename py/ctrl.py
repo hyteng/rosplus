@@ -25,15 +25,17 @@ DATAPORT=4001
 CTRLPORT=4002
 
 class ctrlFrame(wx.Frame):
-    def __init__(self, *args, **kwds):
+    def __init__(self, dCount, dName, *args, **kwds):
         # begin wxGlade: ctrlFrame.__init__
         wx.Frame.__init__(self, *args, **kwds)
 
-        self.dName = []
-        self.dCount = 0
+        self.dCount = dCount
+        self.dName = dName
         self.dev_button = []
+        self.devShow = []
         for i in range(self.dCount) :
-            self.dev_button.append( wx.ToggleButton(self, wx.ID_ANY, _(self.dName[i])))
+            self.dev_button.append(wx.ToggleButton(self, wx.ID_ANY, _(self.dName[i])))
+            self.devShow.append(0)
 
         self.output0 = wx.TextCtrl(self, wx.ID_ANY, _("ctrlMsg"), style=wx.HSCROLL | wx.TE_BESTWRAP | wx.TE_MULTILINE | wx.TE_READONLY)
         self.input0 = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.HSCROLL | wx.TE_BESTWRAP | wx.TE_MULTILINE | wx.TE_PROCESS_ENTER)
@@ -63,7 +65,9 @@ class ctrlFrame(wx.Frame):
         self.Bind(wx.EVT_BUTTON, lambda evt, cmdId=7: self.sendCmd(evt, cmdId), self.button_End)
         self.Bind(wx.EVT_BUTTON, lambda evt, cmdId=10: self.sendCmd(evt, cmdId), self.button_Stop)
         self.Bind(wx.EVT_BUTTON, lambda evt, cmdId=9: self.sendCmd(evt, cmdId), self.button_Resu)
- 
+        for i in range(self.dCount) :
+            self.Bind(wx.EVT_TOGGLEBUTTON, lambda evt, devId=i: self.showDev(evt, devId), self.dev_button[i])
+
         # end wxGlade
 
     def __set_properties(self):
@@ -123,6 +127,22 @@ class ctrlFrame(wx.Frame):
 
     def setSocket(self, s):
         self.socket = s
+
+    def setApp(self, a):
+        self.app = a
+
+    def showDev(self, event, devId):
+        print "Event handler 'showDev'"
+        b = event.GetEventObject()
+        st = b.GetValue()
+        if self.devShow[devId]!=st :
+            df = self.app.frames[devId+1]
+            if df!=None :
+                if st==1 :
+                    df.Show()
+                else :
+                    df.Hide()
+            self.devShow[devId] = st
 
 # end of class ctrlFrame
 
@@ -184,7 +204,6 @@ class dataSwitch(threading.Thread):
                 event = buf[:idx]
                 buf = buf[idx+4:]
             
-            
             #print "%s"%(data)
         print "dataSwitch is finished."
 
@@ -194,35 +213,40 @@ class ctrlApp(wx.App):
     
         self.isCfg=os.path.exists("./mlist.txt")
         self.cfgFile = None
-        self.modules = []
-        self.mName = []
-        self.dName = []
-        self.dCount = 0
+        self.modLines = []
+        self.modList = []
+        self.modName = []
+        self.modCount = 0
         if self.isCfg==True :
             self.cfgFile = open("./mlist.txt", 'r')
-            self.modules = self.cfgFile.readlines()
-            for idx in self.modules :
+            self.modLines = self.cfgFile.readlines()
+            for idx in self.modLines :
                 m = idx[:idx.find(' ')]
                 n = idx[idx.find(' ')+1:]
-                import m
-                self.mName.append(m)
-                self.dName.append(n)
-                self.dCount++
+                self.modList.append(__import__(m))
+                self.modName.append(n)
+                self.modCount += 1 
 
-        frame0 = ctrlFrame(None, wx.ID_ANY, "")
-        
+        frame0 = ctrlFrame(self.modCount, self.modName, None, wx.ID_ANY, "")
+        frame0.setApp(self)
         self.frames = []
         self.devs = []
         self.names = []
         self.frames.append(frame0)
         self.devs.append(self)
         self.names.append("ctrl")
-        
-        self.frames.append(adc1785.devFrame(None, wx.ID_ANY, ""))
-        self.devs.append(adc1785.devApp("vme1-adc1785-0"))
-        self.names.append("vme1-adc1785-0")
-        self.frames[-1].setDev(self.devs[-1])
-        self.devs[-1].setFrame(self.frames[-1])
+        for idx in range(self.modCount) :
+            self.frames.append(self.modList[idx].devFrame(None, wx.ID_ANY, ""))
+            self.devs.append(self.modList[idx].devApp(self.modName[idx]))
+            self.names.append(self.modName[idx])
+            self.frames[-1].setDev(self.devs[-1])
+            self.devs[-1].setFrame(self.frames[-1])
+
+        #self.frames.append(adc1785.devFrame(None, wx.ID_ANY, ""))
+        #self.devs.append(adc1785.devApp("vme1-adc1785-0"))
+        #self.names.append("vme1-adc1785-0")
+        #self.frames[-1].setDev(self.devs[-1])
+        #self.devs[-1].setFrame(self.frames[-1])
 
         self.addrMsg = (HOST, MSGPORT)
         self.socketMsg = socket(AF_INET, SOCK_STREAM)
@@ -238,7 +262,7 @@ class ctrlApp(wx.App):
         frame0.setSocket(self.socketCtrl)
         self.SetTopWindow(frame0)
         frame0.Show()
-        self.frames[1].Show()
+        #self.frames[1].Show()
 
         return 1
 
