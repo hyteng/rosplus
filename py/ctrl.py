@@ -211,14 +211,14 @@ class ctrlApp(wx.App):
     def OnInit(self):
         wx.InitAllImageHandlers()
     
-        self.isCfg=os.path.exists("./mlist.txt")
+        self.isCfg=os.path.exists("./mlist.conf")
         self.cfgFile = None
         self.modLines = []
         self.modList = []
         self.modName = []
         self.modCount = 0
         if self.isCfg==True :
-            self.cfgFile = open("./mlist.txt", 'r')
+            self.cfgFile = open("./mlist.conf", 'r')
             self.modLines = self.cfgFile.readlines()
             for idx in self.modLines :
                 m = idx[:idx.find(' ')]
