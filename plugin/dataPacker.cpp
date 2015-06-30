@@ -171,6 +171,11 @@ int dataPacker::packData(unsigned int& packSize) {
             // copy to Output
             dataPool->netWrite(tmp, tmpIdx*4);
             tranSize += tmpIdx*4;
+            debugMsg << name << "# " << "pack data: " << endl;
+            for(int i=0; i<tmpIdx; i++) {
+                debugMsg << tmp[i] << " ";
+            }
+            stMsg->stateOut(debugMsg);
             tmpIdx=0;
             continue;
         }
