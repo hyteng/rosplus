@@ -35,7 +35,7 @@ class ctrlFrame(wx.Frame):
         self.devShow = []
         for i in range(self.dCount) :
             #self.dev_button.append(wx.ToggleButton(self, wx.ID_ANY, _(self.dName[i])))
-            self.dev_button.append(wx.BitmapButton(self, wx.ID_ANY, wx.Bitmap("adc1785_button.png", wx.BITMAP_TYPE_ANY))
+            self.dev_button.append(wx.BitmapButton(self, wx.ID_ANY, wx.Image("vme1-adc1785-0.png", wx.BITMAP_TYPE_PNG).ConvertToBitmap()))
             self.devShow.append(0)
 
         self.output0 = wx.TextCtrl(self, wx.ID_ANY, _("ctrlMsg"), style=wx.HSCROLL | wx.TE_BESTWRAP | wx.TE_MULTILINE | wx.TE_READONLY)
@@ -67,7 +67,7 @@ class ctrlFrame(wx.Frame):
         self.Bind(wx.EVT_BUTTON, lambda evt, cmdId=10: self.sendCmd(evt, cmdId), self.button_Stop)
         self.Bind(wx.EVT_BUTTON, lambda evt, cmdId=9: self.sendCmd(evt, cmdId), self.button_Resu)
         for i in range(self.dCount) :
-            self.Bind(wx.EVT_TOGGLEBUTTON, lambda evt, devId=i: self.showDev(evt, devId), self.dev_button[i])
+            self.Bind(wx.EVT_BUTTON, lambda evt, devId=i: self.showDev(evt, devId), self.dev_button[i])
 
         # end wxGlade
 
@@ -83,10 +83,10 @@ class ctrlFrame(wx.Frame):
 
         grid_sizer_2 = wx.FlexGridSizer(1, self.dCount, 0, 0)
         for i in range(self.dCount) :
-            grid_sizer_2.Add(self.dev_button[i], 0, 0, 0)
+            grid_sizer_2.Add(self.dev_button[i], 0, wx.ALL | wx.EXPAND, 0)
         grid_sizer_2.AddGrowableRow(0)
 
-        sizer_1.Add(grid_sizer_2, 1, wx.ALL | wx.EXPAND, 0)
+        sizer_1.Add(grid_sizer_2, 5, wx.ALL | wx.EXPAND, 0)
         sizer_1.Add(self.output0, 3, wx.ALL | wx.EXPAND, 1)
         sizer_1.Add(self.input0, 0, wx.ALL | wx.EXPAND, 1)
         grid_sizer_1.Add(self.button_Load, 1, wx.ALL | wx.EXPAND | wx.FIXED_MINSIZE, 1)
@@ -134,16 +134,17 @@ class ctrlFrame(wx.Frame):
 
     def showDev(self, event, devId):
         print "Event handler 'showDev'"
-        b = event.GetEventObject()
-        st = b.GetValue()
-        if self.devShow[devId]!=st :
-            df = self.app.frames[devId+1]
-            if df!=None :
-                if st==1 :
-                    df.Show()
-                else :
-                    df.Hide()
-            self.devShow[devId] = st
+        #b = event.GetEventObject()
+        #st = b.GetValue()
+        #if self.devShow[devId]!=st :
+        df = self.app.frames[devId+1]
+        if df!=None :
+            st = df.IsShown()
+            if st==0 :
+                df.Show()
+            else :
+                df.Hide()
+        self.devShow[devId] = st
 
 # end of class ctrlFrame
 
@@ -219,7 +220,7 @@ class ctrlApp(wx.App):
         self.modName = []
         self.modCount = 0
         if self.isCfg==True :
-            self.cfgFile = open("./mlist.conf", 'r')
+            self.cfgFile = open("mlist.conf", 'r')
             self.modLines = self.cfgFile.readlines()
             for idx in self.modLines :
                 m = idx[:idx.find(' ')]
