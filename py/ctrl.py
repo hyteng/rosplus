@@ -34,7 +34,8 @@ class ctrlFrame(wx.Frame):
         self.dev_button = []
         self.devShow = []
         for i in range(self.dCount) :
-            self.dev_button.append(wx.ToggleButton(self, wx.ID_ANY, _(self.dName[i])))
+            #self.dev_button.append(wx.ToggleButton(self, wx.ID_ANY, _(self.dName[i])))
+            self.dev_button.append(wx.BitmapButton(self, wx.ID_ANY, wx.Bitmap("adc1785_button.png", wx.BITMAP_TYPE_ANY))
             self.devShow.append(0)
 
         self.output0 = wx.TextCtrl(self, wx.ID_ANY, _("ctrlMsg"), style=wx.HSCROLL | wx.TE_BESTWRAP | wx.TE_MULTILINE | wx.TE_READONLY)
