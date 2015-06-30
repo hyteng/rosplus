@@ -67,8 +67,8 @@ int daq::PausedSPTR(int para) {
 
 int daq::configDaq() {
     fileName = "data_sample.txt";
-    if(!cfgInfo->infoGetString("config.daq.fileName", fileName)) {
-        debugMsg << name << "# " << "config: could not get config.daq.fileName";
+    if(!cfgInfo->infoGetString("config."+name+".fileName", fileName)) {
+        debugMsg << name << "# " << "config: could not get config."+name+".fileName";
         stMsg->stateOut(debugMsg);
     }
     return 1;
