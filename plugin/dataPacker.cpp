@@ -91,7 +91,7 @@ void dataPacker::runPack() {
         if(packMsg.signal == 2 || totalPackSize >= 72) {
  
             unsigned int packTranSize = totalPackSize;
-            if(!packDataTest(packTranSize)) {
+            if(!packData(packTranSize)) {
                 packStatus = TASK_ERROR;
                 break;
             }
