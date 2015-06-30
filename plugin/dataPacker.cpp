@@ -91,7 +91,7 @@ void dataPacker::runPack() {
         if(packMsg.signal == 2 || totalPackSize >= 72) {
  
             unsigned int packTranSize = totalPackSize;
-            if(!packDataTest(packTranSize)) {
+            if(!packData(packTranSize)) {
                 packStatus = TASK_ERROR;
                 break;
             }
@@ -171,6 +171,11 @@ int dataPacker::packData(unsigned int& packSize) {
             // copy to Output
             dataPool->netWrite(tmp, tmpIdx*4);
             tranSize += tmpIdx*4;
+            debugMsg << name << "# " << "pack data: " << endl;
+            for(int i=0; i<tmpIdx; i++) {
+                debugMsg << std::hex << tmp[i] << " ";
+            }
+            stMsg->stateOut(debugMsg);
             tmpIdx=0;
             continue;
         }

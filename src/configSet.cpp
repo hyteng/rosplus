@@ -167,7 +167,7 @@ int configSet::infoSetUint(const string& name, const uint32_t& value) {
         return 0;
     }
 
-    cout << "infoSet" << name << ", " << value << endl;
+    //cout << "infoSet " << name << ", " << value << endl;
     return 1;
 }
 
@@ -185,7 +185,7 @@ int configSet::infoSetUlong(const string& name, const uint64_t& value) {
         return 0;
     }
 
-    cout << "infoSet" << name << ", " << value << endl;
+    //cout << "infoSet " << name << ", " << value << endl;
     return 1;
 }
 
@@ -203,7 +203,7 @@ int configSet::infoSetDouble(const string& name, const double& value) {
         return 0;
     }
 
-    cout << "infoSet" << name << ", " << value << endl;
+    //cout << "infoSet " << name << ", " << value << endl;
     return 1;
 }
 
@@ -221,7 +221,7 @@ int configSet::infoSetString(const string& name, const string& value) {
         return 0;
     }
 
-    cout << "infoSet" << name << ", " << value << endl;
+    //cout << "infoSet " << name << ", " << value << endl;
     return 1;
 
 }
@@ -305,6 +305,8 @@ int configSet::readConfig(const string& cfg) {
         getline(ss, s[1], '\t');
         getline(ss, s[2], '\t');
 
+        //cout << "sline: " << cfgLine << endl;
+        //cout << "s1: " << s[1] << endl;
         int bit = infoExist(s[1]);
         if(bit != 0) {
             cout << "conflict! type: " << s[0] << ", name: " << s[1] << ", value: " << s[2] << endl;
