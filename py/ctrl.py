@@ -144,7 +144,7 @@ class ctrlFrame(wx.Frame):
                 df.Show()
             else :
                 df.Hide()
-        self.devShow[devId] = st
+        self.devShow[devId] = df.IsShown()
 
 # end of class ctrlFrame
 

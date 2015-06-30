@@ -18,6 +18,7 @@ import gettext
 class devFrame(wx.Frame):
     def __init__(self, *args, **kwds):
         # begin wxGlade: devFrame.__init__
+        style = wx.MINIMIZE_BOX|wx.MAXIMIZE_BOX|wx.RESIZE_BORDER
         wx.Frame.__init__(self, *args, **kwds)
         self.output0 = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.HSCROLL | wx.TE_MULTILINE | wx.TE_READONLY)
         self.ch0_L = wx.ToggleButton(self, wx.ID_ANY, _("ch0_L"))
@@ -58,6 +59,10 @@ class devFrame(wx.Frame):
         self.Bind(wx.EVT_TOGGLEBUTTON, lambda event, n=14 :self.showCh(event, n), self.ch6_H)
         self.Bind(wx.EVT_TOGGLEBUTTON, lambda event, n=15 :self.showCh(event, n), self.ch7_H)
         # end wxGlade
+        self.Bind(wx.EVT_CLOSE, self.on_close)
+
+    def on_close(self, event):
+        self.Hide()
 
     def __set_properties(self):
         # begin wxGlade: devFrame.__set_properties
@@ -114,6 +119,8 @@ class devFrame(wx.Frame):
 
     def setDev(self, d):
         self.dev = d
+        self.SetTitle(_(d.name))
+
 
 # end of class devFrame
 class devApp:
