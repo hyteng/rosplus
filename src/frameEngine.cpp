@@ -27,7 +27,7 @@ int frameEngine::InitializedLOAD(int para) {
         return -1;
     }                    
 
-    if((res=cfgInfo->infoGetString("config.lib_dir", libDir)) != 1) {
+    if((res=cfgInfo->infoGetString("config.libDir", libDir)) != 1) {
         return -1;       
     }                    
     
