@@ -41,7 +41,7 @@ void smBase::init(stateMessager* msg, configSet* cfg, dataStream* data, const st
     actions[CMID_PREP][STID_Ready] = &smBase::SelfTrans;
     actions[CMID_SATR][STID_Ready] = &smBase::ReadySATR;
     actions[CMID_SATR][STID_Running] = &smBase::SelfTrans;
-    actions[CMID_SATR][STID_Paused] = &smBase::PausedSATR;
+    //actions[CMID_SATR][STID_Paused] = &smBase::PausedSATR;
     actions[CMID_SPTR][STID_Running] = &smBase::RunningSPTR;
     actions[CMID_SPTR][STID_Ready] = &smBase::SelfTrans;
     actions[CMID_SPTR][STID_Paused] = &smBase::PausedSPTR;
@@ -50,6 +50,9 @@ void smBase::init(stateMessager* msg, configSet* cfg, dataStream* data, const st
     actions[CMID_PAUS][STID_Paused] = &smBase::SelfTrans;
     actions[CMID_RESU][STID_Paused] = &smBase::PausedRESU;
     actions[CMID_RESU][STID_Running] = &smBase::SelfTrans;
+    actions[CMID_CONF][STID_Running] = &smBase::RunningCONF;
+    actions[CMID_CONF][STID_Paused] = &smBase::PausedCONF;
+    actions[CMID_CONF][STID_Ready] = &smBase::ReadyCONF;
 
     stId = STID_Initialized;
 }
