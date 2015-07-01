@@ -27,36 +27,36 @@ vme::~vme() {
 int vme::InitializedLOAD(int para) {
     debugMsg << name << "# " << "InitializedLOAD";
     stMsg->stateOut(debugMsg); 
-    //pvme = new VMEBridge;
+    pvme = new VMEBridge;
     return 2;
 }
 
 int vme::LoadedUNLD(int para) {
     debugMsg << name << "# " << "LoadedUNLD";
     stMsg->stateOut(debugMsg);
-    //delete pvme;
+    delete pvme;
     return 1;
 }
 
 int vme::LoadedCONF(int para) {
     debugMsg << name << "# " << "LoadedCONF";
     stMsg->stateOut(debugMsg);
-    //configVme();
+    configVme();
     return 3;
 }
 
 int vme::ConfiguredUNCF(int para) {
     debugMsg << name << "# " << "ConfiguredUNCF";
     stMsg->stateOut(debugMsg);
-    //releaseVme();
+    releaseVme();
     return 2;
 }
 
 int vme::ConfiguredPREP(int para) {
     debugMsg << name << "# " << "ConfiguredPREP";
     stMsg->stateOut(debugMsg);
-    //if(!prepVme())
-        //return -1;
+    if(!prepVme())
+        return -1;
     return 4;
 }
 int vme::ReadySATR(int para) {
@@ -76,7 +76,7 @@ int vme::RunningSPTR(int para) {
 int vme::ReadySTOP(int para) {
     debugMsg << name << "# " << "ReadySTOP";
     stMsg->stateOut(debugMsg);
-    //finishVme();
+    finishVme();
     return 3;
 }
 
@@ -181,7 +181,7 @@ void vme::runVme() {
         if(runVmeCtrl == TASK_STOP) {
             break;
         }
-        /*       
+        
         pvme->waitIrq(7, 0);
         int offset = pvme->DMAread(adc0Base, dmaSize, A32, D32);
         if(offset < 0) {
@@ -189,9 +189,9 @@ void vme::runVme() {
             break;
         }
         unsigned int tranSize = dataPool->devWrite((void*)(dmaBase+offset), dmaSize);
-        */
-        sleep(1);
-        unsigned int tranSize = dataPool->devWrite(tmp, dmaSize);
+
+        //sleep(1);
+        //unsigned int tranSize = dataPool->devWrite(tmp, dmaSize);
 
         genSize += dmaSize;
         sndSize += tranSize;
