@@ -150,43 +150,43 @@ int adc1785::LoadedUNLD(int para) {
 int adc1785::LoadedCONF(int para) {
     debugMsg << name << "# " << "LoadedCONF";
     stMsg->stateOut(debugMsg);
-    if(!configAdc())
-        return -1;
+    //if(!configAdc())
+        //return -1;
     return 3;
 }
 
 int adc1785::ConfiguredUNCF(int para) {
     debugMsg << name << "# " << "ConfiguredUNCF";
     stMsg->stateOut(debugMsg);
-    releaseAdc();
+    //releaseAdc();
     return 2;
 }
 
 int adc1785::ConfiguredPREP(int para) {
     debugMsg << name << "# " << "ConfiguredPREP";
     stMsg->stateOut(debugMsg);
-    prepAdc();
+    //prepAdc();
     return 4;
 }
 int adc1785::ReadySATR(int para) {
     debugMsg << name << "# " << "ReadySATR";
     stMsg->stateOut(debugMsg);
-    stopAdc();
-    startAdc();
+    //stopAdc();
+    //startAdc();
     return 5;
 }
 
 int adc1785::RunningSPTR(int para) {
     debugMsg << name << "# " << "RunningSPTR";
     stMsg->stateOut(debugMsg);
-    stopAdc();
+    //stopAdc();
     return 4;
 }
 
 int adc1785::ReadySTOP(int para) {
     debugMsg << name << "# " << "ReadySTOP";
     stMsg->stateOut(debugMsg);
-    finishAdc();
+    //finishAdc();
     return 3;
 }
 
