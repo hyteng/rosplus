@@ -21,8 +21,10 @@ class vme :public smBase {
         virtual int ReadySATR(int para);
         virtual int RunningSPTR(int para);
         virtual int ReadySTOP(int para);
+        virtual int RunningPAUS(int para);
         virtual int PausedSPTR(int para);
         virtual int PausedRESU(int para);
+        virtual int OTFCONF(int para);
 
     private:
         int configVme();

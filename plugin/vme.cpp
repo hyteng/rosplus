@@ -80,11 +80,19 @@ int vme::ReadySTOP(int para) {
     return 3;
 }
 
+int vme::RunningPAUS(int para) {
+    return 6;
+}
+
 int vme::PausedSPTR(int para) {
     debugMsg << name << "# " << "PausedSPTR";
     stMsg->stateOut(debugMsg);
     stopVme();
     return 4;
+}
+
+int vme::PausedRESU(int para) {
+    return 5;
 }
 
 int vme::configVme() {
@@ -218,6 +226,10 @@ void vme::runVme() {
 
     debugMsg << name << "# " << "vme stop thread" << vmeStatus << endl;
     stMsg->stateOut(debugMsg);
+}
+
+int vme::OTFCONF(int para) {
+    return stId;
 }
 
 extern "C" smBase* create(const string& n) {

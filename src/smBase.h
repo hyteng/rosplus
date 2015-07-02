@@ -64,8 +64,8 @@ class smBase {
         virtual int ConfiguredUNCF(int para) {return 2;};
         virtual int ConfiguredPREP(int para) {return 4;};
         virtual int ReadySATR(int para) {return 5;};
-        virtual int RunningSPTR(int para) {return 4;};
         virtual int ReadySTOP(int para) {return 3;};
+        virtual int RunningSPTR(int para) {return 4;};
         virtual int RunningPAUS(int para) {return 6;};
         virtual int PausedSPTR(int para) {return 4;};
         virtual int PausedRESU(int para) {return 5;};
@@ -74,9 +74,9 @@ class smBase {
         virtual int AnyIMPO(int para) {return stId;};
         virtual int AnyEXIT(int para) {return 0;};
         virtual int OTFCONF(int para) {return stId;};
-        virtual int RunningCONF(int para) {return stId;};
-        virtual int PausedCONF(int para) {return stId;};
-        virtual int ReadyCONF(int para) {return stId;};
+        virtual int RunningCONF(int para) {return OTFCONF(para);};
+        virtual int PausedCONF(int para) {return OTFCONF(para);};
+        virtual int ReadyCONF(int para) {return OTFCONF(para);};
 
         pFunc actions[MAX_CMD_AMOUNT][MAX_STATES_AMOUNT];
 

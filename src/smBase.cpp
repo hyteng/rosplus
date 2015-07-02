@@ -47,6 +47,7 @@ void smBase::init(stateMessager* msg, configSet* cfg, dataStream* data, const st
     actions[CMID_SPTR][STID_Paused] = &smBase::PausedSPTR;
     actions[CMID_STOP][STID_Configured] = &smBase::SelfTrans;
     actions[CMID_STOP][STID_Ready] = &smBase::ReadySTOP;
+    actions[CMID_PAUS][STID_Running] = &smBase::RunningPAUS;
     actions[CMID_PAUS][STID_Paused] = &smBase::SelfTrans;
     actions[CMID_RESU][STID_Paused] = &smBase::PausedRESU;
     actions[CMID_RESU][STID_Running] = &smBase::SelfTrans;
