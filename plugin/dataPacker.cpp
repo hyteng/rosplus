@@ -44,11 +44,23 @@ int dataPacker::RunningSPTR(int para) {
     return 4;
 }
 
+int dataPacker::RunningPAUS(int para) {
+    return 6;
+}
+
 int dataPacker::PausedSPTR(int para) {
     debugMsg << name << "# " << "PausedSPTR";
     stMsg->stateOut(debugMsg);
     stopPacker();
     return 4;
+}
+
+int dataPacker::PausedRESU(int para) {
+    return 5;
+}
+
+int dataPacker::OTFCONF(int para) {
+    return stId;
 }
 
 int dataPacker::prepPacker() {

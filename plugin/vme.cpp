@@ -59,6 +59,14 @@ int vme::ConfiguredPREP(int para) {
         //return -1;
     return 4;
 }
+
+int vme::ReadySTOP(int para) {
+    debugMsg << name << "# " << "ReadySTOP";
+    stMsg->stateOut(debugMsg);
+    //finishVme();
+    return 3;
+}
+
 int vme::ReadySATR(int para) {
     debugMsg << name << "# " << "ReadySATR";
     stMsg->stateOut(debugMsg);
@@ -71,13 +79,6 @@ int vme::RunningSPTR(int para) {
     stMsg->stateOut(debugMsg);
     stopVme();
     return 4;
-}
-
-int vme::ReadySTOP(int para) {
-    debugMsg << name << "# " << "ReadySTOP";
-    stMsg->stateOut(debugMsg);
-    //finishVme();
-    return 3;
 }
 
 int vme::RunningPAUS(int para) {
@@ -93,6 +94,10 @@ int vme::PausedSPTR(int para) {
 
 int vme::PausedRESU(int para) {
     return 5;
+}
+
+int vme::OTFCONF(int para) {
+    return stId;
 }
 
 int vme::configVme() {
@@ -226,10 +231,6 @@ void vme::runVme() {
 
     debugMsg << name << "# " << "vme stop thread" << vmeStatus << endl;
     stMsg->stateOut(debugMsg);
-}
-
-int vme::OTFCONF(int para) {
-    return stId;
 }
 
 extern "C" smBase* create(const string& n) {

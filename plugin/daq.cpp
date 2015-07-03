@@ -37,6 +37,13 @@ int daq::ConfiguredPREP(int para) {
     return 4;
 }
 
+int daq::ReadySTOP(int para) {
+    debugMsg << name << "# " << "ReadySTOP";
+    stMsg->stateOut(debugMsg);
+    finishDaq();
+    return 3;
+}
+
 int daq::ReadySATR(int para) {
     debugMsg << name << "# " << "ReadySATR";
     stMsg->stateOut(debugMsg);
@@ -51,11 +58,8 @@ int daq::RunningSPTR(int para) {
     return 4;
 }
 
-int daq::ReadySTOP(int para) {
-    debugMsg << name << "# " << "ReadySTOP";
-    stMsg->stateOut(debugMsg);
-    finishDaq();
-    return 3;
+int daq::RunningPAUS(int para) {
+    return 6;
 }
 
 int daq::PausedSPTR(int para) {
@@ -63,6 +67,14 @@ int daq::PausedSPTR(int para) {
     stMsg->stateOut(debugMsg);
     stopDaq();
     return 4;
+}
+
+int daq::PausedRESU(int para) {
+    return 5;
+}
+
+int daq::OTFCONF(int para) {
+    return stId;
 }
 
 int daq::configDaq() {
