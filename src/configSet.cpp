@@ -18,7 +18,7 @@ configSet::~configSet() {
 
 int configSet::infoCreate() {
     if(isCreated == true)
-        return -1;
+        return 0;
 
     pInfoMap = new std::map<string, infoNode>;
     isCreated = true;
@@ -39,10 +39,11 @@ int configSet::infoRelease() {
 
 int configSet::infoAdd(const string& name, const infoType& type) {
     if(isCreated == false)
-        return -1;
+        return 0;
 
     if(pInfoMap->find(name) != pInfoMap->end()) {
-        return 0;
+        if((*pInfoMap)[name].type != type)
+            return 0;
     }
     else {
         infoNode node;
@@ -55,8 +56,9 @@ int configSet::infoAdd(const string& name, const infoType& type) {
 
 int configSet::infoGetType(const string& name, infoType& type) {
     if(isCreated == false)
-        return -1;
+        return 0;
 
+    type = NOTYPE;
     if(pInfoMap->find(name) != pInfoMap->end()) {
         type = (*pInfoMap)[name].type;
     }
@@ -69,7 +71,7 @@ int configSet::infoGetType(const string& name, infoType& type) {
 
 int configSet::infoGetValue(const string& name, void* value) {
     if(isCreated == false)
-        return -1;
+        return 0;
 
     if(pInfoMap->find(name) != pInfoMap->end()) {
         switch((*pInfoMap)[name].type) {
@@ -98,7 +100,7 @@ int configSet::infoGetValue(const string& name, void* value) {
 
 int configSet::infoModify(const string& name, const void* value) {
     if(isCreated == false)
-        return -1;
+        return 0;
 
     if(pInfoMap->find(name) != pInfoMap->end()) {
         switch((*pInfoMap)[name].type) {
@@ -127,7 +129,7 @@ int configSet::infoModify(const string& name, const void* value) {
 
 int configSet::infoExist(const string& name) {
     if(isCreated == false)
-        return -1;
+        return 0;
 
     if(pInfoMap->find(name) != pInfoMap->end())
         return 1;
@@ -137,7 +139,7 @@ int configSet::infoExist(const string& name) {
 
 int configSet::infoDelete(const string& name) {
     if(isCreated == false)
-        return -1;
+        return 0;
 
     if(pInfoMap->find(name) != pInfoMap->end())
         pInfoMap->erase(pInfoMap->find(name));
@@ -147,7 +149,7 @@ int configSet::infoDelete(const string& name) {
 
 int configSet::infoClear() {
     if(isCreated == false)
-        return -1;
+        return 0;
 
     pInfoMap->clear();
     return 1;
@@ -155,7 +157,7 @@ int configSet::infoClear() {
 
 int configSet::infoSetUint(const string& name, const uint32_t& value) {
     if(isCreated == false)
-        return -1;
+        return 0;
 
     if(pInfoMap->find(name) != pInfoMap->end()) {
         if((*pInfoMap)[name].type == UINT)
@@ -173,7 +175,7 @@ int configSet::infoSetUint(const string& name, const uint32_t& value) {
 
 int configSet::infoSetUlong(const string& name, const uint64_t& value) {
     if(isCreated == false)
-        return -1;
+        return 0;
 
     if(pInfoMap->find(name) != pInfoMap->end()) {
         if((*pInfoMap)[name].type == ULONG)
@@ -191,7 +193,7 @@ int configSet::infoSetUlong(const string& name, const uint64_t& value) {
 
 int configSet::infoSetDouble(const string& name, const double& value) {
     if(isCreated == false)
-        return -1;
+        return 0;
 
     if(pInfoMap->find(name) != pInfoMap->end()) {
         if((*pInfoMap)[name].type == DOUBLE)
@@ -209,7 +211,7 @@ int configSet::infoSetDouble(const string& name, const double& value) {
 
 int configSet::infoSetString(const string& name, const string& value) {
     if(isCreated == false)
-        return -1;
+        return 0;
 
     if(pInfoMap->find(name) != pInfoMap->end()) {
         if((*pInfoMap)[name].type == STRING)
@@ -228,7 +230,7 @@ int configSet::infoSetString(const string& name, const string& value) {
 
 int configSet::infoGetUint(const string& name, uint32_t& value) {
     if(isCreated == false)
-        return -1;
+        return 0;
 
     if(pInfoMap->find(name) != pInfoMap->end()) {
         if((*pInfoMap)[name].type == UINT)
@@ -245,7 +247,7 @@ int configSet::infoGetUint(const string& name, uint32_t& value) {
 
 int configSet::infoGetUlong(const string& name, uint64_t& value) {
     if(isCreated == false)
-        return -1;
+        return 0;
 
     if(pInfoMap->find(name) != pInfoMap->end()) {
         if((*pInfoMap)[name].type == ULONG)
@@ -262,7 +264,7 @@ int configSet::infoGetUlong(const string& name, uint64_t& value) {
 
 int configSet::infoGetDouble(const string& name, double& value) {
     if(isCreated == false)
-        return -1;
+        return 0;
 
     if(pInfoMap->find(name) != pInfoMap->end()) {
         if((*pInfoMap)[name].type == DOUBLE)
@@ -279,7 +281,7 @@ int configSet::infoGetDouble(const string& name, double& value) {
 
 int configSet::infoGetString(const string& name, string& value) {
     if(isCreated == false)
-        return -1;
+        return 0;
 
     if(pInfoMap->find(name) != pInfoMap->end()) {
         if((*pInfoMap)[name].type == STRING)

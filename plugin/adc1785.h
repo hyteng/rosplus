@@ -16,9 +16,13 @@ class adc1785 :public smBase {
         virtual int LoadedCONF(int para);
         virtual int ConfiguredUNCF(int para);
         virtual int ConfiguredPREP(int para);
+        virtual int ReadySTOP(int para);
         virtual int ReadySATR(int para);
         virtual int RunningSPTR(int para);
-        virtual int ReadySTOP(int para);
+        virtual int RunningPAUS(int para);
+        virtual int PausedSPTR(int para);
+        virtual int PausedRESU(int para);
+        virtual int OTFCONF(int para);
 
     private:
         int configAdc();

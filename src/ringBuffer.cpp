@@ -1,6 +1,6 @@
 #include "ringBuffer.h"
 #include <stdlib.h>
-#include <string.h>
+#include <string.h> //for memcpy
 #include <stdint.h>
 
 using std::string;

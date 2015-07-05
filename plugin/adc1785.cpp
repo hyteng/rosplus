@@ -168,6 +168,14 @@ int adc1785::ConfiguredPREP(int para) {
     //prepAdc();
     return 4;
 }
+
+int adc1785::ReadySTOP(int para) {
+    debugMsg << name << "# " << "ReadySTOP";
+    stMsg->stateOut(debugMsg);
+    //finishAdc();
+    return 3;
+}
+
 int adc1785::ReadySATR(int para) {
     debugMsg << name << "# " << "ReadySATR";
     stMsg->stateOut(debugMsg);
@@ -183,11 +191,55 @@ int adc1785::RunningSPTR(int para) {
     return 4;
 }
 
-int adc1785::ReadySTOP(int para) {
-    debugMsg << name << "# " << "ReadySTOP";
+int adc1785::RunningPAUS(int para) {
+    debugMsg << name << "# " << "RunningPAUS";
     stMsg->stateOut(debugMsg);
-    //finishAdc();
-    return 3;
+    //disableAdc();
+    return 6;
+}
+
+int adc1785::PausedSPTR(int para) {
+    debugMsg << name << "# " << "PausedSPTR";
+    stMsg->stateOut(debugMsg);
+    //stopAdc();
+    return 4;
+}
+
+int adc1785::PausedRESU(int para) {
+    debugMsg << name << "# " << "PausedRESU";
+    stMsg->stateOut(debugMsg);
+    //enableAdc();
+    return 5;
+}
+
+int adc1785::OTFCONF(int para) {
+    debugMsg << name << "# " << "OTFCONF";
+    stMsg->stateOut(debugMsg);
+
+    string cfgIdx;
+    int type;
+
+        switch(type) {
+            case 0:
+                uint32 value;
+                if((res=cfgInfo->infoGetUint(cfgIdx, value)) != 1) {
+                    debugMsg << name << "# " << cfgIdx << " not found.";
+                    stMsg->stateOut(debugMsg);
+                }
+                else {
+                    
+                }
+                break;
+            case 1:
+                break;
+            case 2:
+                break;
+            case 3:
+                break;
+            default :
+                break;
+        }
+    return stId;
 }
 
 int adc1785::configAdc() {
@@ -435,6 +487,12 @@ int adc1785::startAdc() {
     pvme->ww(image, base+ADC1785_BitClear2_Offset, pvme->swap16((uint16_t)0x0004));
 
     // enable adc
+    enableAdc();
+
+    return 1;
+}
+
+int adc1785::enableAdc() {
     uint16_t regBitSet2;
     pvme->rw(image, base+ADC1785_BitSet2_Offset, &regBitSet2);
     regBitSet2 = pvme->swap16(regBitSet2);
@@ -454,6 +512,12 @@ int adc1785::stopAdc() {
     }
     
     // disable adc
+    disableAdc();
+
+    return 1;
+}
+
+int adc1785::disableAdc() {
     uint16_t regBitSet2;
     pvme->rw(image, base+ADC1785_BitSet2_Offset, &regBitSet2);
     regBitSet2 = pvme->swap16(regBitSet2);

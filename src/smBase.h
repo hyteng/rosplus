@@ -32,7 +32,9 @@
 #include "dataStream.h"
 #include <string>
 #include <vector>
+#include <map>
 #include <sstream>
+#include <stdint.h>
 
 class smBase;
 typedef int(smBase::*pFunc)(int para);
@@ -88,6 +90,11 @@ class smBase {
         status stId;
         std::string name;
         std::stringstream debugMsg;
+
+        std::string otfMsg;
+        std::map<std::string, int> cfg2reg;
+        std::vector<uint32_t> regAddr;
+        std::vector<pFunc> regFunc;
 };
 
 typedef pBase (*pCreate)(const std::string& name);
