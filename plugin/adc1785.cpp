@@ -142,19 +142,19 @@ adc1785::adc1785(const string& n): smBase(n) {
 adc1785::~adc1785() {
 }
 
-int adc1785::InitializedLOAD(int para) {
+int adc1785::InitializedLOAD(int argc, void* argv[]) {
     debugMsg << name << "# " << "InitializedLOAD";
     stMsg->stateOut(debugMsg);
     return 2;
 }
 
-int adc1785::LoadedUNLD(int para) {
+int adc1785::LoadedUNLD(int argc, void* argv[]) {
     debugMsg << name << "# " << "LoadedUNLD";
     stMsg->stateOut(debugMsg);
     return 1;
 }
 
-int adc1785::LoadedCONF(int para) {
+int adc1785::LoadedCONF(int argc, void* argv[]) {
     debugMsg << name << "# " << "LoadedCONF";
     stMsg->stateOut(debugMsg);
     //if(!configAdc())
@@ -162,28 +162,28 @@ int adc1785::LoadedCONF(int para) {
     return 3;
 }
 
-int adc1785::ConfiguredUNCF(int para) {
+int adc1785::ConfiguredUNCF(int argc, void* argv[]) {
     debugMsg << name << "# " << "ConfiguredUNCF";
     stMsg->stateOut(debugMsg);
     //releaseAdc();
     return 2;
 }
 
-int adc1785::ConfiguredPREP(int para) {
+int adc1785::ConfiguredPREP(int argc, void* argv[]) {
     debugMsg << name << "# " << "ConfiguredPREP";
     stMsg->stateOut(debugMsg);
     //prepAdc();
     return 4;
 }
 
-int adc1785::ReadySTOP(int para) {
+int adc1785::ReadySTOP(int argc, void* argv[]) {
     debugMsg << name << "# " << "ReadySTOP";
     stMsg->stateOut(debugMsg);
     //finishAdc();
     return 3;
 }
 
-int adc1785::ReadySATR(int para) {
+int adc1785::ReadySATR(int argc, void* argv[]) {
     debugMsg << name << "# " << "ReadySATR";
     stMsg->stateOut(debugMsg);
     //stopAdc();
@@ -191,35 +191,35 @@ int adc1785::ReadySATR(int para) {
     return 5;
 }
 
-int adc1785::RunningSPTR(int para) {
+int adc1785::RunningSPTR(int argc, void* argv[]) {
     debugMsg << name << "# " << "RunningSPTR";
     stMsg->stateOut(debugMsg);
     //stopAdc();
     return 4;
 }
 
-int adc1785::RunningPAUS(int para) {
+int adc1785::RunningPAUS(int argc, void* argv[]) {
     debugMsg << name << "# " << "RunningPAUS";
     stMsg->stateOut(debugMsg);
     //disableAdc();
     return 6;
 }
 
-int adc1785::PausedSPTR(int para) {
+int adc1785::PausedSPTR(int argc, void* argv[]) {
     debugMsg << name << "# " << "PausedSPTR";
     stMsg->stateOut(debugMsg);
     //stopAdc();
     return 4;
 }
 
-int adc1785::PausedRESU(int para) {
+int adc1785::PausedRESU(int argc, void* argv[]) {
     debugMsg << name << "# " << "PausedRESU";
     stMsg->stateOut(debugMsg);
     //enableAdc();
     return 5;
 }
 
-int adc1785::OTFCONF(int para) {
+int adc1785::OTFCONF(int argc, void* argv[]) {
     debugMsg << name << "# " << "OTFCONF";
     stMsg->stateOut(debugMsg);
 

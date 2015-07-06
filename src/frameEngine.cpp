@@ -16,7 +16,7 @@ void frameEngine::setMachine(stateMachine* m) {
     theFrame = m;
 }
 
-int frameEngine::InitializedLOAD(int para) {
+int frameEngine::InitializedLOAD(int argc, void* argv[]) {
     
     cfgInfo->infoClear();
     cfgInfo->readConfig("runSet.conf");
@@ -36,9 +36,10 @@ int frameEngine::InitializedLOAD(int para) {
     moduleStringSplit(modeList);
     std::map<std::string, std::string>::const_iterator modeIter;
     for(modeIter=dev2libMap.begin(); modeIter!=dev2libMap.end(); modeIter++) {
-        std::cout << "loop: " << modeIter->second << ", " << modeIter->first << std::endl;
+        //std::cout << "loop: " << modeIter->second << ", " << modeIter->first << std::endl;
         if(loadSharedModule(modeIter->second, modeIter->first, libDir)) {
-            stMsg->stateOut(2, modeIter->first);
+            debugMsg << name << "# " << "loadSharedModule: (mode) " << modeIter->second << " (dev) " << modeIter->first;
+            stMsg->stateOut(debugMsg);
         }
         else {
             return -1;
@@ -47,11 +48,12 @@ int frameEngine::InitializedLOAD(int para) {
     return 2;
 }
 
-int frameEngine::LoadedUNLD(int para) {
+int frameEngine::LoadedUNLD(int argc, void* argv[]) {
     std::map<std::string, std::string>::const_iterator modeIter;
     for(modeIter=dev2libMap.begin(); modeIter!=dev2libMap.end(); modeIter++) {
         if(unloadSharedModule(modeIter->first)) {
-            stMsg->stateOut(2, modeIter->first+" unloaded");
+            debugMsg << name << "# " << "unloadSharedModule: (dev)" << modeIter->first;
+            stMsg->stateOut(debugMsg);
         }
         else {
             return -1;
@@ -81,30 +83,31 @@ int frameEngine::loadSharedModule(const string& modeName, const string& devName,
     char* dlsym_error;
     string libPath = dir+"/"+modeName+".so";
 
-    stMsg->stateOut(2, libPath);
     if(sharedLibHandle.find(modeName) == sharedLibHandle.end()) {
         void* libHandle = dlopen(libPath.c_str(), RTLD_LAZY);
         dlsym_error = dlerror();
         if(dlsym_error != NULL) {
-            stMsg->stateOut(2, string(dlsym_error));
-            //return 0;
+            debugMsg << name << "# " << string(dlsym_error);
+            stMsg->stateOut(debugMsg);
+            return 0;
         }
 
         if(libHandle == NULL) {
-            stMsg->stateOut(2, "shared lib not opened");
-            return -1;
+            debugMsg << name << "# " << "shared lib not opened";
+            stMsg->stateOut(debugMsg);
+            return 0;
         }
         else {
             sharedLibHandle[modeName].first = libHandle;
             sharedLibHandle[modeName].second = 1;
-            stMsg->stateOut(2, "shared lib opened");
+            debugMsg << name << "# " << "shared lib opened";
+            stMsg->stateOut(debugMsg);
         }
     }
     else {
         sharedLibHandle[modeName].second++;
     }
 
-    stMsg->stateOut(2, libPath);
     pCreate createModule = (pCreate) dlsym(sharedLibHandle[modeName].first, "create");
     dlsym_error = dlerror();
     if(dlsym_error != NULL) {
@@ -134,13 +137,16 @@ int frameEngine::unloadSharedModule(const string& devName) {
     pDestroy destroyModule = (pDestroy) dlsym(sharedLibHandle[modeName].first, "destroy");
     dlsym_error = dlerror();
     if(dlsym_error != NULL) {
+        debugMsg << name << "# " << string(dlsym_error);
+        stMsg->stateOut(debugMsg);
         return 0;
     }
 
     smBase* pModule;
     pModule = theFrame->eraseMode(devName);
     if(pModule == NULL) {
-        //msg
+        debugMsg << name << "# " << "shared lib not loaded in list";
+        stMsg->stateOut(debugMsg);
         return 0;
     }
     (*destroyModule)(pModule);

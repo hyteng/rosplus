@@ -60,8 +60,9 @@ void smBase::init(stateMessager* msg, configSet* cfg, dataStream* data, const st
 
 int smBase::doAction(command cmId) {
     int res, para = 0;
-    stMsg->stateOut(2, name+" doAction");
-    res = (this->*actions[cmId][stId])(para);
+    debugMsg << name << "# doAction";
+    stMsg->stateOut(debugMsg);
+    res = (this->*actions[cmId][stId])(0,NULL);
     if (res == -1) {
         stId = STID_Invaild;
         return 0;

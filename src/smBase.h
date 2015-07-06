@@ -37,7 +37,7 @@
 #include <stdint.h>
 
 class smBase;
-typedef int(smBase::*pFunc)(int para);
+typedef int(smBase::*pFunc)(int argc, void* argv[]);
 typedef smBase* pBase;
 
 class smBase {
@@ -60,25 +60,25 @@ class smBase {
         virtual void* getHelp() {return NULL;};
 
     protected:
-        virtual int InitializedLOAD(int para) {return 2;};
-        virtual int LoadedUNLD(int para) {return 1;};
-        virtual int LoadedCONF(int para) {return 3;};
-        virtual int ConfiguredUNCF(int para) {return 2;};
-        virtual int ConfiguredPREP(int para) {return 4;};
-        virtual int ReadySATR(int para) {return 5;};
-        virtual int ReadySTOP(int para) {return 3;};
-        virtual int RunningSPTR(int para) {return 4;};
-        virtual int RunningPAUS(int para) {return 6;};
-        virtual int PausedSPTR(int para) {return 4;};
-        virtual int PausedRESU(int para) {return 5;};
-        //virtual int PausedSATR(int para) {return 5;};
-        virtual int SelfTrans(int para) {return stId;};
-        virtual int AnyIMPO(int para) {return stId;};
-        virtual int AnyEXIT(int para) {return 0;};
-        virtual int OTFCONF(int para) {return stId;};
-        virtual int RunningCONF(int para) {return OTFCONF(para);};
-        virtual int PausedCONF(int para) {return OTFCONF(para);};
-        virtual int ReadyCONF(int para) {return OTFCONF(para);};
+        virtual int InitializedLOAD(int argc=0, void* argv[]=NULL) {return 2;};
+        virtual int LoadedUNLD(int argc=0, void* argv[]=NULL) {return 1;};
+        virtual int LoadedCONF(int argc=0, void* argv[]=NULL) {return 3;};
+        virtual int ConfiguredUNCF(int argc=0, void* argv[]=NULL) {return 2;};
+        virtual int ConfiguredPREP(int argc=0, void* argv[]=NULL) {return 4;};
+        virtual int ReadySATR(int argc=0, void* argv[]=NULL) {return 5;};
+        virtual int ReadySTOP(int argc=0, void* argv[]=NULL) {return 3;};
+        virtual int RunningSPTR(int argc=0, void* argv[]=NULL) {return 4;};
+        virtual int RunningPAUS(int argc=0, void* argv[]=NULL) {return 6;};
+        virtual int PausedSPTR(int argc=0, void* argv[]=NULL) {return 4;};
+        virtual int PausedRESU(int argc=0, void* argv[]=NULL) {return 5;};
+        //virtual int PausedSATR(int argc=0, void* argv[]=NULL) {return 5;};
+        virtual int SelfTrans(int argc=0, void* argv[]=NULL) {return stId;};
+        virtual int AnyIMPO(int argc=0, void* argv[]=NULL) {return stId;};
+        virtual int AnyEXIT(int argc=0, void* argv[]=NULL) {return 0;};
+        virtual int OTFCONF(int argc=0, void* argv[]=NULL) {return stId;};
+        virtual int RunningCONF(int argc=0, void* argv[]=NULL) {return OTFCONF(argc, argv);};
+        virtual int PausedCONF(int argc=0, void* argv[]=NULL) {return OTFCONF(argc, argv);};
+        virtual int ReadyCONF(int argc=0, void* argv[]=NULL) {return OTFCONF(argc, argv);};
 
         pFunc actions[MAX_CMD_AMOUNT][MAX_STATES_AMOUNT];
 

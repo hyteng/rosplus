@@ -23,43 +23,43 @@ dataPacker::dataPacker(const string& n): smBase(n) {
 dataPacker::~dataPacker() {
 }
 
-int dataPacker::ConfiguredPREP(int para) {
+int dataPacker::ConfiguredPREP(int argc, void* argv[]) {
     debugMsg << name << "# " << "ConfiguredPREP";
     stMsg->stateOut(debugMsg);
     prepPacker();
     return 4;
 }
 
-int dataPacker::ReadySATR(int para) {
+int dataPacker::ReadySATR(int argc, void* argv[]) {
     debugMsg << name << "# " << "ReadySATR";
     stMsg->stateOut(debugMsg);
     startPacker();
     return 5;
 }
 
-int dataPacker::RunningSPTR(int para) {
+int dataPacker::RunningSPTR(int argc, void* argv[]) {
     debugMsg << name << "# " << "RunningSPTR";
     stMsg->stateOut(debugMsg);
     stopPacker();
     return 4;
 }
 
-int dataPacker::RunningPAUS(int para) {
+int dataPacker::RunningPAUS(int argc, void* argv[]) {
     return 6;
 }
 
-int dataPacker::PausedSPTR(int para) {
+int dataPacker::PausedSPTR(int argc, void* argv[]) {
     debugMsg << name << "# " << "PausedSPTR";
     stMsg->stateOut(debugMsg);
     stopPacker();
     return 4;
 }
 
-int dataPacker::PausedRESU(int para) {
+int dataPacker::PausedRESU(int argc, void* argv[]) {
     return 5;
 }
 
-int dataPacker::OTFCONF(int para) {
+int dataPacker::OTFCONF(int argc, void* argv[]) {
     return stId;
 }
 
