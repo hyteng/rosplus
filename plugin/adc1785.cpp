@@ -128,8 +128,15 @@ string confName[confSize] = {"geoAddr", "cbltAddr", "irqLevel", "irqVector", "ad
 
 unsigned int confDefault[]={0,0xAA,7,0,0x00CC,0x0000,8,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,8,0,0,4,0,0,0,/*BitSet1*/0,0,0,/*Ctrl1*/0,0,0,0,/*BitSet2*/0,0,0,1,1,0,1,1,1,0,0,1};
 
+uint32_t regAddr[regSize] = {0x1000, };
 
 adc1785::adc1785(const string& n): smBase(n) {
+    std::map<std::string, int> cfg2reg;
+    for(i=0, j=0; i<confSize; i++,j++) {
+        if(i == 
+
+        cfg2reg[confName[i]] = j;
+    }
 }
 
 adc1785::~adc1785() {
