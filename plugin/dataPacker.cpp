@@ -23,43 +23,43 @@ dataPacker::dataPacker(const string& n): smBase(n) {
 dataPacker::~dataPacker() {
 }
 
-int dataPacker::ConfiguredPREP(int argc, void* argv[]) {
+int dataPacker::ConfiguredPREP(void* argv[]) {
     debugMsg << name << "# " << "ConfiguredPREP";
     stMsg->stateOut(debugMsg);
     prepPacker();
     return 4;
 }
 
-int dataPacker::ReadySATR(int argc, void* argv[]) {
+int dataPacker::ReadySATR(void* argv[]) {
     debugMsg << name << "# " << "ReadySATR";
     stMsg->stateOut(debugMsg);
     startPacker();
     return 5;
 }
 
-int dataPacker::RunningSPTR(int argc, void* argv[]) {
+int dataPacker::RunningSPTR(void* argv[]) {
     debugMsg << name << "# " << "RunningSPTR";
     stMsg->stateOut(debugMsg);
     stopPacker();
     return 4;
 }
 
-int dataPacker::RunningPAUS(int argc, void* argv[]) {
+int dataPacker::RunningPAUS(void* argv[]) {
     return 6;
 }
 
-int dataPacker::PausedSPTR(int argc, void* argv[]) {
+int dataPacker::PausedSPTR(void* argv[]) {
     debugMsg << name << "# " << "PausedSPTR";
     stMsg->stateOut(debugMsg);
     stopPacker();
     return 4;
 }
 
-int dataPacker::PausedRESU(int argc, void* argv[]) {
+int dataPacker::PausedRESU(void* argv[]) {
     return 5;
 }
 
-int dataPacker::OTFCONF(int argc, void* argv[]) {
+int dataPacker::OTFCONF(void* argv[]) {
     return stId;
 }
 

@@ -24,35 +24,35 @@ vme::vme(const string& n): smBase(n) {
 vme::~vme() {
 }
 
-int vme::InitializedLOAD(int argc, void* argv[]) {
+int vme::InitializedLOAD(void* argv[]) {
     debugMsg << name << "# " << "InitializedLOAD";
     stMsg->stateOut(debugMsg); 
     //pvme = new VMEBridge;
     return 2;
 }
 
-int vme::LoadedUNLD(int argc, void* argv[]) {
+int vme::LoadedUNLD(void* argv[]) {
     debugMsg << name << "# " << "LoadedUNLD";
     stMsg->stateOut(debugMsg);
     //delete pvme;
     return 1;
 }
 
-int vme::LoadedCONF(int argc, void* argv[]) {
+int vme::LoadedCONF(void* argv[]) {
     debugMsg << name << "# " << "LoadedCONF";
     stMsg->stateOut(debugMsg);
     //configVme();
     return 3;
 }
 
-int vme::ConfiguredUNCF(int argc, void* argv[]) {
+int vme::ConfiguredUNCF(void* argv[]) {
     debugMsg << name << "# " << "ConfiguredUNCF";
     stMsg->stateOut(debugMsg);
     //releaseVme();
     return 2;
 }
 
-int vme::ConfiguredPREP(int argc, void* argv[]) {
+int vme::ConfiguredPREP(void* argv[]) {
     debugMsg << name << "# " << "ConfiguredPREP";
     stMsg->stateOut(debugMsg);
     //if(!prepVme())
@@ -60,43 +60,43 @@ int vme::ConfiguredPREP(int argc, void* argv[]) {
     return 4;
 }
 
-int vme::ReadySTOP(int argc, void* argv[]) {
+int vme::ReadySTOP(void* argv[]) {
     debugMsg << name << "# " << "ReadySTOP";
     stMsg->stateOut(debugMsg);
     //finishVme();
     return 3;
 }
 
-int vme::ReadySATR(int argc, void* argv[]) {
+int vme::ReadySATR(void* argv[]) {
     debugMsg << name << "# " << "ReadySATR";
     stMsg->stateOut(debugMsg);
     startVme();
     return 5;
 }
 
-int vme::RunningSPTR(int argc, void* argv[]) {
+int vme::RunningSPTR(void* argv[]) {
     debugMsg << name << "# " << "RunningSPTR";
     stMsg->stateOut(debugMsg);
     stopVme();
     return 4;
 }
 
-int vme::RunningPAUS(int argc, void* argv[]) {
+int vme::RunningPAUS(void* argv[]) {
     return 6;
 }
 
-int vme::PausedSPTR(int argc, void* argv[]) {
+int vme::PausedSPTR(void* argv[]) {
     debugMsg << name << "# " << "PausedSPTR";
     stMsg->stateOut(debugMsg);
     stopVme();
     return 4;
 }
 
-int vme::PausedRESU(int argc, void* argv[]) {
+int vme::PausedRESU(void* argv[]) {
     return 5;
 }
 
-int vme::OTFCONF(int argc, void* argv[]) {
+int vme::OTFCONF(void* argv[]) {
     return stId;
 }
 

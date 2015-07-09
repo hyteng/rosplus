@@ -36,12 +36,9 @@ int stateMachine::doAction(const smBase::command& cmId) {
     for(unsigned int i=0; i<moduleList.size(); i++) {
         int res = moduleList[i].second->doAction(cmId);
         //if(result == smBase::STID_Invaild || result == smBase::MAX_STATES_AMOUNT) {
-        if(res == -1) {
-            msg->stateOut(1, "doAction error");
-            stId = smBase::STID_Invaild;
-            return 0;
-        }
         stId = smBase::status(res);
+        if(res == -1)
+            return 0;
     }
     return 1;
 }
@@ -82,7 +79,7 @@ smBase::command stateMachine::getCommand() {
     cin >> s0;
     cout << "input " << s0 << endl;
     smBase::command cmd;
-    //CMID_UNKNCM=-1, CMID_LOAD, CMID_UNLD, CMID_CONF, CMID_UNCF, CMID_PREP, CMID_SATR, CMID_SPTR, CMID_STOP, CMID_PAUS, CMID_RESU, CMID_EXIT,CMID_NONE_TRANS, MAX_CMD_AMOUNT
+    //CMID_UNKNCM=-1, CMID_LOAD, CMID_UNLD, CMID_CONF, CMID_UNCF, CMID_PREP, CMID_STOP, CMID_SATR, CMID_SPTR, CMID_PAUS, CMID_RESU, CMID_STAT, CMID_CTRL, CMID_EXIT, MAX_CMD_AMOUNT
     if(s0=="load")
         cmd = smBase::CMID_LOAD;
     else if(s0=="unld")
@@ -93,20 +90,22 @@ smBase::command stateMachine::getCommand() {
         cmd = smBase::CMID_UNCF;
     else if(s0=="prep")
         cmd = smBase::CMID_PREP;
+    else if(s0=="stop")
+        cmd = smBase::CMID_STOP;
     else if(s0=="satr")
         cmd = smBase::CMID_SATR;
     else if(s0=="sptr")
         cmd = smBase::CMID_SPTR;
-    else if(s0=="stop")
-        cmd = smBase::CMID_STOP;
     else if(s0=="paus")
         cmd = smBase::CMID_PAUS;
     else if(s0=="resu")
         cmd = smBase::CMID_RESU;
+    else if(s0=="stat")
+        cmd = smBase::CMID_STAT;
+    //else if(s0=="ctrl")
+        //cmd = smBase::CMID_CTRL;
     else if(s0=="exit")
         cmd = smBase::CMID_EXIT;
-    else if(s0=="notr")
-        cmd = smBase::CMID_NONE_TRANS;
     else
         cmd = smBase::CMID_UNKNCM;
 
@@ -121,10 +120,9 @@ int stateMachine::dispatch1() {
 
     while(1) {
         smBase::command cmd = getCommand();
-        if(cmd != smBase::CMID_UNKNCM && cmd != smBase::MAX_CMD_AMOUNT) {
+        if(cmd != smBase::CMID_UNKNCM) {
             int res = doAction(cmd);
             if(res != 1) {
-                msg->stateOut(1, "stateMachine::dispatch1 doAction error.");
                 return 0;
             }
             else {
@@ -133,44 +131,73 @@ int stateMachine::dispatch1() {
             }
         }
     }
-
     return 1;
 }
 
 int stateMachine::dispatch2(const string& ctrl) {
 
-    string type, dev, value;
+    string type, dev, msg;
     stringstream sCtrl(ctrl);
     getline(sCtrl, type, '#');
     getline(sCtrl, dev, '#');
-    getline(sCtrl, value, '#');
-
-    cout << "type: " << type << ", dev: " << dev << ", value: " << value << endl;
+    getline(sCtrl, msg, '#');
+    stringstream sMsg(msg);
+    cout << "type: " << type << ", dev: " << dev << ", msg: " << msg << endl;
     int res = 0;
+    // for device command
     if(type == "cmd") {
-        stringstream sValue(value);
         int v;
-        sValue >> v;
-        if(v >= (int)smBase::CMID_UNKNCM && v < (int)smBase::MAX_CMD_AMOUNT) {
+        sMsg >> v;
+        if(v >= (int)smBase::CMID_UNKNCM && v < (int)smBase::MAX_CMD_AMOUNT && v != smBase::CMID_CTRL) {
             smBase::command cmd = smBase::command(v);
             cout << "cmd: " << v << ", id: " << cmd << endl;
-            if(cmd != smBase::CMID_UNKNCM) {
-                if(dev == "all")
-                    res = doAction(cmd);
-                else {
-                    res = 1;
+            if(dev == "all")
+                res = doAction(cmd);
+            else {
+                smBase* pModule = NULL;
+                for(unsigned int i=0; i<moduleList.size();i++) {
+                    std::pair<string, smBase*> pMode = moduleList[i];
+                    if(pMode.first == dev) {
+                        pModule = pMode.second;
+                        break;
+                    }
                 }
-
-                if(res != 1) {
-                    msg->stateOut(1, "stateMachine::dispatch2 doAction error.");
-                    return 0;
-                }
-                else {
-                    if(cmd == smBase::CMID_EXIT)
-                        return 1;
+                if(pModule != NULL) {
+                    res = pModule->doAction(cmd);
                 }
             }
+
+            if(res != 1) {
+                return 0;
+            }
+            else {
+                if(cmd == smBase::CMID_EXIT)
+                    return 1;
+            }
         }
+    }
+    // for configure reg
+    if(type == "ctrl") {
+        smBase* pModule = NULL;
+        for(unsigned int i=0; i<moduleList.size();i++) {
+            std::pair<string, smBase*> pMode = moduleList[i];
+            if(pMode.first == dev) {
+                pModule = pMode.second;
+                break;
+            }
+        }
+        if(pModule != NULL) {
+            string confName, rw, value="";
+            getline(sMsg, confName, ';');
+            getline(sMsg, rw, ';');
+            if(rw == "w")
+                getline(sMsg, value, ';');
+
+            //configSet::infoValue* data*;
+            void* para[] = {&confName, &rw, &value};
+            pModule->doAction(smBase::CMID_CTRL, para);
+        }
+
     }
 
     return 1;

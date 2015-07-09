@@ -37,7 +37,7 @@
 #include <stdint.h>
 
 class smBase;
-typedef int(smBase::*pFunc)(int argc, void* argv[]);
+typedef int(smBase::*pFunc)(void* argv[]);
 typedef smBase* pBase;
 
 class smBase {
@@ -48,7 +48,7 @@ class smBase {
 
     public:
         typedef enum {
-            CMID_UNKNCM=-1, CMID_LOAD, CMID_UNLD, CMID_CONF, CMID_UNCF, CMID_PREP, CMID_SATR, CMID_SPTR, CMID_STOP, CMID_PAUS, CMID_RESU, CMID_EXIT, CMID_NONE_TRANS, MAX_CMD_AMOUNT
+            CMID_UNKNCM=-1, CMID_LOAD, CMID_UNLD, CMID_CONF, CMID_UNCF, CMID_PREP, CMID_STOP, CMID_SATR, CMID_SPTR, CMID_PAUS, CMID_RESU, CMID_STAT, CMID_CTRL, CMID_EXIT, MAX_CMD_AMOUNT
         } command;
         typedef enum {
             STID_Invaild=-1, STID_Waiting, STID_Initialized, STID_Loaded, STID_Configured, STID_Ready, STID_Running, STID_Paused, MAX_STATES_AMOUNT
@@ -56,29 +56,36 @@ class smBase {
         //static int result[MAX_CMD_AMOUNT][MAX_STATES_AMOUNT];
 
         void init(stateMessager* msg, configSet* cfg, dataStream* data, const std::vector< std::pair<std::string, smBase*> > *other);
-        virtual int doAction(command cmId);
+        virtual int doAction(command cmId, void* para[]=NULL);
         virtual void* getHelp() {return NULL;};
 
     protected:
-        virtual int InitializedLOAD(int argc=0, void* argv[]=NULL) {return 2;};
-        virtual int LoadedUNLD(int argc=0, void* argv[]=NULL) {return 1;};
-        virtual int LoadedCONF(int argc=0, void* argv[]=NULL) {return 3;};
-        virtual int ConfiguredUNCF(int argc=0, void* argv[]=NULL) {return 2;};
-        virtual int ConfiguredPREP(int argc=0, void* argv[]=NULL) {return 4;};
-        virtual int ReadySATR(int argc=0, void* argv[]=NULL) {return 5;};
-        virtual int ReadySTOP(int argc=0, void* argv[]=NULL) {return 3;};
-        virtual int RunningSPTR(int argc=0, void* argv[]=NULL) {return 4;};
-        virtual int RunningPAUS(int argc=0, void* argv[]=NULL) {return 6;};
-        virtual int PausedSPTR(int argc=0, void* argv[]=NULL) {return 4;};
-        virtual int PausedRESU(int argc=0, void* argv[]=NULL) {return 5;};
-        //virtual int PausedSATR(int argc=0, void* argv[]=NULL) {return 5;};
-        virtual int SelfTrans(int argc=0, void* argv[]=NULL) {return stId;};
-        virtual int AnyIMPO(int argc=0, void* argv[]=NULL) {return stId;};
-        virtual int AnyEXIT(int argc=0, void* argv[]=NULL) {return 0;};
-        virtual int OTFCONF(int argc=0, void* argv[]=NULL) {return stId;};
-        virtual int RunningCONF(int argc=0, void* argv[]=NULL) {return OTFCONF(argc, argv);};
-        virtual int PausedCONF(int argc=0, void* argv[]=NULL) {return OTFCONF(argc, argv);};
-        virtual int ReadyCONF(int argc=0, void* argv[]=NULL) {return OTFCONF(argc, argv);};
+        virtual int InitializedLOAD(void* argv[]=NULL) {return 2;};
+        virtual int LoadedUNLD(void* argv[]=NULL) {return 1;};
+        virtual int LoadedCONF(void* argv[]=NULL) {return 3;};
+        virtual int ConfiguredUNCF(void* argv[]=NULL) {return 2;};
+        virtual int ConfiguredPREP(void* argv[]=NULL) {return 4;};
+        virtual int ReadySATR(void* argv[]=NULL) {return 5;};
+        virtual int ReadySTOP(void* argv[]=NULL) {return 3;};
+        virtual int RunningSPTR(void* argv[]=NULL) {return 4;};
+        virtual int RunningPAUS(void* argv[]=NULL) {return 6;};
+        virtual int PausedSPTR(void* argv[]=NULL) {return 4;};
+        virtual int PausedRESU(void* argv[]=NULL) {return 5;};
+        //virtual int PausedSATR(void* argv[]=NULL) {return 5;};
+        virtual int SelfTrans(void* argv[]=NULL) {return stId;};
+        virtual int AnyIMPO(void* argv[]=NULL) {return stId;};
+        virtual int AnyEXIT(void* argv[]=NULL) {return 1;};
+        virtual int OTFSTAT(void* argv[]=NULL) {return stId;};
+        virtual int RunningSTAT(void* argv[]=NULL) {return OTFSTAT(argv);};
+        virtual int PausedSTAT(void* argv[]=NULL) {return OTFSTAT(argv);};
+        virtual int ReadySTAT(void* argv[]=NULL) {return OTFSTAT(argv);};
+        virtual int OTFCTRL(void* argv[]=NULL) {return stId;};
+        virtual int RunningCTRL(void* argv[]=NULL) {return OTFCTRL(argv);};
+        virtual int PausedCTRL(void* argv[]=NULL) {return OTFCTRL(argv);};
+        virtual int ReadyCTRL(void* argv[]=NULL) {return OTFCTRL(argv);};
+        virtual int accessReg(const int idx, const int rw, void* data) {return 1;};
+        virtual int maskRegData(void* data, void* mask) {return 1;};
+        virtual int unmaskRegData(void* data, void* mask) {return 1;};
 
         pFunc actions[MAX_CMD_AMOUNT][MAX_STATES_AMOUNT];
 
@@ -92,9 +99,11 @@ class smBase {
         std::stringstream debugMsg;
 
         std::string otfMsg;
-        std::map<std::string, int> cfg2reg;
-        std::vector<uint32_t> regAddr;
-        std::vector<pFunc> regFunc;
+        std::map<std::string, std::vector<std::string> > *ctrl2conf;
+        std::map<std::string, int> *conf2reg;
+        std::map<std::string, uintptr_t> *conf2mask;
+        std::vector<uintptr_t> *regAddr;
+        std::vector<int> *regWOIdx, *regROIdx;
 };
 
 typedef pBase (*pCreate)(const std::string& name);

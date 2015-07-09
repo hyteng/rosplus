@@ -23,57 +23,57 @@ daq::daq(const string& n): smBase(n) {
 daq::~daq() {
 }
 
-int daq::LoadedCONF(int argc, void* argv[]) {
+int daq::LoadedCONF(void* argv[]) {
     debugMsg << name << "# " << "LoadedCONF";
     stMsg->stateOut(debugMsg);
     configDaq();
     return 3;
 }
 
-int daq::ConfiguredPREP(int argc, void* argv[]) {
+int daq::ConfiguredPREP(void* argv[]) {
     debugMsg << name << "# " << "ConfiguredPREP";
     stMsg->stateOut(debugMsg);
     prepDaq();
     return 4;
 }
 
-int daq::ReadySTOP(int argc, void* argv[]) {
+int daq::ReadySTOP(void* argv[]) {
     debugMsg << name << "# " << "ReadySTOP";
     stMsg->stateOut(debugMsg);
     finishDaq();
     return 3;
 }
 
-int daq::ReadySATR(int argc, void* argv[]) {
+int daq::ReadySATR(void* argv[]) {
     debugMsg << name << "# " << "ReadySATR";
     stMsg->stateOut(debugMsg);
     startDaq();
     return 5;
 }
 
-int daq::RunningSPTR(int argc, void* argv[]) {
+int daq::RunningSPTR(void* argv[]) {
     debugMsg << name << "# " << "RunningSPTR";
     stMsg->stateOut(debugMsg);
     stopDaq();
     return 4;
 }
 
-int daq::RunningPAUS(int argc, void* argv[]) {
+int daq::RunningPAUS(void* argv[]) {
     return 6;
 }
 
-int daq::PausedSPTR(int argc, void* argv[]) {
+int daq::PausedSPTR(void* argv[]) {
     debugMsg << name << "# " << "PausedSPTR";
     stMsg->stateOut(debugMsg);
     stopDaq();
     return 4;
 }
 
-int daq::PausedRESU(int argc, void* argv[]) {
+int daq::PausedRESU(void* argv[]) {
     return 5;
 }
 
-int daq::OTFCONF(int argc, void* argv[]) {
+int daq::OTFCONF(void* argv[]) {
     return stId;
 }
 

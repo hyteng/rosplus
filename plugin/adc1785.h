@@ -2,6 +2,7 @@
 #define adc1785_h
 
 #include "../src/smBase.h"
+#include <stdint.h>
 #include "vmelib.h"
 
 class adc1785 :public smBase {
@@ -9,20 +10,25 @@ class adc1785 :public smBase {
         adc1785(const std::string& n);
         ~adc1785();
         virtual void* getHelp() {return (void*)&base;};
+        typedef uint32_t regAddrType;
+        typedef uint16_t regType;
 
     protected:
-        virtual int InitializedLOAD(int argc=0, void* argv[]=NULL);
-        virtual int LoadedUNLD(int argc=0, void* argv[]=NULL);
-        virtual int LoadedCONF(int argc=0, void* argv[]=NULL);
-        virtual int ConfiguredUNCF(int argc=0, void* argv[]=NULL);
-        virtual int ConfiguredPREP(int argc=0, void* argv[]=NULL);
-        virtual int ReadySTOP(int argc=0, void* argv[]=NULL);
-        virtual int ReadySATR(int argc=0, void* argv[]=NULL);
-        virtual int RunningSPTR(int argc=0, void* argv[]=NULL);
-        virtual int RunningPAUS(int argc=0, void* argv[]=NULL);
-        virtual int PausedSPTR(int argc=0, void* argv[]=NULL);
-        virtual int PausedRESU(int argc=0, void* argv[]=NULL);
-        virtual int OTFCONF(int argc=0, void* argv[]=NULL);
+        virtual int InitializedLOAD(void* argv[]=NULL);
+        virtual int LoadedUNLD(void* argv[]=NULL);
+        virtual int LoadedCONF(void* argv[]=NULL);
+        virtual int ConfiguredUNCF(void* argv[]=NULL);
+        virtual int ConfiguredPREP(void* argv[]=NULL);
+        virtual int ReadySTOP(void* argv[]=NULL);
+        virtual int ReadySATR(void* argv[]=NULL);
+        virtual int RunningSPTR(void* argv[]=NULL);
+        virtual int RunningPAUS(void* argv[]=NULL);
+        virtual int PausedSPTR(void* argv[]=NULL);
+        virtual int PausedRESU(void* argv[]=NULL);
+        virtual int OTFCTRL(void* argv[]=NULL);
+        virtual int accessReg(const int idx, const int rw, void* data);
+        virtual int maskRegData(void* data, void* mask);
+        virtual int unmaskRegData(void* data, void* mask);
 
     private:
         int configAdc();
@@ -31,12 +37,9 @@ class adc1785 :public smBase {
         int finishAdc();
         int startAdc();
         int stopAdc();
-        int getStatus();
-        int clearBuff();
-        //bool offline, clearData, overRange, lowTh, slideScale, stepTh, autoInc, emptyProg, slideSub, allTrigger, blkend, progResetMod, busError, align64, busErrorFlag, selAddr, softReset;
-        //unsigned int base, lenght;
-        // read only status
-        //bool buffEmpty, buffFull, CSel0, CSel1, DSel0, DSel1, DRDY, gDRDY, busy, gbusy, purged, termOn, EVRDY;
+        int enableAdc();
+        int disableAdc();
+        int accessRegNormal(const regAddrType addr, const int rw, regType* data);
         VMEBridge *pvme;
 
         int image;

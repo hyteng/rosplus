@@ -11,13 +11,13 @@ class dataPacker :public smBase {
         ~dataPacker();
 
     protected:
-        virtual int ConfiguredPREP(int argc=0, void* argv[]=NULL);
-        virtual int ReadySATR(int argc=0, void* argv[]=NULL);
-        virtual int RunningSPTR(int argc=0, void* argv[]=NULL);
-        virtual int RunningPAUS(int argc=0, void* argv[]=NULL);
-        virtual int PausedSPTR(int argc=0, void* argv[]=NULL);
-        virtual int PausedRESU(int argc=0, void* argv[]=NULL);
-        virtual int OTFCONF(int argc=0, void* argv[]=NULL);
+        virtual int ConfiguredPREP(void* argv[]=NULL);
+        virtual int ReadySATR(void* argv[]=NULL);
+        virtual int RunningSPTR(void* argv[]=NULL);
+        virtual int RunningPAUS(void* argv[]=NULL);
+        virtual int PausedSPTR(void* argv[]=NULL);
+        virtual int PausedRESU(void* argv[]=NULL);
+        virtual int OTFCONF(void* argv[]=NULL);
 
     private:
         int prepPacker();
