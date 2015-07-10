@@ -5,6 +5,18 @@
 #include <stdint.h>
 #include "vmelib.h"
 
+class regUint16 :public regData {
+    public:
+        regUint16();
+        ~regUint16();
+        virtual void setValueS(std::stringstream& ss) {ss>>v;};
+        virtual void setValueP(const void* p) {v=*(const uint16_t*)p;};
+        virtual void* getValueP() {return &v;};
+        virtual std::string getValueS() {std::stringstream ss;ss<<v;return ss.str();};
+        virtual regData& ptr(const void* p) {v=*(const uint16_t*)p;return *this;}; 
+    private:
+        uint16_t v;
+};
 class adc1785 :public smBase {
     public:
         adc1785(const std::string& n);
@@ -25,10 +37,10 @@ class adc1785 :public smBase {
         virtual int RunningPAUS(void* argv[]=NULL);
         virtual int PausedSPTR(void* argv[]=NULL);
         virtual int PausedRESU(void* argv[]=NULL);
-        virtual int OTFCTRL(void* argv[]=NULL);
-        virtual int accessReg(const int idx, const int rw, void* data);
-        virtual int maskRegData(void* data, void* mask);
-        virtual int unmaskRegData(void* data, void* mask);
+        //virtual int OTFCTRL(void* argv[]=NULL);
+        virtual int accessReg(const int idx, const int rw, regData& data);
+        virtual int maskRegData(regData& data, regData& mask);
+        virtual int unmaskRegData(regData& data, regData& mask);
 
     private:
         int configAdc();

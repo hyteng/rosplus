@@ -77,7 +77,7 @@ int smBase::doAction(command cmId, void* para[]) {
     stId = smBase::status(res);
     return res;
 }
-/*
+
 int smBase::OTFCTRL(void* argv[]) {
     debugMsg << name << "# " << "OTFCONF";
     stMsg->stateOut(debugMsg);
@@ -105,13 +105,13 @@ int smBase::OTFCTRL(void* argv[]) {
     for(int i=0; i<regSet.size(); i++) {
         getline(sValue, v, ',');
         stringstream sv(v);
-        regType vd;
-        sv >> vd;
-        maskRegData(&vd, (regType*)((*conf2mask)[confList[i]]));
-        if((res=accessReg(regSet[i], io, &vd)) != 1)
+        (*vd).setValueS(sv);
+        (*vm).ptr((void*)((*conf2mask)[confList[i]]));
+        maskRegData(*vd, *vm);
+        if((res=accessReg(regSet[i], io, *vd)) != 1)
             return -1;
-        unmaskRegData(&vd, (regType*)((*conf2mask)[confList[i]]));
-        result << vd << ","; 
+        unmaskRegData(*vd, *vm);
+        result << vd->getValueS() << ","; 
     }
 
     configSet::infoType type;
@@ -178,4 +178,3 @@ int smBase::OTFCTRL(void* argv[]) {
     *(string*)argv[2] = result.str();
     return (int)stId;
 }
-*/

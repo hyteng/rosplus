@@ -245,6 +245,9 @@ adc1785::adc1785(const string& n): smBase(n) {
     regAddr = &adc1785_regAddr;
     regWOIdx = &adc1785_regWOIdx;
     regROIdx = &adc1785_regROIdx;
+
+    vd = (regData*) new regUint16();
+    vm = (regData*) new regUint16();
 }
 
 adc1785::~adc1785() {
@@ -326,7 +329,7 @@ int adc1785::PausedRESU(void* argv[]) {
     //enableAdc();
     return 5;
 }
-
+/*
 int adc1785::OTFCTRL(void* argv[]) {
     debugMsg << name << "# " << "OTFCONF";
     stMsg->stateOut(debugMsg);
@@ -427,13 +430,10 @@ int adc1785::OTFCTRL(void* argv[]) {
     *(string*)argv[2] = result.str();
     return (int)stId;
 }
-
-int adc1785::accessReg(const int idx, const int rw, void* data) {
+*/
+int adc1785::accessReg(const int idx, const int rw, regData& data) {
     int res;
-    //int idx = *((int*)argv[0]);
-    //int rw = *((int*)argv[1]);
-    //regType* data = (regType*)argv[2];
-    if(idx<0 || idx>=regSize || rw<0 || rw>1 || data==NULL )
+    if(idx<0 || idx>=regSize || rw<0 || rw>1 || data.getValueP()==NULL )
         return 0;
 
     if((find(regROIdx->begin(), regROIdx->end(), idx) != regROIdx->end()) && rw==1)
@@ -442,14 +442,14 @@ int adc1785::accessReg(const int idx, const int rw, void* data) {
         return 0;
 
     regAddrType addr = *(regAddrType*)((*regAddr)[idx]);
-
-    res = accessRegNormal(addr, rw, (regType*)data);
+    
+    res = accessRegNormal(addr, rw, (regType*)data.getValueP());
     return res;
 }
 
-int adc1785::maskRegData(void* data, void* mask) {
-    regType mTest = *(regType*)mask;
-    regType mData = *(regType*)data;
+int adc1785::maskRegData(regData& data, regData& mask) {
+    regType mData = *(regType*)(data.getValueP());
+    regType mTest = *(regType*)(mask.getValueP());
     int shift = 16;
     for(int i=0;i<16;i++) {
         if((mTest>>i)%2 != 0) {
@@ -457,13 +457,14 @@ int adc1785::maskRegData(void* data, void* mask) {
             break;
         }
     }
-    *(regType*)data = (mData<<shift)&mTest;
+    mData = (mData<<shift)&mTest;
+    data.setValueP(&mData);
     return 1;
 }
 
-int adc1785::unmaskRegData(void* data, void* mask) {
-    regType mTest = *(regType*)mask;
-    regType mData = *(regType*)data;
+int adc1785::unmaskRegData(regData& data, regData& mask) {
+    regType mData = *(regType*)(data.getValueP());
+    regType mTest = *(regType*)(mask.getValueP());
     int shift = 16;
     for(int i=0;i<16;i++) {
         if((mTest>>i)%2 != 0) {
@@ -471,7 +472,8 @@ int adc1785::unmaskRegData(void* data, void* mask) {
             break;
         }
     }
-    *(regType*)data = (mData&mTest)>>shift;
+    mData = (mData&mTest)>>shift;
+    data.setValueP(&mData);
     return 1;
 }
 

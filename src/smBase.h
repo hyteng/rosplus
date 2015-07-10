@@ -36,6 +36,15 @@
 #include <sstream>
 #include <stdint.h>
 
+class regData {
+    public:
+        virtual void setValueS(std::stringstream& ss) = 0;
+        virtual void setValueP(const void* p) = 0;
+        virtual void* getValueP() = 0;
+        virtual std::string getValueS() = 0;
+        virtual regData& ptr(const void* p) = 0;
+};
+
 class smBase;
 typedef int(smBase::*pFunc)(void* argv[]);
 typedef smBase* pBase;
@@ -72,20 +81,20 @@ class smBase {
         virtual int PausedSPTR(void* argv[]=NULL) {return 4;};
         virtual int PausedRESU(void* argv[]=NULL) {return 5;};
         //virtual int PausedSATR(void* argv[]=NULL) {return 5;};
-        virtual int SelfTrans(void* argv[]=NULL) {return stId;};
-        virtual int AnyIMPO(void* argv[]=NULL) {return stId;};
+        virtual int SelfTrans(void* argv[]=NULL) {return (int)stId;};
+        virtual int AnyIMPO(void* argv[]=NULL) {return (int)stId;};
         virtual int AnyEXIT(void* argv[]=NULL) {return 1;};
         virtual int OTFSTAT(void* argv[]=NULL) {return stId;};
         virtual int RunningSTAT(void* argv[]=NULL) {return OTFSTAT(argv);};
         virtual int PausedSTAT(void* argv[]=NULL) {return OTFSTAT(argv);};
         virtual int ReadySTAT(void* argv[]=NULL) {return OTFSTAT(argv);};
-        virtual int OTFCTRL(void* argv[]=NULL) {return stId;};
+        virtual int OTFCTRL(void* argv[]=NULL); //{return stId;};
         virtual int RunningCTRL(void* argv[]=NULL) {return OTFCTRL(argv);};
         virtual int PausedCTRL(void* argv[]=NULL) {return OTFCTRL(argv);};
         virtual int ReadyCTRL(void* argv[]=NULL) {return OTFCTRL(argv);};
-        virtual int accessReg(const int idx, const int rw, void* data) {return 1;};
-        virtual int maskRegData(void* data, void* mask) {return 1;};
-        virtual int unmaskRegData(void* data, void* mask) {return 1;};
+        virtual int accessReg(const int idx, const int rw, regData& data) {return 1;};
+        virtual int maskRegData(regData& data, regData& mask) {return 1;};
+        virtual int unmaskRegData(regData& data, regData& mask) {return 1;};
 
         pFunc actions[MAX_CMD_AMOUNT][MAX_STATES_AMOUNT];
 
@@ -104,6 +113,8 @@ class smBase {
         std::map<std::string, uintptr_t> *conf2mask;
         std::vector<uintptr_t> *regAddr;
         std::vector<int> *regWOIdx, *regROIdx;
+
+        regData *vd, *vm;
 };
 
 typedef pBase (*pCreate)(const std::string& name);
