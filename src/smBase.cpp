@@ -107,8 +107,10 @@ int smBase::OTFCTRL(void* argv[]) {
         stringstream sv(v);
         regType vd;
         sv >> vd;
+        maskRegData(&vd, (regType*)((*conf2mask)[confList[i]]));
         if((res=accessReg(regSet[i], io, &vd)) != 1)
             return -1;
+        unmaskRegData(&vd, (regType*)((*conf2mask)[confList[i]]));
         result << vd << ","; 
     }
 
@@ -116,7 +118,7 @@ int smBase::OTFCTRL(void* argv[]) {
     string cfgIdx = "config."+name+"."+ctrlName;
     if((res=cfgInfo->infoGetType(cfgIdx, type)) == 1) {
         switch((int)type) {
-            case 0:
+            case 0: {
                 uint32_t v0;
                 sValue >> v0;
                 if((res=cfgInfo->infoSetUint(cfgIdx, v0)) == 1) {
@@ -128,8 +130,8 @@ int smBase::OTFCTRL(void* argv[]) {
                     stMsg->stateOut(debugMsg);
                     return -1;
                 }
-                break;
-            case 1:
+                break; }
+            case 1: {
                 uint64_t v1;
                 sValue >> v1;
                 if((res=cfgInfo->infoSetUlong(cfgIdx, v1)) == 1) {
@@ -141,8 +143,8 @@ int smBase::OTFCTRL(void* argv[]) {
                     stMsg->stateOut(debugMsg);
                     return -1;
                 }
-                break;
-            case 2:
+                break; }
+            case 2: {
                 double v2;
                 sValue >> v2;
                 if((res=cfgInfo->infoSetDouble(cfgIdx, v2)) == 1) {
@@ -154,8 +156,8 @@ int smBase::OTFCTRL(void* argv[]) {
                     stMsg->stateOut(debugMsg);
                     return -1;
                 }
-                break;
-            case 3:
+                break; }
+            case 3: {
                 string v3;
                 sValue >> v3;
                 if((res=cfgInfo->infoSetString(cfgIdx, v3)) == 1) {
@@ -167,14 +169,13 @@ int smBase::OTFCTRL(void* argv[]) {
                     stMsg->stateOut(debugMsg);
                     return -1;
                 }
-                break;
+                break; }
             default :
-                res = -1;
-                break;
+                return -1;
         }
     }
 
     *(string*)argv[2] = result.str();
-    return res;
+    return (int)stId;
 }
 */
