@@ -16,6 +16,7 @@ class frameEngine :public smBase {
     protected:
         virtual int InitializedLOAD(void* argv[]=NULL);
         virtual int LoadedUNLD(void* argv[]=NULL);
+        virtual int OTFCTRL(void* argv[]=NULL) {return stId;};
         
     private:
         int moduleStringSplit(const std::string& modeList);
