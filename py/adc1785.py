@@ -262,7 +262,7 @@ class devFrame(wx.Frame):
         # end wxGlade
 
     def setCrateSel(self, event):  # wxGlade: devFrame.<event_handler>
-        print "Event handler 'setCrateSel'!"
+        print "Event handler 'setCrateSel' !"
         spin = event.GetEventObject()
         v = spin.GetValue()
         vs = '%x' %v
@@ -271,7 +271,17 @@ class devFrame(wx.Frame):
         event.Skip()
 
     def setStepTh(self, event):  # wxGlade: devFrame.<event_handler>
-        print "Event handler 'setStepTh' not implemented!"
+        print "Event handler 'setStepTh' !"
+        b = event.GetEventObject()
+        st = b.GetValue()
+        cs = "ctrl#"+name+"#stepTh;w;"
+        if st==0 :
+            cs += "0;"
+            b.SetLable("X16")
+        else :
+            cs += "1;"
+            b.SetLable("X2")
+        self.ctrl.sendCtrl(cs.encode('utf8'))
         event.Skip()
 
     def clearData(self, event):  # wxGlade: devFrame.<event_handler>
