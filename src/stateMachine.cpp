@@ -187,14 +187,14 @@ int stateMachine::dispatch2(const string& ctrl) {
             }
         }
         if(pModule != NULL) {
-            string confName, rw, value="";
-            getline(sMsg, confName, ';');
+            string ctrlName, rw, value="";
+            getline(sMsg, ctrlName, ';');
             getline(sMsg, rw, ';');
             if(rw == "w")
                 getline(sMsg, value, ';');
 
             //configSet::infoValue* data*;
-            void* para[] = {&confName, &rw, &value};
+            void* para[] = {&ctrlName, &rw, &value};
             pModule->doAction(smBase::CMID_CTRL, para);
         }
 

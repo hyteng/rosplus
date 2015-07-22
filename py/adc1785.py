@@ -16,11 +16,76 @@ import gettext
 
 
 class devFrame(wx.Frame):
-    def __init__(self, *args, **kwds):
+    def __init__(self, cSocket, *args, **kwds):
         # begin wxGlade: devFrame.__init__
         style = wx.MINIMIZE_BOX|wx.MAXIMIZE_BOX|wx.RESIZE_BORDER
         wx.Frame.__init__(self, *args, **kwds)
         self.output0 = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.HSCROLL | wx.TE_MULTILINE | wx.TE_READONLY)
+        self.label_crateSel = wx.StaticText(self, wx.ID_ANY, _("crateSel"), style=wx.ALIGN_CENTER)
+        self.crateSel = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=255)
+        self.stepTH = wx.ToggleButton(self, wx.ID_ANY, _("stepTH *2"))
+        self.clearData = wx.Button(self, wx.ID_ANY, _("clearData"))
+        self.label_eventCount = wx.StaticText(self, wx.ID_ANY, _("event Count"), style=wx.ALIGN_RIGHT)
+        self.eventCount = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_CENTRE | wx.TE_READONLY)
+        self.countReset = wx.Button(self, wx.ID_ANY, _("count Reset"))
+        self.label_fclrw = wx.StaticText(self, wx.ID_ANY, _("fclrw"), style=wx.ALIGN_CENTER)
+        self.fclrw = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=1024)
+        self.offLine = wx.ToggleButton(self, wx.ID_ANY, _("offLine"))
+        self.swComm = wx.Button(self, wx.ID_ANY, _("swComm"))
+        self.buffFull = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_CENTRE | wx.TE_READONLY)
+        self.softReset = wx.Button(self, wx.ID_ANY, _("soft Reset"))
+        self.ch0L_En = wx.ToggleButton(self, wx.ID_ANY, _("ch0L_En"))
+        self.ch0L_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=256)
+        self.ch1L_En = wx.ToggleButton(self, wx.ID_ANY, _("ch1L_En"))
+        self.ch1L_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=256)
+        self.ch2L_En = wx.ToggleButton(self, wx.ID_ANY, _("ch2L_En"))
+        self.ch2L_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=256)
+        self.ch3L_En = wx.ToggleButton(self, wx.ID_ANY, _("ch3L_En"))
+        self.ch3L_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=256)
+        self.ch4L_En = wx.ToggleButton(self, wx.ID_ANY, _("ch4L_En"))
+        self.ch4L_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=256)
+        self.ch5L_En = wx.ToggleButton(self, wx.ID_ANY, _("ch5L_En"))
+        self.ch5L_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=256)
+        self.ch6L_En = wx.ToggleButton(self, wx.ID_ANY, _("ch6L_En"))
+        self.ch6L_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=256)
+        self.ch7L_En = wx.ToggleButton(self, wx.ID_ANY, _("ch7L_En"))
+        self.ch7L_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=256)
+        self.ch0H_En = wx.ToggleButton(self, wx.ID_ANY, _("ch0H_En"))
+        self.ch0H_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=256)
+        self.ch1H_En = wx.ToggleButton(self, wx.ID_ANY, _("ch1H_En"))
+        self.ch1H_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=256)
+        self.ch2H_En = wx.ToggleButton(self, wx.ID_ANY, _("ch2H_En"))
+        self.ch2H_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=256)
+        self.ch3H_En = wx.ToggleButton(self, wx.ID_ANY, _("ch3H_En"))
+        self.ch3H_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=256)
+        self.ch4H_En = wx.ToggleButton(self, wx.ID_ANY, _("ch4H_En"))
+        self.ch4H_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=256)
+        self.ch5H_En = wx.ToggleButton(self, wx.ID_ANY, _("ch5H_En"))
+        self.ch5H_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=256)
+        self.ch6H_En = wx.ToggleButton(self, wx.ID_ANY, _("ch6H_En"))
+        self.ch6H_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=256)
+        self.ch7H_En = wx.ToggleButton(self, wx.ID_ANY, _("ch7H_En"))
+        self.ch7H_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=256)
+
+        self.crateSel.SetBase(16)
+        self.fclrw.SetBase(16)
+        self.ch0L_Th.SetBase(16)
+        self.ch1L_Th.SetBase(16)
+        self.ch2L_Th.SetBase(16)
+        self.ch3L_Th.SetBase(16)
+        self.ch4L_Th.SetBase(16)
+        self.ch5L_Th.SetBase(16)
+        self.ch6L_Th.SetBase(16)
+        self.ch7L_Th.SetBase(16)
+        self.ch0H_Th.SetBase(16)
+        self.ch1H_Th.SetBase(16)
+        self.ch2H_Th.SetBase(16)
+        self.ch3H_Th.SetBase(16)
+        self.ch4H_Th.SetBase(16)
+        self.ch5H_Th.SetBase(16)
+        self.ch6H_Th.SetBase(16)
+        self.ch7H_Th.SetBase(16)
+
         self.ch0_L = wx.ToggleButton(self, wx.ID_ANY, _("ch0_L"))
         self.ch1_L = wx.ToggleButton(self, wx.ID_ANY, _("ch1_L"))
         self.ch2_L = wx.ToggleButton(self, wx.ID_ANY, _("ch2_L"))
@@ -42,6 +107,15 @@ class devFrame(wx.Frame):
         self.__set_properties()
         self.__do_layout()
 
+        self.Bind(wx.EVT_SPINCTRL, self.setCrateSel, self.crateSel)
+        self.Bind(wx.EVT_TOGGLEBUTTON, self.setStepTh, self.stepTH)
+        self.Bind(wx.EVT_BUTTON, self.clearData, self.clearData)
+        self.Bind(wx.EVT_BUTTON, self.resetCount, self.countReset)
+        self.Bind(wx.EVT_SPINCTRL, self.setFclrw, self.fclrw)
+        self.Bind(wx.EVT_TOGGLEBUTTON, self.setOffLine, self.offLine)
+        self.Bind(wx.EVT_BUTTON, self.swComm, self.swComm)
+        self.Bind(wx.EVT_BUTTON, self.softReset, self.softReset)
+
         self.Bind(wx.EVT_TOGGLEBUTTON, lambda event, n=0 :self.showCh(event, n), self.ch0_L)
         self.Bind(wx.EVT_TOGGLEBUTTON, lambda event, n=1 :self.showCh(event, n), self.ch1_L)
         self.Bind(wx.EVT_TOGGLEBUTTON, lambda event, n=2 :self.showCh(event, n), self.ch2_L)
@@ -60,6 +134,8 @@ class devFrame(wx.Frame):
         self.Bind(wx.EVT_TOGGLEBUTTON, lambda event, n=15 :self.showCh(event, n), self.ch7_H)
         # end wxGlade
         self.Bind(wx.EVT_CLOSE, self.on_close)
+        # user ctrl 
+        self.ctrl = cSocket
 
     def on_close(self, event):
         self.Hide()
@@ -73,7 +149,95 @@ class devFrame(wx.Frame):
         # begin wxGlade: devFrame.__do_layout
         sizer_1 = wx.BoxSizer(wx.VERTICAL)
         grid_sizer_1 = wx.GridSizer(2, 8, 1, 1)
+        grid_sizer_2 = wx.GridSizer(2, 8, 0, 0)
+        grid_sizer_2F = wx.GridSizer(1, 2, 0, 0)
+        grid_sizer_2E = wx.GridSizer(1, 2, 0, 0)
+        grid_sizer_2D = wx.GridSizer(1, 2, 0, 0)
+        grid_sizer_2C = wx.GridSizer(1, 2, 0, 0)
+        grid_sizer_2B = wx.GridSizer(1, 2, 0, 0)
+        grid_sizer_2A = wx.GridSizer(1, 2, 0, 0)
+        grid_sizer_29 = wx.GridSizer(1, 2, 0, 0)
+        grid_sizer_28 = wx.GridSizer(1, 2, 0, 0)
+        grid_sizer_27 = wx.GridSizer(1, 2, 0, 0)
+        grid_sizer_26 = wx.GridSizer(1, 2, 0, 0)
+        grid_sizer_25 = wx.GridSizer(1, 2, 0, 0)
+        grid_sizer_24 = wx.GridSizer(1, 2, 0, 0)
+        grid_sizer_23 = wx.GridSizer(1, 2, 0, 0)
+        grid_sizer_22 = wx.GridSizer(1, 2, 0, 0)
+        grid_sizer_21 = wx.GridSizer(1, 2, 0, 0)
+        grid_sizer_20 = wx.GridSizer(1, 2, 0, 0)
+        grid_sizer_3 = wx.GridSizer(2, 8, 1, 1)
+        grid_sizer_31 = wx.GridSizer(1, 2, 0, 0)
+        grid_sizer_30 = wx.GridSizer(1, 2, 0, 0)
         sizer_1.Add(self.output0, 2, wx.EXPAND, 0)
+
+        grid_sizer_30.Add(self.label_crateSel, 0, wx.ALL | wx.EXPAND, 0)
+        grid_sizer_30.Add(self.crateSel, 0, wx.ALL | wx.EXPAND, 0)
+        grid_sizer_3.Add(grid_sizer_30, 1, 0, 0)
+        grid_sizer_3.Add(self.stepTH, 0, wx.ALL | wx.EXPAND, 1)
+        grid_sizer_3.Add(self.clearData, 0, wx.ALL | wx.EXPAND, 1)
+        grid_sizer_3.Add(self.label_eventCount, 0, wx.ALL | wx.EXPAND, 0)
+        grid_sizer_3.Add(self.eventCount, 0, wx.ALL | wx.EXPAND, 0)
+        grid_sizer_3.Add(self.countReset, 0, wx.ALL | wx.EXPAND, 1)
+        grid_sizer_31.Add(self.label_fclrw, 0, wx.ALL | wx.EXPAND, 0)
+        grid_sizer_31.Add(self.fclrw, 0, wx.ALL | wx.EXPAND, 0)
+        grid_sizer_3.Add(grid_sizer_31, 1, 0, 0)
+        grid_sizer_3.Add(self.offLine, 0, wx.ALL | wx.EXPAND, 1)
+        grid_sizer_3.Add(self.swComm, 0, wx.ALL | wx.EXPAND, 1)
+        grid_sizer_3.Add(self.buffFull, 0, wx.ALL | wx.EXPAND, 0)
+        grid_sizer_3.Add(self.softReset, 0, wx.ALL | wx.EXPAND, 1)
+        sizer_1.Add(grid_sizer_3, 1, 0, 0)
+
+        grid_sizer_20.Add(self.ch0L_En, 1, wx.ALL | wx.EXPAND, 0)
+        grid_sizer_20.Add(self.ch0L_Th, 0, wx.ALL | wx.EXPAND, 0)
+        grid_sizer_2.Add(grid_sizer_20, 1, wx.ALL | wx.EXPAND, 0)
+        grid_sizer_21.Add(self.ch1L_En, 0, wx.ALL | wx.EXPAND, 0)
+        grid_sizer_21.Add(self.ch1L_Th, 0, wx.ALL | wx.EXPAND, 0)
+        grid_sizer_2.Add(grid_sizer_21, 1, 0, 0)
+        grid_sizer_22.Add(self.ch2L_En, 0, wx.ALL | wx.EXPAND, 0)
+        grid_sizer_22.Add(self.ch2L_Th, 0, wx.ALL | wx.EXPAND, 0)
+        grid_sizer_2.Add(grid_sizer_22, 1, 0, 0)
+        grid_sizer_23.Add(self.ch3L_En, 0, wx.ALL | wx.EXPAND, 0)
+        grid_sizer_23.Add(self.ch3L_Th, 0, wx.ALL | wx.EXPAND, 0)
+        grid_sizer_2.Add(grid_sizer_23, 1, 0, 0)
+        grid_sizer_24.Add(self.ch4L_En, 0, wx.ALL | wx.EXPAND, 0)
+        grid_sizer_24.Add(self.ch4L_Th, 0, wx.ALL | wx.EXPAND, 0)
+        grid_sizer_2.Add(grid_sizer_24, 1, 0, 0)
+        grid_sizer_25.Add(self.ch5L_En, 0, wx.ALL | wx.EXPAND, 0)
+        grid_sizer_25.Add(self.ch5L_Th, 0, wx.ALL | wx.EXPAND, 0)
+        grid_sizer_2.Add(grid_sizer_25, 1, 0, 0)
+        grid_sizer_26.Add(self.ch6L_En, 0, wx.ALL | wx.EXPAND, 0)
+        grid_sizer_26.Add(self.ch6L_Th, 0, wx.ALL | wx.EXPAND, 0)
+        grid_sizer_2.Add(grid_sizer_26, 1, 0, 0)
+        grid_sizer_27.Add(self.ch7L_En, 0, wx.ALL | wx.EXPAND, 0)
+        grid_sizer_27.Add(self.ch7L_Th, 0, wx.ALL | wx.EXPAND, 0)
+        grid_sizer_2.Add(grid_sizer_27, 1, 0, 0)
+        grid_sizer_28.Add(self.ch0H_En, 0, wx.ALL | wx.EXPAND, 0)
+        grid_sizer_28.Add(self.ch0H_Th, 0, wx.ALL | wx.EXPAND, 0)
+        grid_sizer_2.Add(grid_sizer_28, 1, 0, 0)
+        grid_sizer_29.Add(self.ch1H_En, 0, wx.ALL | wx.EXPAND, 0)
+        grid_sizer_29.Add(self.ch1H_Th, 0, wx.ALL | wx.EXPAND, 0)
+        grid_sizer_2.Add(grid_sizer_29, 1, 0, 0)
+        grid_sizer_2A.Add(self.ch2H_En, 0, wx.ALL | wx.EXPAND, 0)
+        grid_sizer_2A.Add(self.ch2H_Th, 0, wx.ALL | wx.EXPAND, 0)
+        grid_sizer_2.Add(grid_sizer_2A, 1, 0, 0)
+        grid_sizer_2B.Add(self.ch3H_En, 0, wx.ALL | wx.EXPAND, 0)
+        grid_sizer_2B.Add(self.ch3H_Th, 0, wx.ALL | wx.EXPAND, 0)
+        grid_sizer_2.Add(grid_sizer_2B, 1, 0, 0)
+        grid_sizer_2C.Add(self.ch4H_En, 0, wx.ALL | wx.EXPAND, 0)
+        grid_sizer_2C.Add(self.ch4H_Th, 0, wx.ALL | wx.EXPAND, 0)
+        grid_sizer_2.Add(grid_sizer_2C, 1, 0, 0)
+        grid_sizer_2D.Add(self.ch5H_En, 0, wx.ALL | wx.EXPAND, 0)
+        grid_sizer_2D.Add(self.ch5H_Th, 0, wx.ALL | wx.EXPAND, 0)
+        grid_sizer_2.Add(grid_sizer_2D, 1, 0, 0)
+        grid_sizer_2E.Add(self.ch6H_En, 0, wx.ALL | wx.EXPAND, 0)
+        grid_sizer_2E.Add(self.ch6H_Th, 0, wx.ALL | wx.EXPAND, 0)
+        grid_sizer_2.Add(grid_sizer_2E, 1, 0, 0)
+        grid_sizer_2F.Add(self.ch7H_En, 0, wx.ALL | wx.EXPAND, 0)
+        grid_sizer_2F.Add(self.ch7H_Th, 0, wx.ALL | wx.EXPAND, 0)
+        grid_sizer_2.Add(grid_sizer_2F, 1, 0, 0)
+        sizer_1.Add(grid_sizer_2, 1, wx.ALL | wx.EXPAND, 0)
+
         grid_sizer_1.Add(self.ch0_L, 1, wx.ALL | wx.EXPAND, 1)
         grid_sizer_1.Add(self.ch1_L, 1, wx.ALL | wx.EXPAND, 1)
         grid_sizer_1.Add(self.ch2_L, 1, wx.ALL | wx.EXPAND, 1)
@@ -91,10 +255,48 @@ class devFrame(wx.Frame):
         grid_sizer_1.Add(self.ch6_H, 1, wx.ALL | wx.EXPAND, 1)
         grid_sizer_1.Add(self.ch7_H, 1, wx.ALL | wx.EXPAND, 1)
         sizer_1.Add(grid_sizer_1, 1, wx.ALL, 1)
+
         self.SetSizer(sizer_1)
         sizer_1.Fit(self)
         self.Layout()
         # end wxGlade
+
+    def setCrateSel(self, event):  # wxGlade: devFrame.<event_handler>
+        print "Event handler 'setCrateSel'!"
+        spin = event.GetEventObject()
+        v = spin.GetValue()
+        vs = '%x' %v
+        cs = "ctrl#"+name+"#crateSel;w;"+vs+";"
+        self.ctrl.sendCtrl(cs.encode('utf8'))
+        event.Skip()
+
+    def setStepTh(self, event):  # wxGlade: devFrame.<event_handler>
+        print "Event handler 'setStepTh' not implemented!"
+        event.Skip()
+
+    def clearData(self, event):  # wxGlade: devFrame.<event_handler>
+        print "Event handler 'clearData' not implemented!"
+        event.Skip()
+
+    def resetCount(self, event):  # wxGlade: devFrame.<event_handler>
+        print "Event handler 'resetCount' not implemented!"
+        event.Skip()
+
+    def setFclrw(self, event):  # wxGlade: devFrame.<event_handler>
+        print "Event handler 'setFclrw' not implemented!"
+        event.Skip()
+
+    def setOffLine(self, event):  # wxGlade: devFrame.<event_handler>
+        print "Event handler 'setOffLine' not implemented!"
+        event.Skip()
+
+    def swComm(self, event):  # wxGlade: devFrame.<event_handler>
+        print "Event handler 'swComm' not implemented!"
+        event.Skip()
+
+    def softReset(self, event):  # wxGlade: devFrame.<event_handler>
+        print "Event handler 'softReset' not implemented!"
+        event.Skip()
 
     def showCh(self, event, n):  # wxGlade: devFrame.<event_handler>
         print "Event handler showCh for button%d\n"%(n)

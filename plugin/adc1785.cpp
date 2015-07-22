@@ -140,7 +140,7 @@ enum ADC1785Reg {/*RW*/GeoAddr=0, CBLTAddr, IrqLevel, IrqVector, AddrHigh, AddrL
 #define ctrlStatus1 8
 #define ctrlStatus2 6
 
-string ctrl1785[ctrlSize] = {"geoAddr", "cbltAddr", "irqLevel", "irqVector", "vmeAddr", "eventTh", "loadTest", "fclrw", "crateSel", "slideConst", "threshold0H", "threshold0L", "threshold1H", "threshold1L", "threshold2H", "threshold2L", "threshold3H", "threshold3L", "threshold4H", "threshold4L", "threshold5H", "threshold5L", "threshold6H", "threshold6L", "threshold7H", "threshold7L", "ssReset", "cbltCtrl", "incEvent", "incOffset", "wTestAddr", "memTestW", "testEventW", "countReset", "rTestAddr", "swComm", /*BitSet1*/"berrFlag", "selAddr", "softReset", /*Ctrl1*/"blkend", "progResetMod", "busError", "align64", /*BitSet2*/"mode", "offline", "clearData", "overRange", "lowTh", "testACQ", "slideScale", "stepTh", "autoInc", "emptyProg", "slideSub", "allTrigger", /*RO*/"firmware", /*Status1*/"DRDY", "gDRDY", "busy", "gbusy", "purged", "termOn", "termOff", "EVRDY", /*Status2*/"buffEmpty", "buffFull", "DSel0", "DSel1", "CSel0", "CSel1", "eventCount", "aad", "bad"};
+string ctrl1785[ctrlSize] = {"geoAddr", "cbltAddr", "irqLevel", "irqVector", "vmeAddr", "eventTh", "loadTest", "fclrw", "crateSel", "slideConst", "threshold0H", "threshold0L", "threshold1H", "threshold1L", "threshold2H", "threshold2L", "threshold3H", "threshold3L", "threshold4H", "threshold4L", "threshold5H", "threshold5L", "threshold6H", "threshold6L", "threshold7H", "threshold7L", /*WO*/"ssReset", "cbltCtrl", "incEvent", "incOffset", "wTestAddr", "memTestW", "testEventW", "countReset", "rTestAddr", "swComm", /*BitSet1*/"berrFlag", "selAddr", "softReset", /*Ctrl1*/"blkend", "progResetMod", "busError", "align64", /*BitSet2*/"mode", "offline", "clearData", "overRange", "lowTh", "testACQ", "slideScale", "stepTh", "autoInc", "emptyProg", "slideSub", "allTrigger", /*RO*/"firmware", /*Status1*/"DRDY", "gDRDY", "busy", "gbusy", "purged", "termOn", "termOff", "EVRDY", /*Status2*/"buffEmpty", "buffFull", "DSel0", "DSel1", "CSel0", "CSel1", "eventCount", "aad", "bad"};
 
 unsigned int ctrlDefault[]={0,0xAA,7,0,0x00CC0000,8,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,8,0,4,0,0,0,/*BitSet1*/0,0,0,/*Ctrl1*/0,0,0,0,/*BitSet2*/0,0,0,1,1,0,1,1,1,0,0,1};
 
@@ -329,108 +329,7 @@ int adc1785::PausedRESU(void* argv[]) {
     //enableAdc();
     return 5;
 }
-/*
-int adc1785::OTFCTRL(void* argv[]) {
-    debugMsg << name << "# " << "OTFCONF";
-    stMsg->stateOut(debugMsg);
 
-    string ctrlName = *(string*)argv[0];
-    string rw = *(string*)argv[1];
-    string value = *(string*)argv[2];
-    stringstream result("");
-    int res;
-
-    std::vector<int> regSet;
-    regSet.clear();
-    vector<string> &confList = (*ctrl2conf)[ctrlName];
-    for(int i=0; i<confList.size();i++)
-        regSet.push_back((*conf2reg)[confList[i]]);
-
-    int io = -1;
-    if(rw == "r")
-        io = 0;
-    if(rw == "w")
-        io = 1;
-    
-    stringstream sValue(value);
-    string v;
-    for(int i=0; i<regSet.size(); i++) {
-        getline(sValue, v, ',');
-        stringstream sv(v);
-        regType vd;
-        sv >> vd;
-        maskRegData(&vd, (regType*)((*conf2mask)[confList[i]]));
-        if((res=accessReg(regSet[i], io, &vd)) != 1)
-            return -1;
-        unmaskRegData(&vd, (regType*)((*conf2mask)[confList[i]]));
-        result << vd << ","; 
-    }
-
-    configSet::infoType type;
-    string cfgIdx = "config."+name+"."+ctrlName;
-    if((res=cfgInfo->infoGetType(cfgIdx, type)) == 1) {
-        switch((int)type) {
-            case 0: {
-                uint32_t v0;
-                sValue >> v0;
-                if((res=cfgInfo->infoSetUint(cfgIdx, v0)) == 1) {
-                    debugMsg << name << "# " << cfgIdx << " set " << v0;
-                    stMsg->stateOut(debugMsg);
-                }
-                else {
-                    debugMsg << name << "# " << cfgIdx << " not set. ";
-                    stMsg->stateOut(debugMsg);
-                    return -1;
-                }
-                break; }
-            case 1: {
-                uint64_t v1;
-                sValue >> v1;
-                if((res=cfgInfo->infoSetUlong(cfgIdx, v1)) == 1) {
-                    debugMsg << name << "# " << cfgIdx << " set " << v1;
-                    stMsg->stateOut(debugMsg);
-                }
-                else {
-                    debugMsg << name << "# " << cfgIdx << " not set. ";
-                    stMsg->stateOut(debugMsg);
-                    return -1;
-                }
-                break; }
-            case 2: {
-                double v2;
-                sValue >> v2;
-                if((res=cfgInfo->infoSetDouble(cfgIdx, v2)) == 1) {
-                    debugMsg << name << "# " << cfgIdx << " set " << v2;
-                    stMsg->stateOut(debugMsg);
-                }
-                else {
-                    debugMsg << name << "# " << cfgIdx << " not set. ";
-                    stMsg->stateOut(debugMsg);
-                    return -1;
-                }
-                break; }
-            case 3: {
-                string v3;
-                sValue >> v3;
-                if((res=cfgInfo->infoSetString(cfgIdx, v3)) == 1) {
-                    debugMsg << name << "# " << cfgIdx << " set " << v3;
-                    stMsg->stateOut(debugMsg);
-                }
-                else {
-                    debugMsg << name << "# " << cfgIdx << " not set. ";
-                    stMsg->stateOut(debugMsg);
-                    return -1;
-                }
-                break; }
-            default :
-                return -1;
-        }
-    }
-
-    *(string*)argv[2] = result.str();
-    return (int)stId;
-}
-*/
 int adc1785::accessReg(const int idx, const int rw, regData& data) {
     int res;
     if(idx<0 || idx>=regSize || rw<0 || rw>1 || data.getValueP()==NULL )

@@ -25,10 +25,11 @@ DATAPORT=4001
 CTRLPORT=4002
 
 class ctrlFrame(wx.Frame):
-    def __init__(self, dCount, dName, *args, **kwds):
+    def __init__(self, cSocket, dCount, dName, *args, **kwds):
         # begin wxGlade: ctrlFrame.__init__
         wx.Frame.__init__(self, *args, **kwds)
 
+        self.ctrl = cSocket
         self.dCount = dCount
         self.dName = dName
         self.dev_button = []
@@ -50,7 +51,6 @@ class ctrlFrame(wx.Frame):
         self.button_End = wx.Button(self, wx.ID_ANY, _("End"))
         self.button_Stop = wx.Button(self, wx.ID_ANY, _("Stop"))
         self.button_Resu = wx.Button(self, wx.ID_ANY, _("Resu"))
-        self.socket = -1
 
         self.__set_properties()
         self.__do_layout()
@@ -109,10 +109,10 @@ class ctrlFrame(wx.Frame):
         print "Event handler 'sendMsg'"
         txt = event.GetEventObject()
         n = txt.GetNumberOfLines()
-        if (n>=1) and (self.socket!=-1) :
+        if (n>=1) and (self.ctrl!=-1) :
             msg = txt.GetLineText(n)
-            print "send msg %s to socket"%(msg)
-            self.socket.send(msg.encode('utf8'))
+            print "send msg %s to ctrl"%(msg)
+            self.ctrl.sendCtrl(msg.encode('utf8'))
 
         event.Skip()
 
@@ -123,11 +123,8 @@ class ctrlFrame(wx.Frame):
             #st = b.GetValue()
             #cmdId += st
         msg = "cmd#all#"+str(cmdId)
-        self.socket.send(msg.encode('utf8'))
+        self.ctrl.sendCtrl(msg.encode('utf8'))
         event.Skip()
-
-    def setSocket(self, s):
-        self.socket = s
 
     def setApp(self, a):
         self.app = a
@@ -147,7 +144,6 @@ class ctrlFrame(wx.Frame):
         self.devShow[devId] = df.IsShown()
 
 # end of class ctrlFrame
-
 
 class msgSwitch(threading.Thread):
     def __init__(self, s, fl, nl):
@@ -209,10 +205,34 @@ class dataSwitch(threading.Thread):
             #print "%s"%(data)
         print "dataSwitch is finished."
 
+class ctrlSwitch(threading.Thread):
+    def __init__(self, s):
+        super(ctrlSwitch, self).__init__()
+        self.socket = s
+        mutex = threading.Lock()
+
+    def sendCtrl(self, cs):
+        if mutex.acquire(1) :
+            self.socket.send(cs.encode('utf8'))
+            print "ctrlSwitch is finished."
+            mutex.release()
+        else :
+            print "ctrlSwitch is busy."
+
+
 class ctrlApp(wx.App):
     def OnInit(self):
         wx.InitAllImageHandlers()
     
+        self.addrMsg = (HOST, MSGPORT)
+        self.socketMsg = socket(AF_INET, SOCK_STREAM)
+        self.addrData = (HOST, DATAPORT)
+        self.socketData = socket(AF_INET, SOCK_STREAM)
+        self.addrCtrl = (HOST, CTRLPORT)
+        self.socketCtrl = socket(AF_INET, SOCK_STREAM)
+
+        self.ctrl = ctrlSwitch(self.socketCtrl)
+
         self.isCfg=os.path.exists("./mlist.conf")
         self.cfgFile = None
         self.modLines = []
@@ -229,7 +249,7 @@ class ctrlApp(wx.App):
                 self.modName.append(n)
                 self.modCount += 1 
 
-        frame0 = ctrlFrame(self.modCount, self.modName, None, wx.ID_ANY, "")
+        frame0 = ctrlFrame(self.ctrl, self.modCount, self.modName, None, wx.ID_ANY, "")
         frame0.setApp(self)
         self.frames = []
         self.devs = []
@@ -238,30 +258,17 @@ class ctrlApp(wx.App):
         self.devs.append(self)
         self.names.append("ctrl")
         for idx in range(self.modCount) :
-            self.frames.append(self.modList[idx].devFrame(None, wx.ID_ANY, ""))
+            self.frames.append(self.modList[idx].devFrame(self.ctrl, None, wx.ID_ANY, ""))
             self.devs.append(self.modList[idx].devApp(self.modName[idx]))
             self.names.append(self.modName[idx])
             self.frames[-1].setDev(self.devs[-1])
             self.devs[-1].setFrame(self.frames[-1])
 
-        #self.frames.append(adc1785.devFrame(None, wx.ID_ANY, ""))
-        #self.devs.append(adc1785.devApp("vme1-adc1785-0"))
-        #self.names.append("vme1-adc1785-0")
-        #self.frames[-1].setDev(self.devs[-1])
-        #self.devs[-1].setFrame(self.frames[-1])
-
-        self.addrMsg = (HOST, MSGPORT)
-        self.socketMsg = socket(AF_INET, SOCK_STREAM)
-        self.addrData = (HOST, DATAPORT)
-        self.socketData = socket(AF_INET, SOCK_STREAM)
-        self.addrCtrl = (HOST, CTRLPORT)
-        self.socketCtrl = socket(AF_INET, SOCK_STREAM)
-
         self.thpool = []
         self.thpool.append(msgSwitch(self.socketMsg, self.frames, self.names))
-        #self.thpool.append(dataSwitch(self.socketData, self.devs, self.names))
+        self.thpool.append(dataSwitch(self.socketData, self.devs, self.names))
 
-        frame0.setSocket(self.socketCtrl)
+        #frame0.setSocket(self.socketCtrl)
         self.SetTopWindow(frame0)
         frame0.Show()
         #self.frames[1].Show()
@@ -303,5 +310,4 @@ if __name__ == "__main__":
 
     ctrl0 = ctrlApp(0)
     ctrl0.start()
-    #ctrl0.devs[1].fillCh(0, 1000)
     ctrl0.MainLoop()
