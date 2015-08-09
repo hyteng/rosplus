@@ -209,13 +209,13 @@ class ctrlSwitch(threading.Thread):
     def __init__(self, s):
         super(ctrlSwitch, self).__init__()
         self.socket = s
-        mutex = threading.Lock()
+        self.mutex = threading.Lock()
 
     def sendCtrl(self, cs):
-        if mutex.acquire(1) :
+        if self.mutex.acquire(1) :
             self.socket.send(cs.encode('utf8'))
             print "ctrlSwitch is finished."
-            mutex.release()
+            self.mutex.release()
         else :
             print "ctrlSwitch is busy."
 

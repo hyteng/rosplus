@@ -23,8 +23,8 @@ class devFrame(wx.Frame):
         self.output0 = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.HSCROLL | wx.TE_MULTILINE | wx.TE_READONLY)
         self.label_crateSel = wx.StaticText(self, wx.ID_ANY, _("crateSel"), style=wx.ALIGN_CENTER)
         self.crateSel = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=255)
-        self.stepTH = wx.ToggleButton(self, wx.ID_ANY, _("stepTH *2"))
-        self.clearData = wx.Button(self, wx.ID_ANY, _("clearData"))
+        self.stepTH = wx.ToggleButton(self, wx.ID_ANY, _("stepTH X16"))
+        self.clear = wx.Button(self, wx.ID_ANY, _("clearData"))
         self.label_eventCount = wx.StaticText(self, wx.ID_ANY, _("event Count"), style=wx.ALIGN_RIGHT)
         self.eventCount = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_CENTRE | wx.TE_READONLY)
         self.countReset = wx.Button(self, wx.ID_ANY, _("count Reset"))
@@ -67,24 +67,24 @@ class devFrame(wx.Frame):
         self.ch7H_En = wx.ToggleButton(self, wx.ID_ANY, _("ch7H_En"))
         self.ch7H_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=256)
 
-        self.crateSel.SetBase(16)
-        self.fclrw.SetBase(16)
-        self.ch0L_Th.SetBase(16)
-        self.ch1L_Th.SetBase(16)
-        self.ch2L_Th.SetBase(16)
-        self.ch3L_Th.SetBase(16)
-        self.ch4L_Th.SetBase(16)
-        self.ch5L_Th.SetBase(16)
-        self.ch6L_Th.SetBase(16)
-        self.ch7L_Th.SetBase(16)
-        self.ch0H_Th.SetBase(16)
-        self.ch1H_Th.SetBase(16)
-        self.ch2H_Th.SetBase(16)
-        self.ch3H_Th.SetBase(16)
-        self.ch4H_Th.SetBase(16)
-        self.ch5H_Th.SetBase(16)
-        self.ch6H_Th.SetBase(16)
-        self.ch7H_Th.SetBase(16)
+        #self.crateSel.SetBase(16)
+        #self.fclrw.SetBase(16)
+        #self.ch0L_Th.SetBase(16)
+        #self.ch1L_Th.SetBase(16)
+        #self.ch2L_Th.SetBase(16)
+        #self.ch3L_Th.SetBase(16)
+        #self.ch4L_Th.SetBase(16)
+        #self.ch5L_Th.SetBase(16)
+        #self.ch6L_Th.SetBase(16)
+        #self.ch7L_Th.SetBase(16)
+        #self.ch0H_Th.SetBase(16)
+        #self.ch1H_Th.SetBase(16)
+        #self.ch2H_Th.SetBase(16)
+        #self.ch3H_Th.SetBase(16)
+        #self.ch4H_Th.SetBase(16)
+        #self.ch5H_Th.SetBase(16)
+        #self.ch6H_Th.SetBase(16)
+        #self.ch7H_Th.SetBase(16)
 
         self.ch0_L = wx.ToggleButton(self, wx.ID_ANY, _("ch0_L"))
         self.ch1_L = wx.ToggleButton(self, wx.ID_ANY, _("ch1_L"))
@@ -109,12 +109,12 @@ class devFrame(wx.Frame):
 
         self.Bind(wx.EVT_SPINCTRL, self.setCrateSel, self.crateSel)
         self.Bind(wx.EVT_TOGGLEBUTTON, self.setStepTh, self.stepTH)
-        self.Bind(wx.EVT_BUTTON, self.clearData, self.clearData)
+        self.Bind(wx.EVT_BUTTON, self.clearData, self.clear)
         self.Bind(wx.EVT_BUTTON, self.resetCount, self.countReset)
         self.Bind(wx.EVT_SPINCTRL, self.setFclrw, self.fclrw)
         self.Bind(wx.EVT_TOGGLEBUTTON, self.setOffLine, self.offLine)
-        self.Bind(wx.EVT_BUTTON, self.swComm, self.swComm)
-        self.Bind(wx.EVT_BUTTON, self.softReset, self.softReset)
+        self.Bind(wx.EVT_BUTTON, self.comm, self.swComm)
+        self.Bind(wx.EVT_BUTTON, self.reset, self.softReset)
 
         self.Bind(wx.EVT_TOGGLEBUTTON, lambda event, n=0 :self.showCh(event, n), self.ch0_L)
         self.Bind(wx.EVT_TOGGLEBUTTON, lambda event, n=1 :self.showCh(event, n), self.ch1_L)
@@ -175,7 +175,7 @@ class devFrame(wx.Frame):
         grid_sizer_30.Add(self.crateSel, 0, wx.ALL | wx.EXPAND, 0)
         grid_sizer_3.Add(grid_sizer_30, 1, 0, 0)
         grid_sizer_3.Add(self.stepTH, 0, wx.ALL | wx.EXPAND, 1)
-        grid_sizer_3.Add(self.clearData, 0, wx.ALL | wx.EXPAND, 1)
+        grid_sizer_3.Add(self.clear, 0, wx.ALL | wx.EXPAND, 1)
         grid_sizer_3.Add(self.label_eventCount, 0, wx.ALL | wx.EXPAND, 0)
         grid_sizer_3.Add(self.eventCount, 0, wx.ALL | wx.EXPAND, 0)
         grid_sizer_3.Add(self.countReset, 0, wx.ALL | wx.EXPAND, 1)
@@ -266,7 +266,7 @@ class devFrame(wx.Frame):
         spin = event.GetEventObject()
         v = spin.GetValue()
         vs = '%x' %v
-        cs = "ctrl#"+name+"#crateSel;w;"+vs+";"
+        cs = "ctrl#"+self.dev.name+"#crateSel;w;"+vs+";"
         self.ctrl.sendCtrl(cs.encode('utf8'))
         event.Skip()
 
@@ -274,13 +274,13 @@ class devFrame(wx.Frame):
         print "Event handler 'setStepTh' !"
         b = event.GetEventObject()
         st = b.GetValue()
-        cs = "ctrl#"+name+"#stepTh;w;"
+        cs = "ctrl#"+self.dev.name+"#stepTh;w;"
         if st==0 :
             cs += "0;"
-            b.SetLable("X16")
+            b.SetLabel("StepTh X16")
         else :
             cs += "1;"
-            b.SetLable("X2")
+            b.SetLabel("StepTh X2")
         self.ctrl.sendCtrl(cs.encode('utf8'))
         event.Skip()
 
@@ -300,11 +300,11 @@ class devFrame(wx.Frame):
         print "Event handler 'setOffLine' not implemented!"
         event.Skip()
 
-    def swComm(self, event):  # wxGlade: devFrame.<event_handler>
+    def comm(self, event):  # wxGlade: devFrame.<event_handler>
         print "Event handler 'swComm' not implemented!"
         event.Skip()
 
-    def softReset(self, event):  # wxGlade: devFrame.<event_handler>
+    def reset(self, event):  # wxGlade: devFrame.<event_handler>
         print "Event handler 'softReset' not implemented!"
         event.Skip()
 
