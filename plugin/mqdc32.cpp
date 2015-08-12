@@ -1,4 +1,4 @@
-#include "mqadc32.h"
+#include "mqdc32.h"
 
 using std::string;
 using std::stringstream;
@@ -13,226 +13,215 @@ using std::endl;
 #define MAX_MINOR 17
 
 // register inform
-#define MQADC32_BASE                0xCC000000
-#define MQADC32_LENGTH              0x10000
-#define MQADC32_FIFO_Offset         0x0000
-#define MQADC32_Ch01Th_Offset       0x4000
-#define MQADC32_Ch02Th_Offset       0x4002
-#define MQADC32_Ch03Th_Offset       0x4004
-#define MQADC32_Ch04Th_Offset       0x4006
-#define MQADC32_Ch05Th_Offset       0x4008
-#define MQADC32_Ch06Th_Offset       0x400A
-#define MQADC32_Ch07Th_Offset       0x400C
-#define MQADC32_Ch08Th_Offset       0x400E
-#define MQADC32_Ch09Th_Offset       0x4010
-#define MQADC32_Ch10Th_Offset       0x4012
-#define MQADC32_Ch11Th_Offset       0x4014
-#define MQADC32_Ch12Th_Offset       0x4016
-#define MQADC32_Ch13Th_Offset       0x4018
-#define MQADC32_Ch14Th_Offset       0x401A
-#define MQADC32_Ch15Th_Offset       0x401C
-#define MQADC32_Ch16Th_Offset       0x401E
-#define MQADC32_Ch17Th_Offset       0x4020
-#define MQADC32_Ch18Th_Offset       0x4022
-#define MQADC32_Ch19Th_Offset       0x4024
-#define MQADC32_Ch20Th_Offset       0x4026
-#define MQADC32_Ch21Th_Offset       0x4028
-#define MQADC32_Ch22Th_Offset       0x402A
-#define MQADC32_Ch23Th_Offset       0x402C
-#define MQADC32_Ch24Th_Offset       0x402E
-#define MQADC32_Ch25Th_Offset       0x4030
-#define MQADC32_Ch26Th_Offset       0x4032
-#define MQADC32_Ch27Th_Offset       0x4034
-#define MQADC32_Ch28Th_Offset       0x4036
-#define MQADC32_Ch29Th_Offset       0x4038
-#define MQADC32_Ch30Th_Offset       0x403A
-#define MQADC32_Ch31Th_Offset       0x403C
-#define MQADC32_Ch32Th_Offset       0x403E
-#define MQADC32_AddrSource_Offset   0x6000
-#define MQADC32_Addr_Offset         0x6002
-#define MQADC32_ModuleId_Offset     0x6004
-#define MQADC32_FastVme_Offset      0x6006
-#define MQADC32_SoftReset_Offset    0x6008 //WO
-#define MQADC32_Firmware_Offset     0x600E //RO
-#define MQADC32_IrqLevel_Offset     0x6010
-#define MQADC32_IrqVector_Offset    0x6012
-#define MQADC32_IrqTest_Offset      0x6014 //WO
-#define MQADC32_IrqReset_Offset     0x6016 //WO
-#define MQADC32_IrqTh_Offset        0x6018
-#define MQADC32_MaxTransfer_Offset  0x601A
-#define MQADC32_IrqWithdraw_Offset  0x601C
-#define MQADC32_CBLTControl_Offset  0x6020
-#define MQADC32_CBLTAddr_Offset     0x6022
-#define MQADC32_MCSTAddr_Offset     0x6024
-#define MQADC32_DataLength_Offset   0x6030 //RO
-#define MQADC32_DataFormat_Offset   0x6032
-#define MQADC32_ReadoutReset_Offset 0x6034 //WO
-#define MQADC32_MultiEvent_Offset   0x6036
-#define MQADC32_MarkType_Offset     0x6038
-#define MQADC32_StartAcq_Offset     0x603A
-#define MQADC32_FIFOReset_Offset    0x603C //WO
-#define MQADC32_DataReady_Offset    0x603E //RO
-#define MQADC32_BankOpt_Offset      0x6040
-#define MQADC32_AdcRes_Offset       0x6042 //fixed
-#define MQADC32_ShiftBank0_Offset   0x6044
-#define MQADC32_ShiftBank1_Offset   0x6046
-#define MQADC32_SlideScale_Offset   0x6048
-#define MQADC32_OverFlow_Offset     0x604A
-#define MQADC32_DisableTh_Offset    0x604C
-#define MQADC32_LimitBank0_Offset   0x6050
-#define MQADC32_LimitBank1_Offset   0x6052
-#define MQADC32_ExpDelay0_Offset    0x6054
-#define MQADC32_ExpDelay1_Offset    0x6056
-#define MQADC32_InputCouple_Offset  0x6060
-#define MQADC32_ECLTerminal_Offset  0x6062
-#define MQADC32_ECLGate1OSC_Offset  0x6064
-#define MQADC32_ECLFCReset_Offset   0x6066
-#define MQADC32_GateSelect_Offset   0x6068
-#define MQADC32_NIMGate1OSC_Offset  0x606A
-#define MQADC32_NIMFCReset_Offset   0x606C
-#define MQADC32_NIMBusy_Offset      0x606E
-#define MQADC32_PulserStatus_Offset 0x6070
-#define MQADC32_PulserDac_Offset    0x6072
-#define MQADC32_RCBusNo_Offset      0x6080
-#define MQADC32_RCModNum_Offset     0x6082
-#define MQADC32_RCOpCode_Offset     0x6084
-#define MQADC32_RCAddr_Offset       0x6086
-#define MQADC32_RCData_Offset       0x6088
-#define MQADC32_RCStatus_Offset     0x608A //RO
-#define MQADC32_CountReset_Offset   0x6090
-#define MQADC32_CTRALow_Offset      0x6092
-#define MQADC32_CTRAHigh_Offset     0x6094
-#define MQADC32_TSSourse_Offset     0x6096
-#define MQADC32_TSDivisor_Offset    0x6098
-#define MQADC32_TSLow_Offset        0x609C //RO
-#define MQADC32_TSHigh_Offset       0x609E //RO
-#define MQADC32_BusyTimeLow_Offset  0x60A0 //RO
-#define MQADC32_BusyTimeHigh_Offset 0x60A2 //RO
-#define MQADC32_Gate1TLow_Offset    0x60A4 //RO
-#define MQADC32_Gate1THigh_Offset   0x60A6 //RO
-#define MQADC32_Time0_Offset        0x60A8 //RO
-#define MQADC32_Time1_Offset        0x60AA //RO
-#define MQADC32_Time2_Offset        0x60AC //RO
-#define MQADC32_StopCTR_Offset      0x60AE
-#define MQADC32_Limit0High_Offset   0x60B0
-#define MQADC32_Limit0Low_Offset    0x60B2
-#define MQADC32_Limit1High_Offset   0x60B4
-#define MQADC32_Limit1Low_Offset    0x60B6
+#define MQDC32_BASE                 0xCC000000
+#define MQDC32_LENGTH               0x10000
+#define MQDC32_FIFO_Offset          0x0000
+#define MQDC32_Ch00Th_Offset        0x4000
+#define MQDC32_Ch01Th_Offset        0x4002
+#define MQDC32_Ch02Th_Offset        0x4004
+#define MQDC32_Ch03Th_Offset        0x4006
+#define MQDC32_Ch04Th_Offset        0x4008
+#define MQDC32_Ch05Th_Offset        0x400A
+#define MQDC32_Ch06Th_Offset        0x400C
+#define MQDC32_Ch07Th_Offset        0x400E
+#define MQDC32_Ch08Th_Offset        0x4010
+#define MQDC32_Ch09Th_Offset        0x4012
+#define MQDC32_Ch10Th_Offset        0x4014
+#define MQDC32_Ch11Th_Offset       	0x4016
+#define MQDC32_Ch12Th_Offset       	0x4018
+#define MQDC32_Ch13Th_Offset       	0x401A
+#define MQDC32_Ch14Th_Offset       	0x401C
+#define MQDC32_Ch15Th_Offset       	0x401E
+#define MQDC32_Ch16Th_Offset       	0x4020
+#define MQDC32_Ch17Th_Offset       	0x4022
+#define MQDC32_Ch18Th_Offset       	0x4024
+#define MQDC32_Ch19Th_Offset       	0x4026
+#define MQDC32_Ch20Th_Offset       	0x4028
+#define MQDC32_Ch21Th_Offset       	0x402A
+#define MQDC32_Ch22Th_Offset       	0x402C
+#define MQDC32_Ch23Th_Offset       	0x402E
+#define MQDC32_Ch24Th_Offset       	0x4030
+#define MQDC32_Ch25Th_Offset       	0x4032
+#define MQDC32_Ch26Th_Offset       	0x4034
+#define MQDC32_Ch27Th_Offset       	0x4036
+#define MQDC32_Ch28Th_Offset       	0x4038
+#define MQDC32_Ch29Th_Offset       	0x403A
+#define MQDC32_Ch30Th_Offset       	0x403C
+#define MQDC32_Ch31Th_Offset       	0x403E
+#define MQDC32_AddrSource_Offset   	0x6000
+#define MQDC32_AddrReg_Offset      	0x6002
+#define MQDC32_ModuleId_Offset     	0x6004
+#define MQDC32_FastVme_Offset      	0x6006
+#define MQDC32_SoftReset_Offset    	0x6008 //WO
+#define MQDC32_Firmware_Offset     	0x600E //RO
+#define MQDC32_IrqLevel_Offset     	0x6010
+#define MQDC32_IrqVector_Offset    	0x6012
+#define MQDC32_IrqTest_Offset      	0x6014 //WO
+#define MQDC32_IrqReset_Offset     	0x6016 //WO
+#define MQDC32_IrqTh_Offset        	0x6018
+#define MQDC32_MaxTransfer_Offset  	0x601A
+#define MQDC32_IrqWithdraw_Offset  	0x601C
+#define MQDC32_CBLTControl_Offset  	0x6020
+#define MQDC32_CBLTAddr_Offset     	0x6022
+#define MQDC32_MCSTAddr_Offset     	0x6024
+#define MQDC32_DataLength_Offset   	0x6030 //RO
+#define MQDC32_DataFormat_Offset   	0x6032
+#define MQDC32_ReadoutReset_Offset 	0x6034 //WO
+#define MQDC32_MultiEvent_Offset   	0x6036
+#define MQDC32_MarkType_Offset     	0x6038
+#define MQDC32_StartAcq_Offset     	0x603A
+#define MQDC32_FIFOReset_Offset    	0x603C //WO
+#define MQDC32_DataReady_Offset    	0x603E //RO
+#define MQDC32_BankOpt_Offset      	0x6040
+#define MQDC32_AdcRes_Offset       	0x6042 //fixed
+#define MQDC32_ShiftBank0_Offset   	0x6044
+#define MQDC32_ShiftBank1_Offset   	0x6046
+#define MQDC32_SlideScale_Offset   	0x6048
+#define MQDC32_OverFlow_Offset     	0x604A
+#define MQDC32_DisableTh_Offset    	0x604C
+#define MQDC32_LimitBank0_Offset   	0x6050
+#define MQDC32_LimitBank1_Offset   	0x6052
+#define MQDC32_ExpDelay0_Offset    	0x6054
+#define MQDC32_ExpDelay1_Offset    	0x6056
+#define MQDC32_InputCouple_Offset  	0x6060
+#define MQDC32_ECLTerminator_Offset 0x6062
+#define MQDC32_ECLGate1OSC_Offset  	0x6064
+#define MQDC32_ECLFCReset_Offset   	0x6066
+#define MQDC32_GateSelect_Offset   	0x6068
+#define MQDC32_NIMGate1OSC_Offset  	0x606A
+#define MQDC32_NIMFCReset_Offset   	0x606C
+#define MQDC32_NIMBusy_Offset      	0x606E
+#define MQDC32_PulserStatus_Offset 	0x6070
+#define MQDC32_PulserDac_Offset    	0x6072
+#define MQDC32_RCBusNo_Offset      	0x6080
+#define MQDC32_RCModNum_Offset     	0x6082
+#define MQDC32_RCOpCode_Offset     	0x6084
+#define MQDC32_RCAddr_Offset       	0x6086
+#define MQDC32_RCData_Offset       	0x6088
+#define MQDC32_RCStatus_Offset     	0x608A //RO
+#define MQDC32_CountReset_Offset   	0x6090
+#define MQDC32_CTRALow_Offset      	0x6092
+#define MQDC32_CTRAHigh_Offset     	0x6094
+#define MQDC32_TSSourse_Offset     	0x6096
+#define MQDC32_TSDivisor_Offset    	0x6098
+#define MQDC32_TSLow_Offset        	0x609C //RO
+#define MQDC32_TSHigh_Offset       	0x609E //RO
+#define MQDC32_BusyTimeLow_Offset  	0x60A0 //RO
+#define MQDC32_BusyTimeHigh_Offset 	0x60A2 //RO
+#define MQDC32_Gate1TLow_Offset    	0x60A4 //RO
+#define MQDC32_Gate1THigh_Offset   	0x60A6 //RO
+#define MQDC32_Time0_Offset        	0x60A8 //RO
+#define MQDC32_Time1_Offset        	0x60AA //RO
+#define MQDC32_Time2_Offset        	0x60AC //RO
+#define MQDC32_StopCTR_Offset      	0x60AE
+#define MQDC32_Limit0High_Offset   	0x60B0
+#define MQDC32_Limit0Low_Offset    	0x60B2
+#define MQDC32_Limit1High_Offset   	0x60B4
+#define MQDC32_Limit1Low_Offset    	0x60B6
 
-#define MQADC32_Ch01Th_Mask			0x1FFF
-#define MQADC32_Ch02Th_Mask			0x1FFF
-#define MQADC32_Ch03Th_Mask			0x1FFF
-#define MQADC32_Ch04Th_Mask			0x1FFF
-#define MQADC32_Ch05Th_Mask			0x1FFF
-#define MQADC32_Ch06Th_Mask			0x1FFF
-#define MQADC32_Ch07Th_Mask			0x1FFF
-#define MQADC32_Ch08Th_Mask			0x1FFF
-#define MQADC32_Ch09Th_Mask			0x1FFF
-#define MQADC32_Ch10Th_Mask			0x1FFF
-#define MQADC32_Ch11Th_Mask			0x1FFF
-#define MQADC32_Ch12Th_Mask			0x1FFF
-#define MQADC32_Ch13Th_Mask			0x1FFF
-#define MQADC32_Ch14Th_Mask			0x1FFF
-#define MQADC32_Ch15Th_Mask			0x1FFF
-#define MQADC32_Ch16Th_Mask			0x1FFF
-#define MQADC32_Ch17Th_Mask			0x1FFF
-#define MQADC32_Ch18Th_Mask			0x1FFF
-#define MQADC32_Ch19Th_Mask			0x1FFF
-#define MQADC32_Ch20Th_Mask			0x1FFF
-#define MQADC32_Ch21Th_Mask			0x1FFF
-#define MQADC32_Ch22Th_Mask			0x1FFF
-#define MQADC32_Ch23Th_Mask			0x1FFF
-#define MQADC32_Ch24Th_Mask			0x1FFF
-#define MQADC32_Ch25Th_Mask			0x1FFF
-#define MQADC32_Ch26Th_Mask			0x1FFF
-#define MQADC32_Ch27Th_Mask			0x1FFF
-#define MQADC32_Ch28Th_Mask			0x1FFF
-#define MQADC32_Ch29Th_Mask			0x1FFF
-#define MQADC32_Ch30Th_Mask			0x1FFF
-#define MQADC32_Ch31Th_Mask			0x1FFF
-#define MQADC32_Ch32Th_Mask			0x1FFF
-#define MQADC32_AddrSource_Mask		0x0001
-#define MQADC32_Addr_Mask			0xFFFF
-#define MQADC32_ModuleId_Mask		0x00FF
-#define MQADC32_FastVme_Mask		0x0001
-#define MQADC32_SoftReset_Mask		0x0001 //WO
-#define MQADC32_Firmware_Mask		0xFFFF //RO
-#define MQADC32_IrqLevel_Mask		0x0007
-#define MQADC32_IrqVector_Mask	    0x00FF
-#define MQADC32_IrqTest_Mask	    0x0000 //WO
-#define MQADC32_IrqReset_Mask	    0x0000 //WO
-#define MQADC32_IrqTh_Mask	    	0xFFFF
-#define MQADC32_MaxTransfer_Mask	0xFFFF
-#define MQADC32_IrqWithdraw_Mask	0x0001
-#define MQADC32_CBLTControl_Mask	0x00FF
-#define MQADC32_CBLTAddr_Mask		0x00FF
-#define MQADC32_MCSTAddr_Mask		0x00FF
-#define MQADC32_DataLength_Mask		0xFFFF //RO
-#define MQADC32_DataFormat_Mask		0x0003
-#define MQADC32_ReadoutReset_Mask	0x0000 //WO
-#define MQADC32_MultiEvent_Mask		0x000F
-#define MQADC32_MarkType_Mask		0x0003
-#define MQADC32_StartAcq_Mask		0x0001
-#define MQADC32_FIFOReset_Mask		0x0000 //WO
-#define MQADC32_DataReady_Mask		0x0001 //RO
-#define MQADC32_BankOpt_Mask		0x0007
-#define MQADC32_AdcRes_Mask		    0x0001 //fixed
-#define MQADC32_ShiftBank0_Mask		0x00FF
-#define MQADC32_ShiftBank1_Mask		0x00FF
-#define MQADC32_SlideScale_Mask		0x0001
-#define MQADC32_OverFlow_Mask		0x0001
-#define MQADC32_DisableTh_Mask		0x0001
-#define MQADC32_LimitBank0_Mask		0x00FF
-#define MQADC32_LimitBank1_Mask		0x00FF
-#define MQADC32_ExpDelay0_Mask		0x3FFF
-#define MQADC32_ExpDelay1_Mask		0x3FFF
-#define MQADC32_InputCouple_Mask	0x0007
-#define MQADC32_ECLTerminal_Mask	0x001F
-#define MQADC32_ECLGate1OSC_Mask	0x0001
-#define MQADC32_ECLFCReset_Mask		0x0003
-#define MQADC32_GateSelect_Mask		0x0001
-#define MQADC32_NIMGate1OSC_Mask	0x0003
-#define MQADC32_NIMFCReset_Mask		0x0003
-#define MQADC32_NIMBusy_Mask		0x000F
-#define MQADC32_PulserStatus_Mask	0x0007
-#define MQADC32_PulserDac_Mask		0x00FF
-#define MQADC32_RCBusNo_Mask		0x0003
-#define MQADC32_RCModNum_Mask		0x000F
-#define MQADC32_RCOpCode_Mask		0x007F
-#define MQADC32_RCAddr_Mask		    0x00FF
-#define MQADC32_RCData_Mask		    0xFFFF
-#define MQADC32_RCStatus_Mask		0x000F //RO
-#define MQADC32_CountReset_Mask		0x000F
-#define MQADC32_CTRALow_Mask		0xFFFF //RO
-#define MQADC32_CTRAHigh_Mask		0xFFFF //RO
-#define MQADC32_TSSourse_Mask		0x0003
-#define MQADC32_TSDivisor_Mask		0xFFFF
-#define MQADC32_TSLow_Mask		    0xFFFF //RO
-#define MQADC32_TSHigh_Mask		    0xFFFF //RO
-#define MQADC32_BusyTimeLow_Mask	0xFFFF //RO
-#define MQADC32_BusyTimeHigh_Mask	0xFFFF //RO
-#define MQADC32_Gate1TLow_Mask		0xFFFF //RO
-#define MQADC32_Gate1THigh_Mask		0xFFFF //RO
-#define MQADC32_Time0_Mask		    0xFFFF //RO
-#define MQADC32_Time1_Mask		    0xFFFF //RO
-#define MQADC32_Time2_Mask		    0xFFFF //RO
-#define MQADC32_StopCTR_Mask		0x0003
-#define MQADC32_Limit0High_Mask		0x003F
-#define MQADC32_Limit0Low_Mask		0x003F
-#define MQADC32_Limit1High_Mask		0x001F
-#define MQADC32_Limit1Low_Mask		0x001F
+#define MQDC32_Ch00Th_Mask			0x1FFF
+#define MQDC32_Ch01Th_Mask			0x1FFF
+#define MQDC32_Ch02Th_Mask			0x1FFF
+#define MQDC32_Ch03Th_Mask			0x1FFF
+#define MQDC32_Ch04Th_Mask			0x1FFF
+#define MQDC32_Ch05Th_Mask			0x1FFF
+#define MQDC32_Ch06Th_Mask			0x1FFF
+#define MQDC32_Ch07Th_Mask			0x1FFF
+#define MQDC32_Ch08Th_Mask			0x1FFF
+#define MQDC32_Ch09Th_Mask			0x1FFF
+#define MQDC32_Ch10Th_Mask			0x1FFF
+#define MQDC32_Ch11Th_Mask			0x1FFF
+#define MQDC32_Ch12Th_Mask			0x1FFF
+#define MQDC32_Ch13Th_Mask			0x1FFF
+#define MQDC32_Ch14Th_Mask			0x1FFF
+#define MQDC32_Ch15Th_Mask			0x1FFF
+#define MQDC32_Ch16Th_Mask			0x1FFF
+#define MQDC32_Ch17Th_Mask			0x1FFF
+#define MQDC32_Ch18Th_Mask			0x1FFF
+#define MQDC32_Ch19Th_Mask			0x1FFF
+#define MQDC32_Ch20Th_Mask			0x1FFF
+#define MQDC32_Ch21Th_Mask			0x1FFF
+#define MQDC32_Ch22Th_Mask			0x1FFF
+#define MQDC32_Ch23Th_Mask			0x1FFF
+#define MQDC32_Ch24Th_Mask			0x1FFF
+#define MQDC32_Ch25Th_Mask			0x1FFF
+#define MQDC32_Ch26Th_Mask			0x1FFF
+#define MQDC32_Ch27Th_Mask			0x1FFF
+#define MQDC32_Ch28Th_Mask			0x1FFF
+#define MQDC32_Ch29Th_Mask			0x1FFF
+#define MQDC32_Ch30Th_Mask			0x1FFF
+#define MQDC32_Ch31Th_Mask			0x1FFF
+#define MQDC32_AddrSource_Mask		0x0001
+#define MQDC32_AddrReg_Mask        	0xFFFF
+#define MQDC32_ModuleId_Mask		0x00FF
+#define MQDC32_FastVme_Mask			0x0001
+#define MQDC32_SoftReset_Mask		0x0001 //WO
+#define MQDC32_Firmware_Mask		0xFFFF //RO
+#define MQDC32_IrqLevel_Mask		0x0007
+#define MQDC32_IrqVector_Mask	   	0x00FF
+#define MQDC32_IrqTest_Mask	    	0x0000 //WO
+#define MQDC32_IrqReset_Mask    	0x0000 //WO
+#define MQDC32_IrqTh_Mask    		0xFFFF
+#define MQDC32_MaxTransfer_Mask		0xFFFF
+#define MQDC32_IrqWithdraw_Mask		0x0001
+#define MQDC32_CBLTControl_Mask		0x00FF
+#define MQDC32_CBLTAddr_Mask		0x00FF
+#define MQDC32_MCSTAddr_Mask		0x00FF
+#define MQDC32_DataLength_Mask		0xFFFF //RO
+#define MQDC32_DataFormat_Mask		0x0003
+#define MQDC32_ReadoutReset_Mask	0x0000 //WO
+#define MQDC32_MultiEvent_Mask		0x000F
+#define MQDC32_MarkType_Mask		0x0003
+#define MQDC32_StartAcq_Mask		0x0001
+#define MQDC32_FIFOReset_Mask		0x0000 //WO
+#define MQDC32_DataReady_Mask		0x0001 //RO
+#define MQDC32_BankOpt_Mask			0x0007
+#define MQDC32_AdcRes_Mask	    	0x0001 //fixed
+#define MQDC32_ShiftBank0_Mask		0x00FF
+#define MQDC32_ShiftBank1_Mask		0x00FF
+#define MQDC32_SlideScale_Mask		0x0001
+#define MQDC32_OverFlow_Mask		0x0001
+#define MQDC32_DisableTh_Mask		0x0001
+#define MQDC32_LimitBank0_Mask		0x00FF
+#define MQDC32_LimitBank1_Mask		0x00FF
+#define MQDC32_ExpDelay0_Mask		0x3FFF
+#define MQDC32_ExpDelay1_Mask		0x3FFF
+#define MQDC32_InputCouple_Mask		0x0007
+#define MQDC32_ECLTerminator_Mask	0x001F
+#define MQDC32_ECLGate1OSC_Mask		0x0001
+#define MQDC32_ECLFCReset_Mask		0x0003
+#define MQDC32_GateSelect_Mask		0x0001
+#define MQDC32_NIMGate1OSC_Mask		0x0003
+#define MQDC32_NIMFCReset_Mask		0x0003
+#define MQDC32_NIMBusy_Mask			0x000F
+#define MQDC32_PulserStatus_Mask	0x0007
+#define MQDC32_PulserDac_Mask		0x00FF
+#define MQDC32_RCBusNo_Mask			0x0003
+#define MQDC32_RCModNum_Mask		0x000F
+#define MQDC32_RCOpCode_Mask		0x007F
+#define MQDC32_RCAddr_Mask	    	0x00FF
+#define MQDC32_RCData_Mask		    0xFFFF
+#define MQDC32_RCStatus_Mask		0x000F //RO
+#define MQDC32_CountReset_Mask		0x000F
+#define MQDC32_CTRALow_Mask			0xFFFF //RO
+#define MQDC32_CTRAHigh_Mask		0xFFFF //RO
+#define MQDC32_TSSourse_Mask		0x0003
+#define MQDC32_TSDivisor_Mask		0xFFFF
+#define MQDC32_TSLow_Mask	    	0xFFFF //RO
+#define MQDC32_TSHigh_Mask	    	0xFFFF //RO
+#define MQDC32_BusyTimeLow_Mask		0xFFFF //RO
+#define MQDC32_BusyTimeHigh_Mask	0xFFFF //RO
+#define MQDC32_Gate1TLow_Mask   	0xFFFF //RO
+#define MQDC32_Gate1THigh_Mask		0xFFFF //RO
+#define MQDC32_Time0_Mask	    	0xFFFF //RO
+#define MQDC32_Time1_Mask		   	0xFFFF //RO
+#define MQDC32_Time2_Mask		   	0xFFFF //RO
+#define MQDC32_StopCTR_Mask			0x0003
+#define MQDC32_Limit0High_Mask		0x003F
+#define MQDC32_Limit0Low_Mask		0x003F
+#define MQDC32_Limit1High_Mask		0x001F
+#define MQDC32_Limit1Low_Mask		0x001F
 
-
-
-// status and contrl
-enum MQADC32Conf {geoAddr=0, cbltAddr, irqLevel, irqVector, addrHigh, addrLow, eventTh, loadTest, fclrw, crateSel, slideConst, threshold0H, threshold0L, threshold1H, threshold1L, threshold2H, threshold2L, threshold3H, threshold3L, threshold4H, threshold4L, threshold5H, threshold5L, threshold6H, threshold6L, threshold7H, threshold7L, /*WO*/ssReset, cbltCtrl, incEvent, incOffset, wTestAddr, memTestHigh, memTestLow, testEventW, countReset, rTestAddr, swComm, /*BitSet*/berrFlag, selAddr, softReset, blkend, progResetMod, busError, align64, mode, offline, clearData, overRange, lowTh, testACQ, slideScale, stepTh, autoInc, emptyProg, slideSub, allTrigger, /*RO*/firmware, DRDY, gDRDY, busy, gbusy, purged, termOn, termOff, EVRDY, buffEmpty, buffFull, DSel0, DSel1, CSel0, CSel1, eventCountLow, eventCountHigh, aad, bad, /*Size*/ConfSize};
-#define ConfRO 19
-
-enum MQADC32Reg {/*RW*/GeoAddr=0, CBLTAddr, IrqLevel, IrqVector, AddrHigh, AddrLow, EventTrig, LoadTest, FCLRWindow, CrateSelect, SlideConst, MQADC32_ThCh0H, MQADC32_ThCh0L, MQADC32_ThCh1H, MQADC32_ThCh1L, MQADC32_ThCh2H, MQADC32_ThCh2L, MQADC32_ThCh3H, MQADC32_ThCh3L, MQADC32_ThCh4H, MQADC32_ThCh4L, MQADC32_ThCh5H, MQADC32_ThCh5L, MQADC32_ThCh6H, MQADC32_ThCh6L, MQADC32_ThCh7H, MQADC32_ThCh7L, /*WO*/SSReset, CBLTCtrl, IncEvent, IncOffset, WTestAddr, MemTestHigh, MemTestLow, TestEventW, CountReset, RTestAddr, SWComm, /*BitSet*/BitSet1, BitClear1, Ctrl1, BitSet2, BitClear2, /*RO*/Firmware, Status1, Status2, CountLow, CountHigh, AAD, BAD, /*Size*/RegSize};
-#define RegRW 27
-#define RegWO 11
-#define RegBitSet 5
-#define RegRO 7
 
 // ctrl, conf, and reg infomation
 
@@ -245,9 +234,9 @@ enum MQADC32Reg {/*RW*/GeoAddr=0, CBLTAddr, IrqLevel, IrqVector, AddrHigh, AddrL
 #define ctrlStatus1 8
 #define ctrlStatus2 6
 
-string ctrl1785[ctrlSize] = {"geoAddr", "cbltAddr", "irqLevel", "irqVector", "vmeAddr", "eventTh", "loadTest", "fclrw", "crateSel", "slideConst", "threshold0H", "threshold0L", "threshold1H", "threshold1L", "threshold2H", "threshold2L", "threshold3H", "threshold3L", "threshold4H", "threshold4L", "threshold5H", "threshold5L", "threshold6H", "threshold6L", "threshold7H", "threshold7L", /*WO*/"ssReset", "cbltCtrl", "incEvent", "incOffset", "wTestAddr", "memTestW", "testEventW", "countReset", "rTestAddr", "swComm", /*BitSet1*/"berrFlag", "selAddr", "softReset", /*Ctrl1*/"blkend", "progResetMod", "busError", "align64", /*BitSet2*/"mode", "offline", "clearData", "overRange", "lowTh", "testACQ", "slideScale", "stepTh", "autoInc", "emptyProg", "slideSub", "allTrigger", /*RO*/"firmware", /*Status1*/"DRDY", "gDRDY", "busy", "gbusy", "purged", "termOn", "termOff", "EVRDY", /*Status2*/"buffEmpty", "buffFull", "DSel0", "DSel1", "CSel0", "CSel1", "eventCount", "aad", "bad"};
+string ctrlMQDC32[ctrlSize] = {"Ch00Th", "Ch01Th", "Ch02Th", "Ch03Th", "Ch04Th", "Ch05Th", "Ch06Th", "Ch07Th", "Ch08Th", "Ch09Th", "Ch10Th", "Ch11Th", "Ch12Th", "Ch13Th", "Ch14Th", "Ch15Th", "Ch16Th", "Ch17Th", "Ch18Th", "Ch19Th", "Ch20Th", "Ch21Th", "Ch22Th", "Ch23Th", "Ch24Th", "Ch25Th", "Ch26Th", "Ch27Th", "Ch28Th", "Ch29Th", "Ch30Th", "Ch31Th", "addrSource", "addrReg", "moduleId", "fastVme", "softReset", "firmware", "irqLevel", "irqVector", "irqTest", "irqReset", "irqTh", "maxTransfer", "irqWithdraw", "cbltCtrl", "cbltLast", "cbltFirst", "mcstCtrl", "cbltAddr", "mcstAddr", "dataLength", "dataFormat", "readoutReset", "multiEvent", "skipBerr", "countUnit", "markType", "startAcq", "fifoReset", "dataReady", "bankConnect", "switchPull0", "switchPull1", "adcRes", "shiftBank0", "shiftBank1", "slideScale", "overFlow", "disableTh", "limitBank0", "limitBank1", "expDelay0", "expDelay1", "inputCouple0", "inputCouple1", "BLR", "terGate0", "terGate1", "terReset", "terBank0", "terBank1", "eclGate1Osc", "eclFCReset", "gateSelect", "nimGate1Osc", "nimFCReset", "nimBusy", "pulserSt", "pulserDac", "rcBusNo", "rcModNum", "rcOpCode", "rcSt", "ctraReset", "ctrbReset", "extReset", "eventCounterLow", "eventCounterHigh", "tsSource", "tsDivisor", "tsCounterLow", "tsCounterHigh", "busyTimeLow", "busyTimeHigh", "gate1TimeLow", "gate1TimeHigh", "time0", "tim1", "time2", "stopCounterA", "stopCounterB", "limit0High", "limit0Low", "limit1High", "limit1Low"};
 
-unsigned int ctrlDefault[]={0,0xAA,7,0,0x00CC0000,8,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,8,0,4,0,0,0,/*BitSet1*/0,0,0,/*Ctrl1*/0,0,0,0,/*BitSet2*/0,0,0,1,1,0,1,1,1,0,0,1};
+unsigned int ctrlDefault[]={};
 
 #define confSize 91
 #define confReg 38
@@ -260,11 +249,11 @@ unsigned int ctrlDefault[]={0,0xAA,7,0,0x00CC0000,8,0,0,0,0,1,1,1,1,1,1,1,1,1,1,
 #define confStatus1 8
 #define confStatus2 6
 
-string confName1785[confSize] = {"geoAddr", "cbltAddr", "irqLevel", "irqVector", "addrHigh", "addrLow", "eventTh", "loadTest", "fclrw", "crateSel", "slideConst", "threshold0H", "threshold0L", "threshold1H", "threshold1L", "threshold2H", "threshold2L", "threshold3H", "threshold3L", "threshold4H", "threshold4L", "threshold5H", "threshold5L", "threshold6H", "threshold6L", "threshold7H", "threshold7L", "ssReset", "cbltCtrl", "incEvent", "incOffset", "wTestAddr", "memTestHigh", "memTestLow", "testEventW", "countReset", "rTestAddr", "swComm", /*BitSet1*/"berrFlag", "selAddr", "softReset", /*BitClear1*/"berrFlag~", "selAddr~", "softReset~", /*Ctrl1*/"blkend", "progResetMod", "busError", "align64", /*BitSet2*/"mode", "offline", "clearData", "overRange", "lowTh", "testACQ", "slideScale", "stepTh", "autoInc", "emptyProg", "slideSub", "allTrigger", /*BitClear2*/"mode~", "offline~", "clearData~", "overRange~", "lowTh~", "testACQ~", "slideScale~", "stepTh~", "autoInc~", "emptyProg~", "slideSub~", "allTrigger~", /*RO*/"firmware", /*Status1*/"DRDY", "gDRDY", "busy", "gbusy", "purged", "termOn", "termOff", "EVRDY", /*Status2*/"buffEmpty", "buffFull", "DSel0", "DSel1", "CSel0", "CSel1", "eventCountLow", "eventCountHigh", "aad", "bad"};
+string confNameMQDC32[confSize] = {};
 
-uint16_t confMask1785[confSize] = {0x001F, 0x00FF, 0x0007, 0x00FF, 0x00FF, 0x00FF, 0x001F, 0xFFFF, 0x03FF, 0x00FF, 0x00FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0xFFFF, 0x0003, 0xFFFF, 0xFFFF, 0x07FF, 0xFFFF, 0xFFFF, 0x1FFF, 0xFFFF, 0x07FF, 0xFFFF, /*BitSet1*/0x0008, 0x0010, 0x0080, /*BitClear1*/0x0008, 0x0010, 0x0080, /*Ctrl1*/0x0004, 0x0010, 0x0020, 0x0040, /*BitSet2*/0x0001, 0x0002, 0x0004, 0x0008, 0x0010, 0x0040, 0x0080, 0x0100, 0x0800, 0x1000, 0x2000, 0x4000, /*BitClear2*/0x0001, 0x0002, 0x0004, 0x0008, 0x0010, 0x0040, 0x0080, 0x0100, 0x0800, 0x1000, 0x2000, 0x4000, /*RO*/0xFFFF, /*Status1*/0x0001, 0x0002, 0x0004, 0x0008, 0x0020, 0x0040, 0x0080, 0x0100, /*Status2*/0x0002, 0x0004, 0x0010, 0x0020, 0x0040, 0x0080, 0xFFFF, 0x00FF, 0x0FFF, 0x0FFF};
+uint16_t confMaskMQDC32[confSize] = {};
 
-unsigned int confDefault1785[]={0,0xAA,7,0,0x00CC,0x0000,8,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,8,0,0,4,0,0,0,/*BitSet1*/0,0,0,/*Ctrl1*/0,0,0,0,/*BitSet2*/0,0,0,1,1,0,1,1,1,0,0,1};
+unsigned int confDefault[]={};
 
 #define regSize 50
 #define regRW 27
@@ -272,13 +261,13 @@ unsigned int confDefault1785[]={0,0xAA,7,0,0x00CC,0x0000,8,0,0,0,0,1,1,1,1,1,1,1
 #define regBitSet 5
 #define regRO 7
 
-uint32_t regAddr1785[regSize] = {0x0000/*fifo*/, 0x1004/*cbltAddr*/, 0x100A/*irqLevel*/, 0x100C/*irqVector*/, 0x1012/*addrHigh*/, 0x1014/*addrLow*/, 0x1020/*eventTh*/, 0x102C/*loadTest*/, 0x102E/*fclrw*/, 0x103C/*crateSel*/, 0x106A/*slideConst*/, 0x1080/*threshold0H*/, 0x1084/*threshold0L*/, 0x1088/*threshold1H*/, 0x108C/*threshold1L*/, 0x1090/*threshold2H*/, 0x1094/*threshold2L*/, 0x1098/*threshold3H*/, 0x109C/*threshold3L*/, 0x10A0/*threshold4H*/, 0x10A4/*threshold4L*/, 0x10A8/*threshold5H*/, 0x10AC/*threshold5L*/, 0x10B0/*threshold6H*/, 0x10B4/*threshold6L*/, 0x10B8/*threshold7H*/, 0x10BC/*threshold7L*/, 0x1016/*ssReset*/, 0x101A/*cbltCtrl*/, 0x1028/*incEvent*/, 0x102A/*incOffset*/, 0x1036/*wTestAddr*/, 0x1038/*memTestHigh*/, 0x103A/*memTestLow*/, 0x103E/*testEventW*/, 0x1040/*countReset*/, 0x1064/*rTestAddr*/, 0x1068/*swComm*/, 0x1006/*bitSet1*/, 0x1008/*bitClear1*/, 0x1010/*ctrl1*/, 0x1032/*bitSet2*/, 0x1034/*bitClear2*/, 0x1000/*firmware*/, 0x100E/*status1*/, 0x1022/*status2*/, 0x1024/*countLow*/, 0x1026/*countHigh*/, 0x1070/*aad*/, 0x1072/*bad*/};
+uint32_t regAddrMQDC32[regSize] = {0x0000/*fifo*/, 0x1004/*cbltAddr*/, 0x100A/*irqLevel*/, 0x100C/*irqVector*/, 0x1012/*addrHigh*/, 0x1014/*addrLow*/, 0x1020/*eventTh*/, 0x102C/*loadTest*/, 0x102E/*fclrw*/, 0x103C/*crateSel*/, 0x106A/*slideConst*/, 0x1080/*threshold0H*/, 0x1084/*threshold0L*/, 0x1088/*threshold1H*/, 0x108C/*threshold1L*/, 0x1090/*threshold2H*/, 0x1094/*threshold2L*/, 0x1098/*threshold3H*/, 0x109C/*threshold3L*/, 0x10A0/*threshold4H*/, 0x10A4/*threshold4L*/, 0x10A8/*threshold5H*/, 0x10AC/*threshold5L*/, 0x10B0/*threshold6H*/, 0x10B4/*threshold6L*/, 0x10B8/*threshold7H*/, 0x10BC/*threshold7L*/, 0x1016/*ssReset*/, 0x101A/*cbltCtrl*/, 0x1028/*incEvent*/, 0x102A/*incOffset*/, 0x1036/*wTestAddr*/, 0x1038/*memTestHigh*/, 0x103A/*memTestLow*/, 0x103E/*testEventW*/, 0x1040/*countReset*/, 0x1064/*rTestAddr*/, 0x1068/*swComm*/, 0x1006/*bitSet1*/, 0x1008/*bitClear1*/, 0x1010/*ctrl1*/, 0x1032/*bitSet2*/, 0x1034/*bitClear2*/, 0x1000/*firmware*/, 0x100E/*status1*/, 0x1022/*status2*/, 0x1024/*countLow*/, 0x1026/*countHigh*/, 0x1070/*aad*/, 0x1072/*bad*/};
 
-static map<string, vector<string> > mqadc32_ctrl2conf;
-static map<string, int> mqadc32_conf2reg;
-static map<string, uintptr_t>mqadc32_conf2mask;
-static vector<uintptr_t> mqadc32_regAddr;
-static vector<int> mqadc32_regWOIdx, mqadc32_regROIdx;
+static map<string, vector<string> > mqdc32_ctrl2conf;
+static map<string, int> mqdc32_conf2reg;
+static map<string, uintptr_t>mqdc32_conf2mask;
+static vector<uintptr_t> mqdc32_regAddr;
+static vector<int> mqdc32_regWOIdx, mqdc32_regROIdx;
 
 static int setDev() {
     adc1785_ctrl2conf.clear();
@@ -347,34 +336,34 @@ static int setDev() {
 
 static int dummy = setDev();
 
-mqadc32::mqadc32(const string& n): smBase(n) {
-    ctrl2conf = &mqadc32_ctrl2conf;
-    conf2reg = &mqadc32_conf2reg;
-    conf2mask = &mqadc32_conf2mask;
-    regAddr = &mqadc32_regAddr;
-    regWOIdx = &mqadc32_regWOIdx;
-    regROIdx = &mqadc32_regROIdx;
+mqdc32::mqdc32(const string& n): smBase(n) {
+    ctrl2conf = &mqdc32_ctrl2conf;
+    conf2reg = &mqdc32_conf2reg;
+    conf2mask = &mqdc32_conf2mask;
+    regAddr = &mqdc32_regAddr;
+    regWOIdx = &mqdc32_regWOIdx;
+    regROIdx = &mqdc32_regROIdx;
 
     vd = (regData*) new regUint16();
     vm = (regData*) new regUint16();
 }
 
-mqadc32::~mqadc32() {
+mqdc32::~mqdc32() {
 }
 
-int mqadc32::InitializedLOAD(void* argv[]) {
+int mqdc32::InitializedLOAD(void* argv[]) {
     debugMsg << name << "# " << "InitializedLOAD";
     stMsg->stateOut(debugMsg);
     return 2;
 }
 
-int mqadc32::LoadedUNLD(void* argv[]) {
+int mqdc32::LoadedUNLD(void* argv[]) {
     debugMsg << name << "# " << "LoadedUNLD";
     stMsg->stateOut(debugMsg);
     return 1;
 }
 
-int mqadc32::LoadedCONF(void* argv[]) {
+int mqdc32::LoadedCONF(void* argv[]) {
     debugMsg << name << "# " << "LoadedCONF";
     stMsg->stateOut(debugMsg);
     //if(!configAdc())
@@ -382,28 +371,28 @@ int mqadc32::LoadedCONF(void* argv[]) {
     return 3;
 }
 
-int mqadc32::ConfiguredUNCF(void* argv[]) {
+int mqdc32::ConfiguredUNCF(void* argv[]) {
     debugMsg << name << "# " << "ConfiguredUNCF";
     stMsg->stateOut(debugMsg);
     //releaseAdc();
     return 2;
 }
 
-int mqadc32::ConfiguredPREP(void* argv[]) {
+int mqdc32::ConfiguredPREP(void* argv[]) {
     debugMsg << name << "# " << "ConfiguredPREP";
     stMsg->stateOut(debugMsg);
     //prepAdc();
     return 4;
 }
 
-int mqadc32::ReadySTOP(void* argv[]) {
+int mqdc32::ReadySTOP(void* argv[]) {
     debugMsg << name << "# " << "ReadySTOP";
     stMsg->stateOut(debugMsg);
     //finishAdc();
     return 3;
 }
 
-int mqadc32::ReadySATR(void* argv[]) {
+int mqdc32::ReadySATR(void* argv[]) {
     debugMsg << name << "# " << "ReadySATR";
     stMsg->stateOut(debugMsg);
     //stopAdc();
@@ -411,35 +400,35 @@ int mqadc32::ReadySATR(void* argv[]) {
     return 5;
 }
 
-int mqadc32::RunningSPTR(void* argv[]) {
+int mqdc32::RunningSPTR(void* argv[]) {
     debugMsg << name << "# " << "RunningSPTR";
     stMsg->stateOut(debugMsg);
     //stopAdc();
     return 4;
 }
 
-int mqadc32::RunningPAUS(void* argv[]) {
+int mqdc32::RunningPAUS(void* argv[]) {
     debugMsg << name << "# " << "RunningPAUS";
     stMsg->stateOut(debugMsg);
     //disableAdc();
     return 6;
 }
 
-int mqadc32::PausedSPTR(void* argv[]) {
+int mqdc32::PausedSPTR(void* argv[]) {
     debugMsg << name << "# " << "PausedSPTR";
     stMsg->stateOut(debugMsg);
     //stopAdc();
     return 4;
 }
 
-int mqadc32::PausedRESU(void* argv[]) {
+int mqdc32::PausedRESU(void* argv[]) {
     debugMsg << name << "# " << "PausedRESU";
     stMsg->stateOut(debugMsg);
     //enableAdc();
     return 5;
 }
 
-int mqadc32::accessReg(const int idx, const int rw, regData& data) {
+int mqdc32::accessReg(const int idx, const int rw, regData& data) {
     int res;
     if(idx<0 || idx>=regSize || rw<0 || rw>1 || data.getValueP()==NULL )
         return 0;
@@ -455,7 +444,7 @@ int mqadc32::accessReg(const int idx, const int rw, regData& data) {
     return res;
 }
 
-int mqadc32::maskRegData(regData& data, regData& mask) {
+int mqdc32::maskRegData(regData& data, regData& mask) {
     regType mData = *(regType*)(data.getValueP());
     regType mTest = *(regType*)(mask.getValueP());
     int shift = 16;
@@ -470,7 +459,7 @@ int mqadc32::maskRegData(regData& data, regData& mask) {
     return 1;
 }
 
-int mqadc32::unmaskRegData(regData& data, regData& mask) {
+int mqdc32::unmaskRegData(regData& data, regData& mask) {
     regType mData = *(regType*)(data.getValueP());
     regType mTest = *(regType*)(mask.getValueP());
     int shift = 16;
@@ -485,7 +474,7 @@ int mqadc32::unmaskRegData(regData& data, regData& mask) {
     return 1;
 }
 
-int mqadc32::configAdc() {
+int mqdc32::configAdc() {
     int res;
 
     pvme = NULL;
@@ -704,13 +693,13 @@ int mqadc32::configAdc() {
     return 1;
 }
 
-int mqadc32::releaseAdc() {
+int mqdc32::releaseAdc() {
     pvme->freeIrq(image, confValue[irqLevel], confValue[irqVector]);
     pvme->releaseImage(image);
     return 1;
 }
 
-int mqadc32::prepAdc() {
+int mqdc32::prepAdc() {
     // D16 to D32
     uint32_t lsi0_ctl = pvme->readUniReg(0x100);
     lsi0_ctl &= 0xFF3FFFFF;
@@ -720,12 +709,12 @@ int mqadc32::prepAdc() {
     return 1;
 }
 
-int mqadc32::finishAdc() {
+int mqdc32::finishAdc() {
     // D32 to D16
     return 1;
 }
 
-int mqadc32::startAdc() {
+int mqdc32::startAdc() {
     // clear data
     pvme->ww(image, base+ADC1785_BitSet2_Offset, pvme->swap16((uint16_t)0x0004));
     pvme->ww(image, base+ADC1785_BitClear2_Offset, pvme->swap16((uint16_t)0x0004));
@@ -736,7 +725,7 @@ int mqadc32::startAdc() {
     return 1;
 }
 
-int mqadc32::enableAdc() {
+int mqdc32::enableAdc() {
     uint16_t regBitSet2;
     pvme->rw(image, base+ADC1785_BitSet2_Offset, &regBitSet2);
     regBitSet2 = pvme->swap16(regBitSet2);
@@ -749,7 +738,7 @@ int mqadc32::enableAdc() {
     return 1;
 }
 
-int mqadc32::stopAdc() {
+int mqdc32::stopAdc() {
     debugMsg << name << "# " << "flush " << confValue[eventTh] << " events in the buffer.";
     stMsg->stateOut(debugMsg); 
     for(int i=0; i<confValue[eventTh]; i++) {
@@ -762,7 +751,7 @@ int mqadc32::stopAdc() {
     return 1;
 }
 
-int mqadc32::disableAdc() {
+int mqdc32::disableAdc() {
     uint16_t regBitSet2;
     pvme->rw(image, base+ADC1785_BitSet2_Offset, &regBitSet2);
     regBitSet2 = pvme->swap16(regBitSet2);
@@ -774,7 +763,7 @@ int mqadc32::disableAdc() {
     return 1;
 }
 
-int mqadc32::accessRegNormal(const regAddrType addr, const int rw, regType* data) {
+int mqdc32::accessRegNormal(const regAddrType addr, const int rw, regType* data) {
     int res;
     if(rw == 0)
         res = pvme->rw(image, base+addr, data);
@@ -784,7 +773,7 @@ int mqadc32::accessRegNormal(const regAddrType addr, const int rw, regType* data
 }
 
 extern "C" smBase* create(const string& n) {
-    smBase* pModule = new mqadc32(n);
+    smBase* pModule = new mqdc32(n);
     return pModule;
 }
 

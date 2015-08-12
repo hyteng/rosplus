@@ -82,9 +82,9 @@ adc1785.so: adc1785.o
 	$(CC)  $(LINKOPT) -shared -o $@ $< $(addprefix -L,$(LIBDIR)) $(addprefix -l,$(LIBS)) -Wl,-rpath=../universeII/vmelib -lvmelib
 	mv adc1785.so ../lib/
 
-mqadc32.so: mqadc32.o
+mqdc32.so: mqdc32.o
 	$(CC)  $(LINKOPT) -shared -o $@ $< $(addprefix -L,$(LIBDIR)) $(addprefix -l,$(LIBS)) -Wl,-rpath=../universeII/vmelib -lvmelib
-	mv mqadc32.so ../lib/
+	mv mqdc32.so ../lib/
 
 #$(EXECUTABLE) : $(OBJS)
 #	$(CC)  $(LINKOPT) -shared -o $(EXECUTABLE) $(OBJS) $(addprefix -L,$(LIBDIR)) $(addprefix -l,$(LIBS))

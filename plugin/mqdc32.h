@@ -1,5 +1,5 @@
-#ifndef mqadc32_h
-#define mqadc32_h
+#ifndef mqdc32_h
+#define mqdc32_h
 
 #include "../src/smBase.h"
 #include <stdint.h>
@@ -18,10 +18,10 @@ class regUint16 :public regData {
         uint16_t v;
 };
 
-class mqadc32 :public smBase {
+class mqdc32 :public smBase {
     public:
-        mqadc32(const std::string& n);
-        ~mqadc32();
+        mqdc32(const std::string& n);
+        ~mqdc32();
         virtual void* getHelp() {return (void*)&base;};
         typedef uint32_t regAddrType;
         typedef uint16_t regType;
