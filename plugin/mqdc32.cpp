@@ -225,7 +225,7 @@ using std::endl;
 
 // ctrl, conf, and reg infomation
 
-#define ctrlSize 73
+#define ctrlSize 107
 #define ctrlReg 36
 #define ctrlCtrl 4
 #define ctrlRO 18
