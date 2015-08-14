@@ -226,11 +226,12 @@ using std::endl;
 // ctrl, conf, and reg infomation
 
 #define ctrlSize 107
-#define ctrlReg 36
 #define ctrlCtrl 4
 #define ctrlRO 18
 
-string ctrlMQDC32[ctrlSize] = {"Ch00Th", "Ch01Th", "Ch02Th", "Ch03Th", "Ch04Th", "Ch05Th", "Ch06Th", "Ch07Th", "Ch08Th", "Ch09Th", "Ch10Th", "Ch11Th", "Ch12Th", "Ch13Th", "Ch14Th", "Ch15Th", "Ch16Th", "Ch17Th", "Ch18Th", "Ch19Th", "Ch20Th", "Ch21Th", "Ch22Th", "Ch23Th", "Ch24Th", "Ch25Th", "Ch26Th", "Ch27Th", "Ch28Th", "Ch29Th", "Ch30Th", "Ch31Th", "addrSource", "addrReg", "moduleId", "fastVme", "softReset", "firmware", "irqLevel", "irqVector", "irqTest", "irqReset", "irqTh", "maxTransfer", "irqWithdraw", "bltCtrl", "cbltAddr", "mcstAddr", "dataFormat", "readoutReset", "multiEvent", "skipBerr", "countUnit", "markType", "startAcq", "fifoReset", "dataReady", "bankConnect", "switchPull0", "switchPull1", "shiftBank0", "shiftBank1", "slideScale", "overFlow", "disableTh", "limitBank0", "limitBank1", "expDelay0", "expDelay1", "inputCouple0", "inputCouple1", "BLR", "terGate0", "terGate1", "terReset", "terBank0", "terBank1", "eclGate1Osc", "eclFCReset", "gateSelect", "nimGate1Osc", "nimFCReset", "nimBusy", "pulserSt", "pulserDac", "rcBusNo", "rcModNum", "rcOpCode", "rcSt", "ctraReset", "ctrbReset", "extReset", "eventCounter", "tsSource", "tsDivisor", "tsCounter", "busyTime", "gate1Time", "time0", "tim1", "time2", "stopCounterA", "stopCounterB", "limit0High", "limit0Low", "limit1High", "limit1Low"};
+string ctrlMQDC32[ctrlSize] = {"Ch00Th", "Ch01Th", "Ch02Th", "Ch03Th", "Ch04Th", "Ch05Th", "Ch06Th", "Ch07Th", "Ch08Th", "Ch09Th", "Ch10Th", "Ch11Th", "Ch12Th", "Ch13Th", "Ch14Th", "Ch15Th", "Ch16Th", "Ch17Th", "Ch18Th", "Ch19Th", "Ch20Th", "Ch21Th", "Ch22Th", "Ch23Th", "Ch24Th", "Ch25Th", "Ch26Th", "Ch27Th", "Ch28Th", "Ch29Th", "Ch30Th", "Ch31Th", "addrSource", "addrReg", "moduleId", "fastVme", "softReset", "firmware", "irqLevel", "irqVector", "irqTest", "irqReset", "irqTh", "maxTransfer", "irqWithdraw", "bltCtrl", "cbltAddr", "mcstAddr", "dataLength", "dataFormat", "readoutReset", "multiEvent", "skipBerr", "countUnit", "markType", "startAcq", "fifoReset", "dataReady", "bankConnect", "switchPull0", "switchPull1", "shiftBank0", "shiftBank1", "slideScale", "overFlow", "disableTh", "limitBank0", "limitBank1", "expDelay0", "expDelay1", "inputCouple0", "inputCouple1", "BLR", "terGate0", "terGate1", "terReset", "terBank0", "terBank1", "eclGate1Osc", "eclFCReset", "gateSelect", "nimGate1Osc", "nimFCReset", "nimBusy", "pulserSt", "pulserDac", "rcBusNo", "rcModNum", "rcOpCode", "rcSt", "ctraReset", "ctrbReset", "extReset", "eventCounter", "tsSource", "tsDivisor", "tsCounter", "busyTime", "gate1Time", "time0", "tim1", "time2", "stopCounterA", "stopCounterB", "limit0High", "limit0Low", "limit1High", "limit1Low"};
+
+int ctrlRWMQDC32[ctrlSize] = {/*ChTh*/0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /*board*/0, 0, 0, 0, 2, 1, /*irq*/0, 0, 2, 2, 0, 0, 0, /*blt*/0, 0, 1, /*fifo*/1, 0, 2, 0, 0, 0, 0, 0, 2, 1, /*adc*/0, 0, 0, 0, 0, 0, 0, 0, /*trigger*/0, 0, 0, 0, /**/};
 
 unsigned int ctrlDefault[]={};
 
@@ -245,8 +246,7 @@ unsigned int ctrlDefault[]={};
 #define confStatus1 8
 #define confStatus2 6
 
-string confNameMQDC32[confSize] = {"Ch00Th", "Ch01Th", "Ch02Th", "Ch03Th", "Ch04Th", "Ch05Th", "Ch06Th", "Ch07Th", "Ch08Th", "Ch09Th", "Ch10Th", "Ch11Th", "Ch12Th", "Ch13Th", "Ch14Th", "Ch15Th", "Ch16Th", "Ch17Th", "Ch18Th", "Ch19Th", "Ch20Th", "Ch21Th", "Ch22Th", "Ch23Th", "Ch24Th", "Ch25Th", "Ch26Th", "Ch27Th", "Ch28Th", "Ch29Th", "Ch30Th", "Ch31Th", "addrSource", "addrReg", "moduleId", "fastVme", "softReset", "firmware", "irqLevel", "irqVector", "irqTest", "irqReset", "irqTh", "maxTransfer", "irqWithdraw", "bltCtrl", "cbltLast", "cbltFirst", "mcstCtrl", "cbltAddr", "mcstAddr", "dataLength", "dataFormat", "readoutReset", "multiEvent", "skipBerr", "countUnit", "markType", "startAcq", "fifoReset", "dataReady", "bankConnect", "switchPull0", "switchPull1", "adcRes", "shiftBank0", "shiftBank1", "slideScale", "overFlow", "disableTh", "limitBank0", "limitBank1", "expDelay0", "expDelay1", "inputCouple0", "inputCouple1", "BLR", "terGate0", "terGate1", "terReset", "terBank0", "terBank1", "eclGate1Osc", "eclFCReset", "gateSelect", "nimGate1Osc", "nimFCReset", "nimBusy", "pulserSt", "pulserDac", "rcBusNo", "rcModNum", "rcOpCode", "rcSt", "ctraReset", "ctrbReset", "extReset", "eventCounterLow", "eventCounterHigh", "tsSource", "tsDivisor", "tsCounterLow", "tsCounterHigh", "busyTimeLow", "busyTimeHigh", "gate1TimeLow", "gate1TimeHigh", "time0", "tim1", "time2", "stopCounterA", "stopCounterB", "limit0High", "limit0Low", "limit1High", "limit1Low"};
-
+string confNameMQDC32[confSize] = {"Ch00Th", "Ch01Th", "Ch02Th", "Ch03Th", "Ch04Th", "Ch05Th", "Ch06Th", "Ch07Th", "Ch08Th", "Ch09Th", "Ch10Th", "Ch11Th", "Ch12Th", "Ch13Th", "Ch14Th", "Ch15Th", "Ch16Th", "Ch17Th", "Ch18Th", "Ch19Th", "Ch20Th", "Ch21Th", "Ch22Th", "Ch23Th", "Ch24Th", "Ch25Th", "Ch26Th", "Ch27Th", "Ch28Th", "Ch29Th", "Ch30Th", "Ch31Th", "addrSource", "addrReg", "moduleId", "fastVme", "softReset", "firmware", "irqLevel", "irqVector", "irqTest", "irqReset", "irqTh", "maxTransfer", "irqWithdraw", "bltCtrl", "cbltLast", "cbltFirst", "mcstCtrl", "cbltAddr", "mcstAddr", "dataLength", "dataFormat", "readoutReset", "multiEvent", "skipBerr", "countUnit", "markType", "startAcq", "fifoReset", "dataReady", "bankConnect", "switchPull0", "switchPull1", "shiftBank0", "shiftBank1", "slideScale", "overFlow", "disableTh", "limitBank0", "limitBank1", "expDelay0", "expDelay1", "inputCouple0", "inputCouple1", "BLR", "terGate0", "terGate1", "terReset", "terBank0", "terBank1", "eclGate1Osc", "eclFCReset", "gateSelect", "nimGate1Osc", "nimFCReset", "nimBusy", "pulserSt", "pulserDac", "rcBusNo", "rcModNum", "rcOpCode", "rcSt", "ctraReset", "ctrbReset", "extReset", "eventCounterLow", "eventCounterHigh", "tsSource", "tsDivisor", "tsCounterLow", "tsCounterHigh", "busyTimeLow", "busyTimeHigh", "gate1TimeLow", "gate1TimeHigh", "time0", "tim1", "time2", "stopCounterA", "stopCounterB", "limit0High", "limit0Low", "limit1High", "limit1Low"};
 
 uint16_t confMaskMQDC32[confSize] = {};
 
@@ -266,7 +266,7 @@ static map<string, uintptr_t>mqdc32_conf2mask;
 static vector<uintptr_t> mqdc32_regAddr;
 static vector<int> mqdc32_regWOIdx, mqdc32_regROIdx;
 
-static int setDev() {
+static int setCtrl() {
     adc1785_ctrl2conf.clear();
     for(int i=0,j=0; i<ctrlSize; i++, j++) {
         adc1785_ctrl2conf[ctrl1785[i]] = vector<string>(0);
@@ -327,7 +327,7 @@ static int setDev() {
 }
 
 
-static int setDev() {
+static int setCtrl() {
     return 1;
 }
 
