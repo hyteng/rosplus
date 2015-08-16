@@ -112,7 +112,7 @@ class smBase {
         std::map<std::string, int> *conf2reg;
         std::map<std::string, uintptr_t> *conf2mask;
         std::vector<uintptr_t> *regAddr;
-        std::vector<int> *regWOIdx, *regROIdx;
+        std::vector<int> *regRWIdx;
 
         regData *vd, *vm;
 };

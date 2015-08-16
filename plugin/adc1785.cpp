@@ -174,7 +174,7 @@ static map<string, vector<string> > adc1785_ctrl2conf;
 static map<string, int> adc1785_conf2reg;
 static map<string, uintptr_t>adc1785_conf2mask;
 static vector<uintptr_t> adc1785_regAddr;
-static vector<int> adc1785_regWOIdx, adc1785_regROIdx;
+static vector<int> adc1785_regRWIdx;
 
 static int setDev() {
     adc1785_ctrl2conf.clear();
@@ -223,15 +223,16 @@ static int setDev() {
     }
 
     adc1785_regAddr.clear();
+    adc1785_regRWIdx.clear();
     for(int i=0; i<regSize; i++) {
         adc1785_regAddr.push_back((uintptr_t)(&regAddr1785[i]));
+        int rw = 0;
+        if(i>=regRW && i<regRW+regWO)
+            rw = 2;
+        if(i>=regRW+regWO+regBitSet)
+            rw = 1;
+        adc1785_regRWIdx.push_back(rw);
     }
-    adc1785_regWOIdx.clear();
-    for(int i=regRW; i<regRW+regWO; i++)
-        adc1785_regWOIdx.push_back(i);
-    adc1785_regROIdx.clear();
-    for(int i=regRW+regWO+regBitSet; i<regRW+regWO+regBitSet+regRO; i++)
-        adc1785_regROIdx.push_back(i);
 
     return 1;
 }
@@ -243,8 +244,7 @@ adc1785::adc1785(const string& n): smBase(n) {
     conf2reg = &adc1785_conf2reg;
     conf2mask = &adc1785_conf2mask;
     regAddr = &adc1785_regAddr;
-    regWOIdx = &adc1785_regWOIdx;
-    regROIdx = &adc1785_regROIdx;
+    regRWIdx = &adc1785_regRWIdx;
 
     vd = (regData*) new regUint16();
     vm = (regData*) new regUint16();
@@ -335,9 +335,7 @@ int adc1785::accessReg(const int idx, const int rw, regData& data) {
     if(idx<0 || idx>=regSize || rw<0 || rw>1 || data.getValueP()==NULL )
         return 0;
 
-    if((find(regROIdx->begin(), regROIdx->end(), idx) != regROIdx->end()) && rw==1)
-        return 0;
-    if((find(regWOIdx->begin(), regWOIdx->end(), idx) != regWOIdx->end()) && rw==0)
+    if(regRWIdx[idx] != 0 && regRWIdx[idx] != rw+1)
         return 0;
 
     regAddrType addr = *(regAddrType*)((*regAddr)[idx]);
