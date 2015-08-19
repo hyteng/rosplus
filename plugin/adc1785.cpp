@@ -330,6 +330,17 @@ int adc1785::PausedRESU(void* argv[]) {
     return 5;
 }
 
+int adc1785::OTFCTRL(void* argv[]) {
+    // D32 to D16
+    finishAdc();
+    // call smBase::OTFCTRL
+    smBase::OTFCTRL(argv);
+    // D16 to D32
+    prepAdc();
+
+    return (int)stId;
+}
+
 int adc1785::accessReg(const int idx, const int rw, regData& data) {
     int res;
     if(idx<0 || idx>=regSize || rw<0 || rw>1 || data.getValueP()==NULL )
@@ -600,10 +611,11 @@ int adc1785::releaseAdc() {
 }
 
 int adc1785::prepAdc() {
+    // get vmebus lock
+
     // D16 to D32
     uint32_t lsi0_ctl = pvme->readUniReg(0x100);
     lsi0_ctl &= 0xFF3FFFFF;
-
     lsi0_ctl |= D32;
     pvme->writeUniReg(0x100, lsi0_ctl);
     return 1;
@@ -611,6 +623,12 @@ int adc1785::prepAdc() {
 
 int adc1785::finishAdc() {
     // D32 to D16
+    uint32_t lsi0_ctl = pvme->readUniReg(0x100);
+    lsi0_ctl &= 0xFF3FFFFF;
+    lsi0_ctl |= D16;
+    pvme->writeUniReg(0x100, lsi0_ctl);
+    // release vmebus lock
+
     return 1;
 }
 
@@ -621,19 +639,6 @@ int adc1785::startAdc() {
 
     // enable adc
     enableAdc();
-
-    return 1;
-}
-
-int adc1785::enableAdc() {
-    uint16_t regBitSet2;
-    pvme->rw(image, base+ADC1785_BitSet2_Offset, &regBitSet2);
-    regBitSet2 = pvme->swap16(regBitSet2);
-    debugMsg << name << "# " << "regBitSet2 before enable adc: " << hex << regBitSet2;
-    stMsg->stateOut(debugMsg);
-
-    regBitSet2 &= 0x0002;
-    pvme->ww(image, base+ADC1785_BitClear2_Offset, pvme->swap16(regBitSet2));
 
     return 1;
 }
@@ -651,12 +656,24 @@ int adc1785::stopAdc() {
     return 1;
 }
 
+int adc1785::enableAdc() {
+    uint16_t regBitSet2;
+    pvme->rw(image, base+ADC1785_BitSet2_Offset, &regBitSet2);
+    regBitSet2 = pvme->swap16(regBitSet2);
+    debugMsg << name << "# " << "regBitSet2 before enable adc: " << hex << regBitSet2;
+    stMsg->stateOut(debugMsg);
+
+    regBitSet2 &= 0x0002;
+    pvme->ww(image, base+ADC1785_BitClear2_Offset, pvme->swap16(regBitSet2));
+
+    return 1;
+}
+
 int adc1785::disableAdc() {
     uint16_t regBitSet2;
     pvme->rw(image, base+ADC1785_BitSet2_Offset, &regBitSet2);
     regBitSet2 = pvme->swap16(regBitSet2);
     debugMsg << name << "# " << "regBitSet2 before disable adc: " << hex << regBitSet2;
-
     stMsg->stateOut(debugMsg);
     pvme->ww(image, base+ADC1785_BitClear2_Offset, pvme->swap16(0x0002));
 

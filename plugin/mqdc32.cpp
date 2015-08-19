@@ -235,14 +235,17 @@ static int ctrlSizeMQDC32[ctrlSize] = {/*buf*/1, /*ChTh*/1, 1, 1, 1, 1, 1, 1, 1,
 static int ctrlRWMQDC32[ctrlSize] = {/*buf*/1, /*ChTh*/0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /*board*/0, 0, 0, 0, 2, 1, /*irq*/0, 0, 2, 2, 0, 0, 0, /*blt*/0, 0, 1, /*fifo*/1, 0, 2, 0, 0, 0, 0, 0, 2, 1, /*adc*/0, 0, 0, 0, 0, 0, 0, 0, /*delay*/0, 0, 0, 0, /*io*/0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /*pulser*/0, 0, /*rc*/0, 0, 0, 0, 0, 1, /*ctra*/0, 0, 0, 1, 0, 0, 1, /*ctrb*/1, 1, 1, 1, 1, 0, 0, /*limit*/1, 1, 1, 1}; // disable: -1, rw: 0, ro: 1, wo: 2
 
 #define confSize 115
+#define confSetSize 100
 
 static string confNameMQDC32[confSize] = {/*buf*/"buffer", /*ChTh*/"Ch00Th", "Ch01Th", "Ch02Th", "Ch03Th", "Ch04Th", "Ch05Th", "Ch06Th", "Ch07Th", "Ch08Th", "Ch09Th", "Ch10Th", "Ch11Th", "Ch12Th", "Ch13Th", "Ch14Th", "Ch15Th", "Ch16Th", "Ch17Th", "Ch18Th", "Ch19Th", "Ch20Th", "Ch21Th", "Ch22Th", "Ch23Th", "Ch24Th", "Ch25Th", "Ch26Th", "Ch27Th", "Ch28Th", "Ch29Th", "Ch30Th", "Ch31Th", /*board*/"addrSource", "addrReg", "moduleId", "fastVme", "softReset", "firmware", /*irq*/"irqLevel", "irqVector", "irqTest", "irqReset", "irqTh", "maxTransfer", "irqWithdraw", /*blt*/"bltCtrl", "cbltAddr", "mcstAddr", /*fifo*/"dataLength", "dataFormat", "readoutReset", "multiEvent", "skipBerr", "countUnit", "markType", "startAcq", "fifoReset", "dataReady", /*adc*/"bankConnect", "switchPull0", "switchPull1", "shiftBank0", "shiftBank1", "slideScale", "overFlow", "disableTh", /*delay*/"limitBank0", "limitBank1", "expDelay0", "expDelay1", /*io*/"inputCouple0", "inputCouple1", "BLR", "terGate0", "terGate1", "terReset", "terBank0", "terBank1", "eclGate1Osc", "eclFCReset", "gateSelect", "nimGate1Osc", "nimFCReset", "nimBusy", /*pulser*/"pulserSt", "pulserDac", /*rc*/"rcBusNo", "rcModNum", "rcOpCode", "rcAddr", "rcData", "rcSt", /*ctra*/"ctraReset", "ctrbReset", "extReset", "eventCounterLow", "eventCounterHigh", "tsSource", "tsDivisor", "tsCounterLow", "tsCounterHigh", /*ctrb*/"adcTimeLow", "adcTimeHigh", "gate1TimeLow", "gate1TimeHigh", "time0", "time1", "time2", "stopCounterB", "stopCounterA", /*limit*/"limit0High", "limit0Low", "limit1High", "limit1Low"};
 
 static uint16_t confMaskMQDC32[confSize] = {/*buf*/0xFFFF, /*ChTh*/0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, /*board*/0x0001, 0xFFFF, 0x00FF, 0x0001, 0x0001, 0xFFFF, /*irq*/0x0007, 0x00FF, 0x0000, 0x0000, 0xFFFF, 0xFFFF, 0x0001, /*blt*/0x00FF, 0x00FF, 0x00FF, /*fifo*/0xFFFF, 0x0003, 0x0000, 0x0003, 0x0004, 0x0008, 0x0003, 0x0001, 0x0000, 0x0001, /*adc*/0x0001, 0x0002, 0x0004, 0x00FF, 0x00FF, 0x0001, 0x0001, 0x0001, /*delay*/0x00FF, 0x00FF, 0x3FFF, 0x3FFF, /*io*/0x0001, 0x0002, 0x0004, 0x0001, 0x0002, 0x0004, 0x0008, 0x0010, 0x0001, 0x0003, 0x0001, 0x0003, 0x0003, 0x000F, /*pluser*/0x000F, 0x00FF, /*rc*/0x0003, 0x000F, 0x007F, 0x00FF, 0xFFFF, 0x000F, /*ctra*/0x0001, 0x0002, 0x000C, 0xFFFF, 0xFFFF, 0x0003, 0xFFFF, 0xFFFF, 0xFFFF, /*ctrb*/0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x0001, 0x0002, /*limit*/0x003F, 0x003F, 0x001F, 0x001F};
 
-static int confDupMQDC32[confSize-regSize] = {53, 54, 60, 61, 72, 73, 75, 76, 77, 78, 94, 95, 111};
+static int confDuplicMQDC32[confSize-regSize] = {53, 54, 60, 61, 72, 73, 75, 76, 77, 78, 94, 95, 111};
 
-static unsigned int confDefault[]={};
+static int confDefaultIdxMQDC32[confSetSize] = {};
+
+static uint16_t confDefaultValueMQDC32[confSetSize] = {};
 
 #define regSize 102
 
@@ -269,7 +272,7 @@ static int setCtrl() {
     mqdc32_conf2reg.clear();
     mqdc32_conf2mask.clear();
     for(int i=0, j=0; i<confSize; i++,j++) {
-        if(find(confDupMQDC32, confDupMQDC32+confSize-regSize-1, i) != (confDupMQDC32+confSize-regSize-1))
+        if(find(confDuplicMQDC32, confDuplicMQDC32+confSize-regSize-1, i) != (confDuplicMQDC32+confSize-regSize-1))
             j--;
         mqdc32_conf2reg[confNameMQDC32[i]] = j;
         mqdc32_conf2mask[confNameMQDC32[i]] = (uintptr_t)(&confMaskMQDC32[i]);
@@ -379,14 +382,23 @@ int mqdc32::PausedRESU(void* argv[]) {
     return 5;
 }
 
+int mqdc32::OTFCTRL(void* argv[]=NULL) {
+    // D32 to D16
+    finishAdc();
+    // call smBase::OTFCTRL
+    smBase::OTFCTRL(argv);
+    // D16 to D32
+    prepAdc();
+
+    return (int)stId;
+}
+
 int mqdc32::accessReg(const int idx, const int rw, regData& data) {
     int res;
     if(idx<0 || idx>=regSize || rw<0 || rw>1 || data.getValueP()==NULL )
         return 0;
 
-    if((find(regROIdx->begin(), regROIdx->end(), idx) != regROIdx->end()) && rw==1)
-        return 0;
-    if((find(regWOIdx->begin(), regWOIdx->end(), idx) != regWOIdx->end()) && rw==0)
+    if(regRWIdx[idx] != 0 && regRWIdx[idx] != rw+1)
         return 0;
 
     regAddrType addr = *(regAddrType*)((*regAddr)[idx]);
@@ -443,202 +455,43 @@ int mqdc32::configAdc() {
         return 0;
     }
 
-    base = ((confDefault1785[AddrHigh]&ADC1785_AddrHigh_Mask)<<24) + ((regValue[AddrLow]&ADC1785_AddrLow_Mask)<<16);
+    base = MQDC32_BASE;
     if((res=cfgInfo->infoGetUint("config."+name+".base", base)) != 1) {
         debugMsg << name << "# " << "config."+name+".base" << " not found.";
         stMsg->stateOut(debugMsg);
         //return 0;
     }
-    length = ADC1785_LENGTH;
+    length = MQDC32_LENGTH;
     if((res=cfgInfo->infoGetUint("config."+name+".length", length)) != 1) {
         debugMsg << name << "# " << "config."+name+".length" << " not found.";
         stMsg->stateOut(debugMsg);
         //return 0;
     }
 
-    int i;
-    for(i=0; i<ConfSize-ConfRO; i++)
-        confValue[i]=confDefault1785[i];
-    
-    debugMsg << name << "# " << "base: " << hex << base << ", length: " << hex << length;
-    stMsg->stateOut(debugMsg);
     image = pvme->getImage(base, length, A32, D16, MASTER);
     if(image < MIN_IMAGE || image > MAX_IMAGE)
         return 0;
-
-    uint16_t regBitSet1, regBitSet2, regCtrl1, regStatus1, regStatus2;
-    pvme->rw(image, base+ADC1785_BitSet1_Offset, &regBitSet1);
-    pvme->rw(image, base+ADC1785_BitSet2_Offset, &regBitSet2);
-    pvme->rw(image, base+ADC1785_Ctrl1_Offset, &regCtrl1);
-    pvme->rw(image, base+ADC1785_Status1_Offset, &regStatus1);
-    pvme->rw(image, base+ADC1785_Status2_Offset, &regStatus2);
-    regBitSet1 = pvme->swap16(regBitSet1);
-    regBitSet2 = pvme->swap16(regBitSet2);
-    regCtrl1 = pvme->swap16(regCtrl1);
-    regStatus1 = pvme->swap16(regStatus1);
-    regStatus2 = pvme->swap16(regStatus2);
-    debugMsg << name << "# " << hex << "BitSet1: " << regBitSet1 << ", BitSet2: " << regBitSet2 << ", Ctrl1: " << regCtrl1 << ", Status1: " << regStatus1 << ", Status2: " << regStatus2;
-    stMsg->stateOut(debugMsg);
-
-    unsigned int adcReg;
-    for(i=0; i<ConfSize-ConfRO; i++) {
-        if((res=cfgInfo->infoGetUint("config."+name+"."+confName1785[i], adcReg)) != 1) {
-            debugMsg << name << "# " << "config."+name+"."+confName1785[i] << " not found.";
-            stMsg->stateOut(debugMsg);
-            //return 0;
-        }
-        else
-            confValue[i] = adcReg;
-
-        debugMsg << name << "# " << "" << confName1785[i] << ": " << confValue[i];
-        stMsg->stateOut(debugMsg);
-    }
-
-    // merge to register
-    for(i=0; i<RegSize-RegRO-RegBitSet; i++) {
-        regValue[i] = confValue[i];
-    }
-    // BitSet1
-    regValue[BitSet1] = ((confValue[berrFlag]&0x0001)<<3)+((confValue[selAddr]&0x0001)<<4)+((confValue[softReset]&0x0001)<<7);
-    // Ctrl1
-    regValue[Ctrl1] = ((confValue[blkend]&0x0001)<<2)+((confValue[progResetMod]&0x0001)<<4)+((confValue[busError]&0x0001)<<5)+((confValue[align64]&0x0001)<<6);
-    // BitSet2
-    regValue[BitSet2] = ((confValue[mode]&0x0001)<<0)+((confValue[offline]&0x0001)<<1)+((confValue[clearData]&0x0001)<<2)+((confValue[overRange]&0x0001)<<3)+((confValue[lowTh]&0x0001)<<4)+((confValue[testACQ]&0x0001)<<6)+((confValue[slideScale]&0x0001)<<7)+((confValue[stepTh]&0x0001)<<8)+((confValue[autoInc]&0x0001)<<11)+((confValue[emptyProg]&0x0001)<<12)+((confValue[slideSub]&0x0001)<<13)+((confValue[allTrigger]&0x0001)<<14);
-    debugMsg << name << "# " << "regValue# " << hex << "BitSet1: " << regValue[BitSet1] << ", Ctrl1: " << regValue[Ctrl1] << ", BitSet2: " << regValue[BitSet2];
-    stMsg->stateOut(debugMsg);
-
-    debugMsg << name << "# " << hex << "IrqLevel: " << regValue[IrqLevel] << ", IrqVector: " << regValue[IrqVector];
-    stMsg->stateOut(debugMsg);
-    // set normal register value
-    pvme->ww(image, base+ADC1785_IrqLevel_Offset, pvme->swap16(regValue[IrqLevel]&ADC1785_IrqLevel_Mask));
-    pvme->ww(image, base+ADC1785_IrqVector_Offset, pvme->swap16(regValue[IrqVector]&ADC1785_IrqVector_Mask));
-    pvme->ww(image, base+ADC1785_AddrHigh_Offset, pvme->swap16(regValue[AddrHigh]&ADC1785_AddrHigh_Mask));
-    pvme->ww(image, base+ADC1785_AddrLow_Offset, pvme->swap16(regValue[AddrLow]&ADC1785_AddrLow_Mask));
-    pvme->ww(image, base+ADC1785_EventTrig_Offset, pvme->swap16(regValue[EventTrig]&ADC1785_EventTrig_Mask));
-    pvme->ww(image, base+ADC1785_FCLRWindow_Offset, pvme->swap16(regValue[FCLRWindow]&ADC1785_FCLRWindow_Mask));
-    pvme->ww(image, base+ADC1785_CrateSelect_Offset, pvme->swap16(regValue[CrateSelect]&ADC1785_CrateSelect_Mask));
-    pvme->ww(image, base+ADC1785_SlideConst_Offset, pvme->swap16(regValue[SlideConst]&ADC1785_SlideConst_Mask));
-    // set Threshold
-    pvme->ww(image, base+ADC1785_ThCh0H_Offset, pvme->swap16(regValue[ADC1785_ThCh0H]&ADC1785_ThCh0H_Mask));
-    pvme->ww(image, base+ADC1785_ThCh0L_Offset, pvme->swap16(regValue[ADC1785_ThCh0L]&ADC1785_ThCh0L_Mask));
-    pvme->ww(image, base+ADC1785_ThCh1H_Offset, pvme->swap16(regValue[ADC1785_ThCh1H]&ADC1785_ThCh1H_Mask));
-    pvme->ww(image, base+ADC1785_ThCh1L_Offset, pvme->swap16(regValue[ADC1785_ThCh1L]&ADC1785_ThCh1L_Mask));
-    pvme->ww(image, base+ADC1785_ThCh2H_Offset, pvme->swap16(regValue[ADC1785_ThCh2H]&ADC1785_ThCh2H_Mask));
-    pvme->ww(image, base+ADC1785_ThCh2L_Offset, pvme->swap16(regValue[ADC1785_ThCh2L]&ADC1785_ThCh2L_Mask));
-    pvme->ww(image, base+ADC1785_ThCh3H_Offset, pvme->swap16(regValue[ADC1785_ThCh3H]&ADC1785_ThCh3H_Mask));
-    pvme->ww(image, base+ADC1785_ThCh3L_Offset, pvme->swap16(regValue[ADC1785_ThCh3L]&ADC1785_ThCh3L_Mask));
-    pvme->ww(image, base+ADC1785_ThCh4H_Offset, pvme->swap16(regValue[ADC1785_ThCh4H]&ADC1785_ThCh4H_Mask));
-    pvme->ww(image, base+ADC1785_ThCh4L_Offset, pvme->swap16(regValue[ADC1785_ThCh4L]&ADC1785_ThCh4L_Mask));
-    pvme->ww(image, base+ADC1785_ThCh5H_Offset, pvme->swap16(regValue[ADC1785_ThCh5H]&ADC1785_ThCh5H_Mask));
-    pvme->ww(image, base+ADC1785_ThCh5L_Offset, pvme->swap16(regValue[ADC1785_ThCh5L]&ADC1785_ThCh5L_Mask));
-    pvme->ww(image, base+ADC1785_ThCh6H_Offset, pvme->swap16(regValue[ADC1785_ThCh6H]&ADC1785_ThCh6H_Mask));
-    pvme->ww(image, base+ADC1785_ThCh6L_Offset, pvme->swap16(regValue[ADC1785_ThCh6L]&ADC1785_ThCh6L_Mask));
-    pvme->ww(image, base+ADC1785_ThCh7H_Offset, pvme->swap16(regValue[ADC1785_ThCh7H]&ADC1785_ThCh7H_Mask));
-    pvme->ww(image, base+ADC1785_ThCh7L_Offset, pvme->swap16(regValue[ADC1785_ThCh7L]&ADC1785_ThCh7L_Mask));
     
-    // set Irq
-    pvme->setupIrq(image, confValue[irqLevel], confValue[irqVector], 0, 0, 0, 0);
-
-    // set BitSet1
-    pvme->ww(image, base+ADC1785_BitSet1_Offset, pvme->swap16(regValue[BitSet1]&ADC1785_BitSet1_Mask));
-    if(((regValue[BitSet1]&ADC1785_BitSet1_Mask)^ADC1785_BitSet1_Mask) != 0)
-        pvme->ww(image, base+ADC1785_BitClear1_Offset, pvme->swap16((regValue[BitSet1]&ADC1785_BitSet1_Mask)^ADC1785_BitSet1_Mask));
-    // set Ctrl1
-    pvme->ww(image, base+ADC1785_Ctrl1_Offset, pvme->swap16(regValue[Ctrl1]&ADC1785_Ctrl1_Mask));
-    // set BitSet2
-    pvme->ww(image, base+ADC1785_BitSet2_Offset, pvme->swap16(regValue[BitSet2]&ADC1785_BitSet2_Mask));
-    if(((regValue[BitSet2]&ADC1785_BitSet2_Mask)^ADC1785_BitSet2_Mask) != 0)
-        pvme->ww(image, base+ADC1785_BitClear2_Offset, pvme->swap16((regValue[BitSet2]&ADC1785_BitSet2_Mask)^ADC1785_BitSet2_Mask));
-
-    pvme->rw(image, base+ADC1785_BitSet1_Offset, &regBitSet1);
-    pvme->rw(image, base+ADC1785_BitSet2_Offset, &regBitSet2);
-    pvme->rw(image, base+ADC1785_Ctrl1_Offset, &regCtrl1);
-    pvme->rw(image, base+ADC1785_Status1_Offset, &regStatus1);
-    pvme->rw(image, base+ADC1785_Status2_Offset, &regStatus2);
-    regBitSet1 = pvme->swap16(regBitSet1);
-    regBitSet2 = pvme->swap16(regBitSet2);
-    regCtrl1 = pvme->swap16(regCtrl1);
-    regStatus1 = pvme->swap16(regStatus1);
-    regStatus2 = pvme->swap16(regStatus2);
-
-    debugMsg << name << "# " << hex << "BitSet1: " << regBitSet1 << ", BitSet2: " << regBitSet2 << ", Ctrl1: " << regCtrl1 << ", Status1: " << regStatus1 << ", Status2: " << regStatus2;
-    stMsg->stateOut(debugMsg);
-
-    // mode 
-    if((confValue[mode]&0x0003)==0) {
-        // test ACQ mode 
-        if((confValue[testACQ]&0x0001)==1) {
-            debugMsg << name << "# " << "test ACQ mode";
-            stMsg->stateOut(debugMsg);
-            // set offline
-            pvme->ww(image, base+ADC1785_BitSet2_Offset, pvme->swap16((uint16_t)0x0002));
-            // clear data
-            pvme->ww(image, base+ADC1785_BitSet2_Offset, pvme->swap16((uint16_t)0x0004));
-            pvme->ww(image, base+ADC1785_BitClear2_Offset, pvme->swap16((uint16_t)0x0004));
-            // set BitSet2 testACQ and reset
-            pvme->ww(image, base+ADC1785_BitSet2_Offset, pvme->swap16((uint16_t)0x0040));
-            pvme->ww(image, base+ADC1785_BitClear2_Offset, pvme->swap16((uint16_t)0x0040)); 
-            // write 16 words to test event write register
-            pvme->ww(image, base+ADC1785_TestEventW_Offset, pvme->swap16((uint16_t)0x0000));
-            pvme->ww(image, base+ADC1785_TestEventW_Offset, pvme->swap16((uint16_t)0x0040));
-            pvme->ww(image, base+ADC1785_TestEventW_Offset, pvme->swap16((uint16_t)0x0000));
-            pvme->ww(image, base+ADC1785_TestEventW_Offset, pvme->swap16((uint16_t)0x0004));
-            pvme->ww(image, base+ADC1785_TestEventW_Offset, pvme->swap16((uint16_t)0x0010));
-            pvme->ww(image, base+ADC1785_TestEventW_Offset, pvme->swap16((uint16_t)0x0050));
-            pvme->ww(image, base+ADC1785_TestEventW_Offset, pvme->swap16((uint16_t)0x0001));
-            pvme->ww(image, base+ADC1785_TestEventW_Offset, pvme->swap16((uint16_t)0x0005));
-            pvme->ww(image, base+ADC1785_TestEventW_Offset, pvme->swap16((uint16_t)0x0020));
-            pvme->ww(image, base+ADC1785_TestEventW_Offset, pvme->swap16((uint16_t)0x0060));
-            pvme->ww(image, base+ADC1785_TestEventW_Offset, pvme->swap16((uint16_t)0x0002));
-            pvme->ww(image, base+ADC1785_TestEventW_Offset, pvme->swap16((uint16_t)0x0006));
-            pvme->ww(image, base+ADC1785_TestEventW_Offset, pvme->swap16((uint16_t)0x0030));
-            pvme->ww(image, base+ADC1785_TestEventW_Offset, pvme->swap16((uint16_t)0x0070));
-            pvme->ww(image, base+ADC1785_TestEventW_Offset, pvme->swap16((uint16_t)0x0003));
-            pvme->ww(image, base+ADC1785_TestEventW_Offset, pvme->swap16((uint16_t)0x0007));
-            // set BitSet2 testACQ
-            pvme->ww(image, base+ADC1785_BitSet2_Offset, pvme->swap16((uint16_t)0x0040));
-        }
-        // normal mode
-        if((confValue[testACQ]&0x0001)==0) {
-            debugMsg << name << "# " << "normal mode";
-            stMsg->stateOut(debugMsg);
-            // set offline
-            pvme->ww(image, base+ADC1785_BitSet2_Offset, pvme->swap16((uint16_t)0x0002));
-            // clear data
-            pvme->ww(image, base+ADC1785_BitSet2_Offset, pvme->swap16((uint16_t)0x0004));
-            pvme->ww(image, base+ADC1785_BitClear2_Offset, pvme->swap16((uint16_t)0x0004));
-        }
+    regData data, mask;
+    regSet.clear();
+    for(int i=0; i<confSetSize; i++) {
+        int confIdx = confDefaultIdxMQDC32[i];
+        confValue[confIdx] = confDefaultValueMQDC32[i];
+        int regIdx = conf2reg[confNameMQDC32[confIdx]];
+        data.setValueP(&confValue[confIdx]);
+        mask.setValueP(confMaskMQDC32[confIdx]);
+        maskRegData(data, mask);
+        regValue[regIdx] = regValue[regIdx] & (~(*(uint16_t*)confMaskMQDC32[confIdx])) | (*(uint16_t*)data.getValue());
+        regSet.push_back(regIdx);
     }
-    // MSCT/CBLT mode
-    if((confValue[mode]&0x0003)==2) {
-        debugMsg << name << "# " << "MSCT/CBLT mode";
-        stMsg->stateOut(debugMsg);
-        // set offline
-        pvme->ww(image, base+ADC1785_BitSet2_Offset, pvme->swap16((uint16_t)0x0002));
-        // clear data
-        pvme->ww(image, base+ADC1785_BitSet2_Offset, pvme->swap16((uint16_t)0x0004));
-        pvme->ww(image, base+ADC1785_BitClear2_Offset, pvme->swap16((uint16_t)0x0004));
-        // CBLT setting
-        pvme->ww(image, base+ADC1785_GeoAddr_Offset, pvme->swap16(regValue[GeoAddr]&ADC1785_GeoAddr_Mask));
-        pvme->ww(image, base+ADC1785_CBLTAddr_Offset, pvme->swap16(regValue[CBLTAddr]&ADC1785_CBLTAddr_Mask));
-        pvme->ww(image, base+ADC1785_CBLTCtrl_Offset, pvme->swap16(regValue[CBLTCtrl]&ADC1785_CBLTCtrl_Mask));
-        // reset the module to activate CBLT setting change
-        pvme->ww(image, base+ADC1785_BitSet1_Offset, pvme->swap16((uint16_t)0x0080));
-        pvme->ww(image, base+ADC1785_BitClear1_Offset, pvme->swap16((uint16_t)0x0080));
-    }
-    // memeory test mode
-    if((confValue[mode]&0x0003)==1) {
-        debugMsg << name << "# " << "mem test mode";
-        stMsg->stateOut(debugMsg);
-        // clear data
-        pvme->ww(image, base+ADC1785_BitSet2_Offset, pvme->swap16((uint16_t)0x0004));
-        pvme->ww(image, base+ADC1785_BitClear2_Offset, pvme->swap16((uint16_t)0x0004));
-        // test
-        pvme->ww(image, base+ADC1785_BitClear2_Offset, pvme->swap16((uint16_t)0x0001));
-        pvme->ww(image, base+ADC1785_WTestAddr_Offset, pvme->swap16(regValue[WTestAddr]&ADC1785_WTestAddr_Mask));
-        pvme->ww(image, base+ADC1785_MemTestHigh_Offset, pvme->swap16(regValue[MemTestHigh]&ADC1785_MemTestHigh_Mask));
-        pvme->ww(image, base+ADC1785_MemTestLow_Offset, pvme->swap16(regValue[MemTestLow]&ADC1785_MemTestLow_Mask));
-        pvme->ww(image, base+ADC1785_RTestAddr_Offset, pvme->swap16(regValue[RTestAddr]&ADC1785_RTestAddr_Mask));
+
+    int rw = 1;
+    for(int i=0; i<regSet.size(); i++) {
+        data.setValueP(&regValue[regSet[i]]);
+        if(res=accessReg(regSet[i], rw, data) != 0) {
+            debugMsg << name << "# " << "config."+name+".register" << regSet[i] << " set with accident !";
+            stMsg->stateOut(debugMsg);
+        }
     }
 
     return 1;
@@ -651,10 +504,11 @@ int mqdc32::releaseAdc() {
 }
 
 int mqdc32::prepAdc() {
+    // get the vmebus lock
+
     // D16 to D32
     uint32_t lsi0_ctl = pvme->readUniReg(0x100);
     lsi0_ctl &= 0xFF3FFFFF;
-
     lsi0_ctl |= D32;
     pvme->writeUniReg(0x100, lsi0_ctl);
     return 1;
@@ -662,54 +516,65 @@ int mqdc32::prepAdc() {
 
 int mqdc32::finishAdc() {
     // D32 to D16
+    uint32_t lsi0_ctl = pvme->readUniReg(0x100);
+    lsi0_ctl &= 0xFF3FFFFF;
+    lsi0_ctl |= D16;
+    pvme->writeUniReg(0x100, lsi0_ctl);
+    // release the vmebus lock
+
     return 1;
 }
 
 int mqdc32::startAdc() {
+    // D32 to D16
+    finishAdc();
+    // first disable adc
+    disableAdc();
     // clear data
-    pvme->ww(image, base+ADC1785_BitSet2_Offset, pvme->swap16((uint16_t)0x0004));
-    pvme->ww(image, base+ADC1785_BitClear2_Offset, pvme->swap16((uint16_t)0x0004));
-
+    pvme->ww(image, base+MQDC32_FIFOReset_Offset, pvme->swap16((uint16_t)0x0001));
+    // clear Irq and Berr
+    pvme->ww(image, base+MQDC32_ReadoutReset_Offset, pvme->swap16((uint16_t)0x0001));
     // enable adc
     enableAdc();
-
-    return 1;
-}
-
-int mqdc32::enableAdc() {
-    uint16_t regBitSet2;
-    pvme->rw(image, base+ADC1785_BitSet2_Offset, &regBitSet2);
-    regBitSet2 = pvme->swap16(regBitSet2);
-    debugMsg << name << "# " << "regBitSet2 before enable adc: " << hex << regBitSet2;
-    stMsg->stateOut(debugMsg);
-
-    regBitSet2 &= 0x0002;
-    pvme->ww(image, base+ADC1785_BitClear2_Offset, pvme->swap16(regBitSet2));
+    // D16 to D32
+    prepAdc();
 
     return 1;
 }
 
 int mqdc32::stopAdc() {
+    // D32 to D16
+    finishAdc();
+    // flush the rest data
     debugMsg << name << "# " << "flush " << confValue[eventTh] << " events in the buffer.";
-    stMsg->stateOut(debugMsg); 
+    stMsg->stateOut(debugMsg);
     for(int i=0; i<confValue[eventTh]; i++) {
-        pvme->ww(image, base+ADC1785_SWComm_Offset, pvme->swap16(0x0001));
     }
-    
     // disable adc
     disableAdc();
+    // D16 to D32
+    prepAdc();
+    return 1;
+}
+
+int mqdc32::enableAdc() {
+    // D32 to D16
+    finishAdc();
+    // set startAcq
+    pvme->ww(image, base+MQDC32_StartAcq_Offset, pvme->swap16((uint16_t)0x0001));
+    // D16 to D32
+    prepAdc();
 
     return 1;
 }
 
 int mqdc32::disableAdc() {
-    uint16_t regBitSet2;
-    pvme->rw(image, base+ADC1785_BitSet2_Offset, &regBitSet2);
-    regBitSet2 = pvme->swap16(regBitSet2);
-    debugMsg << name << "# " << "regBitSet2 before disable adc: " << hex << regBitSet2;
-
-    stMsg->stateOut(debugMsg);
-    pvme->ww(image, base+ADC1785_BitClear2_Offset, pvme->swap16(0x0002));
+    // D32 to D16
+    finishAdc();
+    // unset startAcq
+    pvme->ww(image, base+MQDC32_StartAcq_Offset, pvme->swap16((uint16_t)0x0000));
+    // D16 to D32
+    prepAdc();
 
     return 1;
 }

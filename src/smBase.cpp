@@ -8,6 +8,8 @@ using std::vector;
 smBase::smBase(const string& n) {
     name = n;
     stId = STID_Waiting;
+    regSet.clear();
+    confSet.clear();
 }
 
 smBase::~smBase() {
@@ -88,12 +90,6 @@ int smBase::OTFCTRL(void* argv[]) {
     stringstream result("");
     int res;
 
-    std::vector<int> regSet;
-    regSet.clear();
-    vector<string> &confList = (*ctrl2conf)[ctrlName];
-    for(int i=0; i<confList.size();i++)
-        regSet.push_back((*conf2reg)[confList[i]]);
-
     int io = -1;
     if(rw == "r")
         io = 0;
@@ -102,13 +98,15 @@ int smBase::OTFCTRL(void* argv[]) {
     
     stringstream sValue(value);
     string v;
-    for(int i=0; i<regSet.size(); i++) {
+    std::vector<string> &confList = (*ctrl2conf)[ctrlName];
+    for(int i=0; i<confList.size(); i++) {
         getline(sValue, v, ',');
         stringstream sv(v);
         (*vd).setValueS(sv);
         (*vm).ptr((void*)((*conf2mask)[confList[i]]));
         maskRegData(*vd, *vm);
-        if((res=accessReg(regSet[i], io, *vd)) != 1)
+        int regIdx = (*conf2reg)[confList[i]];
+        if((res=accessReg(regIdx, io, *vd)) != 1)
             return -1;
         unmaskRegData(*vd, *vm);
         result << vd->getValueS() << ","; 

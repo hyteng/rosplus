@@ -38,7 +38,7 @@ class mqdc32 :public smBase {
         virtual int RunningPAUS(void* argv[]=NULL);
         virtual int PausedSPTR(void* argv[]=NULL);
         virtual int PausedRESU(void* argv[]=NULL);
-        //virtual int OTFCTRL(void* argv[]=NULL);
+        virtual int OTFCTRL(void* argv[]=NULL);
         virtual int accessReg(const int idx, const int rw, regData& data);
         virtual int maskRegData(regData& data, regData& mask);
         virtual int unmaskRegData(regData& data, regData& mask);
