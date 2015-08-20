@@ -235,17 +235,17 @@ static int ctrlSizeMQDC32[ctrlSize] = {/*buf*/1, /*ChTh*/1, 1, 1, 1, 1, 1, 1, 1,
 static int ctrlRWMQDC32[ctrlSize] = {/*buf*/1, /*ChTh*/0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /*board*/0, 0, 0, 0, 2, 1, /*irq*/0, 0, 2, 2, 0, 0, 0, /*blt*/0, 0, 1, /*fifo*/1, 0, 2, 0, 0, 0, 0, 0, 2, 1, /*adc*/0, 0, 0, 0, 0, 0, 0, 0, /*delay*/0, 0, 0, 0, /*io*/0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /*pulser*/0, 0, /*rc*/0, 0, 0, 0, 0, 1, /*ctra*/0, 0, 0, 1, 0, 0, 1, /*ctrb*/1, 1, 1, 1, 1, 0, 0, /*limit*/1, 1, 1, 1}; // disable: -1, rw: 0, ro: 1, wo: 2
 
 #define confSize 115
-#define confSetSize 100
+#define confSetSize 80
 
 static string confNameMQDC32[confSize] = {/*buf*/"buffer", /*ChTh*/"Ch00Th", "Ch01Th", "Ch02Th", "Ch03Th", "Ch04Th", "Ch05Th", "Ch06Th", "Ch07Th", "Ch08Th", "Ch09Th", "Ch10Th", "Ch11Th", "Ch12Th", "Ch13Th", "Ch14Th", "Ch15Th", "Ch16Th", "Ch17Th", "Ch18Th", "Ch19Th", "Ch20Th", "Ch21Th", "Ch22Th", "Ch23Th", "Ch24Th", "Ch25Th", "Ch26Th", "Ch27Th", "Ch28Th", "Ch29Th", "Ch30Th", "Ch31Th", /*board*/"addrSource", "addrReg", "moduleId", "fastVme", "softReset", "firmware", /*irq*/"irqLevel", "irqVector", "irqTest", "irqReset", "irqTh", "maxTransfer", "irqWithdraw", /*blt*/"bltCtrl", "cbltAddr", "mcstAddr", /*fifo*/"dataLength", "dataFormat", "readoutReset", "multiEvent", "skipBerr", "countUnit", "markType", "startAcq", "fifoReset", "dataReady", /*adc*/"bankConnect", "switchPull0", "switchPull1", "shiftBank0", "shiftBank1", "slideScale", "overFlow", "disableTh", /*delay*/"limitBank0", "limitBank1", "expDelay0", "expDelay1", /*io*/"inputCouple0", "inputCouple1", "BLR", "terGate0", "terGate1", "terReset", "terBank0", "terBank1", "eclGate1Osc", "eclFCReset", "gateSelect", "nimGate1Osc", "nimFCReset", "nimBusy", /*pulser*/"pulserSt", "pulserDac", /*rc*/"rcBusNo", "rcModNum", "rcOpCode", "rcAddr", "rcData", "rcSt", /*ctra*/"ctraReset", "ctrbReset", "extReset", "eventCounterLow", "eventCounterHigh", "tsSource", "tsDivisor", "tsCounterLow", "tsCounterHigh", /*ctrb*/"adcTimeLow", "adcTimeHigh", "gate1TimeLow", "gate1TimeHigh", "time0", "time1", "time2", "stopCounterB", "stopCounterA", /*limit*/"limit0High", "limit0Low", "limit1High", "limit1Low"};
 
 static uint16_t confMaskMQDC32[confSize] = {/*buf*/0xFFFF, /*ChTh*/0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, /*board*/0x0001, 0xFFFF, 0x00FF, 0x0001, 0x0001, 0xFFFF, /*irq*/0x0007, 0x00FF, 0x0000, 0x0000, 0xFFFF, 0xFFFF, 0x0001, /*blt*/0x00FF, 0x00FF, 0x00FF, /*fifo*/0xFFFF, 0x0003, 0x0000, 0x0003, 0x0004, 0x0008, 0x0003, 0x0001, 0x0000, 0x0001, /*adc*/0x0001, 0x0002, 0x0004, 0x00FF, 0x00FF, 0x0001, 0x0001, 0x0001, /*delay*/0x00FF, 0x00FF, 0x3FFF, 0x3FFF, /*io*/0x0001, 0x0002, 0x0004, 0x0001, 0x0002, 0x0004, 0x0008, 0x0010, 0x0001, 0x0003, 0x0001, 0x0003, 0x0003, 0x000F, /*pluser*/0x000F, 0x00FF, /*rc*/0x0003, 0x000F, 0x007F, 0x00FF, 0xFFFF, 0x000F, /*ctra*/0x0001, 0x0002, 0x000C, 0xFFFF, 0xFFFF, 0x0003, 0xFFFF, 0xFFFF, 0xFFFF, /*ctrb*/0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x0001, 0x0002, /*limit*/0x003F, 0x003F, 0x001F, 0x001F};
 
-static int confDuplicMQDC32[confSize-regSize] = {53, 54, 60, 61, 72, 73, 75, 76, 77, 78, 94, 95, 111};
+static int confDuplicMQDC32[13] = {53, 54, 60, 61, 72, 73, 75, 76, 77, 78, 94, 95, 111};
 
-static int confDefaultIdxMQDC32[confSetSize] = {};
+static int confDefaultIdxMQDC32[confSetSize] = {/*ChTh*/1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, /*board*/35, 36, /*irq*/39, 40, 43, 44, /*blt*/46, /*fifo*/52, 53, 54, 55, /*adc*/59, 60, 61, 64, 65, 66, /*delay*/67, 68, 69, 70, /*io*/71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, /*pulser*/85, 86, /*rc*//*ctra*/93, 94, 95, 98, 99, /*ctrb*/109, 110, /*limit*/111, 112, 113, 114};
 
-static uint16_t confDefaultValueMQDC32[confSetSize] = {};
+static uint16_t confDefaultValueMQDC32[confSetSize] = {/*ChTh*/0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /*board*/0xFF, 0, /*irq*/1, 0x000F, 8, 8, /*blt*/0x0055, /*fifo*/0, 1, 1, 0, /*adc*/0, 0, 0, 0, 0, 0, /*delay*/255, 255, 0, 0, /*io*/0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, /*pulser*/0, 32, /*rc*//*ctra*/1, 1, 0, 0, 0x0001, /*ctrb*/0, 0, /*limit*/32, 0, 16, 0};
 
 #define regSize 102
 
@@ -382,7 +382,7 @@ int mqdc32::PausedRESU(void* argv[]) {
     return 5;
 }
 
-int mqdc32::OTFCTRL(void* argv[]=NULL) {
+int mqdc32::OTFCTRL(void* argv[]) {
     // D32 to D16
     finishAdc();
     // call smBase::OTFCTRL
@@ -398,7 +398,7 @@ int mqdc32::accessReg(const int idx, const int rw, regData& data) {
     if(idx<0 || idx>=regSize || rw<0 || rw>1 || data.getValueP()==NULL )
         return 0;
 
-    if(regRWIdx[idx] != 0 && regRWIdx[idx] != rw+1)
+    if((*regRWIdx)[idx] != 0 && (*regRWIdx)[idx] != rw+1)
         return 0;
 
     regAddrType addr = *(regAddrType*)((*regAddr)[idx]);
@@ -472,17 +472,22 @@ int mqdc32::configAdc() {
     if(image < MIN_IMAGE || image > MAX_IMAGE)
         return 0;
     
-    regData data, mask;
+    uint32_t confTemp;
+    regUint16 data, mask;
     regSet.clear();
     for(int i=0; i<confSetSize; i++) {
         int confIdx = confDefaultIdxMQDC32[i];
-        confValue[confIdx] = confDefaultValueMQDC32[i];
-        int regIdx = conf2reg[confNameMQDC32[confIdx]];
+        if((res=cfgInfo->infoGetUint("config."+name+"."+confNameMQDC32[confIdx], confTemp)) != 1)
+            confValue[confIdx] = confDefaultValueMQDC32[i];
+        else 
+            confValue[confIdx] = confTemp;
+        int regIdx = (*conf2reg)[confNameMQDC32[confIdx]];
         data.setValueP(&confValue[confIdx]);
-        mask.setValueP(confMaskMQDC32[confIdx]);
+        mask.setValueP(&confMaskMQDC32[confIdx]);
         maskRegData(data, mask);
-        regValue[regIdx] = regValue[regIdx] & (~(*(uint16_t*)confMaskMQDC32[confIdx])) | (*(uint16_t*)data.getValue());
-        regSet.push_back(regIdx);
+        regValue[regIdx] = regValue[regIdx] & (~(*(uint16_t*)confMaskMQDC32[confIdx])) | (*(uint16_t*)data.getValueP());
+        if(find(regSet.begin(), regSet.end(), regIdx) == regSet.end())
+            regSet.push_back(regIdx);
     }
 
     int rw = 1;
@@ -498,7 +503,6 @@ int mqdc32::configAdc() {
 }
 
 int mqdc32::releaseAdc() {
-    pvme->freeIrq(image, confValue[irqLevel], confValue[irqVector]);
     pvme->releaseImage(image);
     return 1;
 }
@@ -546,10 +550,9 @@ int mqdc32::stopAdc() {
     // D32 to D16
     finishAdc();
     // flush the rest data
-    debugMsg << name << "# " << "flush " << confValue[eventTh] << " events in the buffer.";
+    debugMsg << name << "# flush rest events in the buffer.";
     stMsg->stateOut(debugMsg);
-    for(int i=0; i<confValue[eventTh]; i++) {
-    }
+
     // disable adc
     disableAdc();
     // D16 to D32

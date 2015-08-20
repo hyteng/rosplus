@@ -346,7 +346,7 @@ int adc1785::accessReg(const int idx, const int rw, regData& data) {
     if(idx<0 || idx>=regSize || rw<0 || rw>1 || data.getValueP()==NULL )
         return 0;
 
-    if(regRWIdx[idx] != 0 && regRWIdx[idx] != rw+1)
+    if((*regRWIdx)[idx] != 0 && (*regRWIdx)[idx] != rw+1)
         return 0;
 
     regAddrType addr = *(regAddrType*)((*regAddr)[idx]);

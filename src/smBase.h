@@ -88,7 +88,7 @@ class smBase {
         virtual int RunningSTAT(void* argv[]=NULL) {return OTFSTAT(argv);};
         virtual int PausedSTAT(void* argv[]=NULL) {return OTFSTAT(argv);};
         virtual int ReadySTAT(void* argv[]=NULL) {return OTFSTAT(argv);};
-        //virtual int OTFCTRL(void* argv[]=NULL); //{return stId;};
+        virtual int OTFCTRL(void* argv[]=NULL); //{return stId;};
         virtual int RunningCTRL(void* argv[]=NULL) {return OTFCTRL(argv);};
         virtual int PausedCTRL(void* argv[]=NULL) {return OTFCTRL(argv);};
         virtual int ReadyCTRL(void* argv[]=NULL) {return OTFCTRL(argv);};
@@ -97,9 +97,6 @@ class smBase {
         virtual int unmaskRegData(regData& data, regData& mask) {return 1;};
 
         pFunc actions[MAX_CMD_AMOUNT][MAX_STATES_AMOUNT];
-
-    private: // private for not covering this method
-        virtual int OTFCTRL(void* argv[]=NULL);
 
     protected:
         stateMessager* stMsg;
