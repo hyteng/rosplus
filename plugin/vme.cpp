@@ -24,6 +24,15 @@ vme::vme(const string& n): smBase(n) {
 vme::~vme() {
 }
 
+int vme::getImgCtrl(int i, uint32_t& addr) {
+    if(i < 0 || i >= 18)
+        return 0;
+    else {
+        addr = imgCtrlAddr[i];
+    }
+    return 1;
+}
+
 int vme::InitializedLOAD(void* argv[]) {
     debugMsg << name << "# " << "InitializedLOAD";
     stMsg->stateOut(debugMsg); 

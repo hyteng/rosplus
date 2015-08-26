@@ -224,6 +224,9 @@ using std::endl;
 #define MQDC32_Limit1Low_Mask		0x001F
 
 
+// data width definition
+static uint32_t DataWidth[3] = {D16, D32, D64};
+
 // ctrl, conf, and reg infomation
 
 #define ctrlSize 111
@@ -300,6 +303,7 @@ mqdc32::mqdc32(const string& n): smBase(n) {
 
     vd = (regData*) new regUint16();
     vm = (regData*) new regUint16();
+    imgCtrlAddr = 0;
 }
 
 mqdc32::~mqdc32() {
@@ -349,7 +353,6 @@ int mqdc32::ReadySTOP(void* argv[]) {
 int mqdc32::ReadySATR(void* argv[]) {
     debugMsg << name << "# " << "ReadySATR";
     stMsg->stateOut(debugMsg);
-    //stopAdc();
     //startAdc();
     return 5;
 }
@@ -384,11 +387,11 @@ int mqdc32::PausedRESU(void* argv[]) {
 
 int mqdc32::OTFCTRL(void* argv[]) {
     // D32 to D16
-    finishAdc();
+    setDWAdc(0);
     // call smBase::OTFCTRL
     smBase::OTFCTRL(argv);
     // D16 to D32
-    prepAdc();
+    setDWAdc(1);
 
     return (int)stId;
 }
@@ -471,7 +474,10 @@ int mqdc32::configAdc() {
     image = pvme->getImage(base, length, A32, D16, MASTER);
     if(image < MIN_IMAGE || image > MAX_IMAGE)
         return 0;
-    
+    imgCtrlAddr = 0x100;
+    //if(vmeDev->getImgCtrl(image, imgCtrlAddr) != 1)
+        //return 0;
+
     uint32_t confTemp;
     regUint16 data, mask;
     regSet.clear();
@@ -508,30 +514,14 @@ int mqdc32::releaseAdc() {
 }
 
 int mqdc32::prepAdc() {
-    // get the vmebus lock
-
-    // D16 to D32
-    uint32_t lsi0_ctl = pvme->readUniReg(0x100);
-    lsi0_ctl &= 0xFF3FFFFF;
-    lsi0_ctl |= D32;
-    pvme->writeUniReg(0x100, lsi0_ctl);
     return 1;
 }
 
 int mqdc32::finishAdc() {
-    // D32 to D16
-    uint32_t lsi0_ctl = pvme->readUniReg(0x100);
-    lsi0_ctl &= 0xFF3FFFFF;
-    lsi0_ctl |= D16;
-    pvme->writeUniReg(0x100, lsi0_ctl);
-    // release the vmebus lock
-
     return 1;
 }
 
 int mqdc32::startAdc() {
-    // D32 to D16
-    finishAdc();
     // first disable adc
     disableAdc();
     // clear data
@@ -540,44 +530,34 @@ int mqdc32::startAdc() {
     pvme->ww(image, base+MQDC32_ReadoutReset_Offset, pvme->swap16((uint16_t)0x0001));
     // enable adc
     enableAdc();
-    // D16 to D32
-    prepAdc();
 
     return 1;
 }
 
 int mqdc32::stopAdc() {
-    // D32 to D16
-    finishAdc();
     // flush the rest data
     debugMsg << name << "# flush rest events in the buffer.";
     stMsg->stateOut(debugMsg);
 
     // disable adc
     disableAdc();
-    // D16 to D32
-    prepAdc();
     return 1;
 }
 
 int mqdc32::enableAdc() {
-    // D32 to D16
-    finishAdc();
     // set startAcq
     pvme->ww(image, base+MQDC32_StartAcq_Offset, pvme->swap16((uint16_t)0x0001));
     // D16 to D32
-    prepAdc();
+    setDWAdc(1);
 
     return 1;
 }
 
 int mqdc32::disableAdc() {
     // D32 to D16
-    finishAdc();
+    setDWAdc(0);
     // unset startAcq
     pvme->ww(image, base+MQDC32_StartAcq_Offset, pvme->swap16((uint16_t)0x0000));
-    // D16 to D32
-    prepAdc();
 
     return 1;
 }
@@ -589,6 +569,25 @@ int mqdc32::accessRegNormal(const regAddrType addr, const int rw, regType* data)
     if(rw == 1)
         res = pvme->ww(image, base+addr, data);
     return res;
+}
+
+int mqdc32::setDWAdc(int dw) {
+    if(dw<0 || dw>2)
+        return 0;
+    // lock dev ctrl
+    std::unique_lock<std::mutex> lock(semMutex);
+    // set DW
+    uint32_t lsi0_ctl = pvme->readUniReg(imgCtrlAddr);
+    lsi0_ctl &= 0xFF3FFFFF;
+    lsi0_ctl |= DataWidth[dw];
+    pvme->writeUniReg(imgCtrlAddr, lsi0_ctl);
+    // set blt
+    if(dw == 0)
+        pvme->setOption(image, BLT_OFF);
+    else
+        pvme->setOption(image, BLT_ON);
+
+    return 1;
 }
 
 extern "C" smBase* create(const string& n) {

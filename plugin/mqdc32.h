@@ -52,12 +52,15 @@ class mqdc32 :public smBase {
         int stopAdc();
         int enableAdc();
         int disableAdc();
+        int setDWAdc(int dw);
         int accessRegNormal(const regAddrType addr, const int rw, regType* data);
         VMEBridge *pvme;
 
         int image;
-        uint32_t base, length;
+        uint32_t base, length, imgCtrlAddr;
         uint32_t  regValue[100], confValue[100]; //reg is 16bit, use uint32 and cut later
+
+        std::mutex semMutex;
 };
 
 
