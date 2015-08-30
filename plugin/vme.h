@@ -12,7 +12,7 @@ class vme :public smBase {
     public:
         vme(const std::string& n);
         ~vme();
-        virtual void* getHelp() {return (void*)pvme;};
+        VMEBridge* getVME() {return pvme;};
         int getImgCtrl(int i, uint32_t& addr);
     protected:
         virtual int InitializedLOAD(void* argv[]=NULL);

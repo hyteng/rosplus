@@ -159,8 +159,13 @@ int vme::prepVme() {
     if((res=cfgInfo->infoGetString("config."+name+".adcModeName", adcModeName)) == 1) {
         std::vector< std::pair<std::string, smBase*> >::const_iterator iter;
         for(iter=helpList->begin(); iter!=helpList->end(); iter++) {
-            if(iter->first == adcModeName)
-                adc0Base = *(uint32_t*)(iter->second->getHelp());
+            if(iter->first == adcModeName) {
+                adc1785* adc0 = iter->second->getHelp();
+                adc1785Func adc0Func0;
+                if(adc0->queryInterface("getBaseAddr", adc0Func0)) {
+                    adc0Base = adc0->adc0Func0();
+                }
+            }
         }
     }
     if(adc0Base == -1) {

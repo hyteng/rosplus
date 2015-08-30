@@ -176,7 +176,7 @@ static map<string, uintptr_t>adc1785_conf2mask;
 static vector<uintptr_t> adc1785_regAddr;
 static vector<int> adc1785_regRWIdx;
 
-static int setDev() {
+static int setCtrl() {
     adc1785_ctrl2conf.clear();
     for(int i=0,j=0; i<ctrlSize; i++, j++) {
         adc1785_ctrl2conf[ctrl1785[i]] = vector<string>(0);
@@ -237,7 +237,7 @@ static int setDev() {
     return 1;
 }
 
-static int dummy = setDev();
+static int dummy = setCtrl();
 
 adc1785::adc1785(const string& n): smBase(n) {
     ctrl2conf = &adc1785_ctrl2conf;
@@ -251,6 +251,20 @@ adc1785::adc1785(const string& n): smBase(n) {
 }
 
 adc1785::~adc1785() {
+}
+
+bool adc1785::queryInterface(const string& funcName, adc1785Func ptr) {
+    bool res;
+    if(funcName == "getBaseAddr") {
+        ptr = &adc1785::getBaseAddr;
+        res = true;
+    }
+    else {
+        ptr = NULL;
+        res = false;
+    }
+
+    return res;
 }
 
 int adc1785::InitializedLOAD(void* argv[]) {

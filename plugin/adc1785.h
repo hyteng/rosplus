@@ -17,11 +17,16 @@ class regUint16 :public regData {
     private:
         uint16_t v;
 };
+
+class adc1785;
+typedef uint32_t (adc1785::* adc1785Func)();
+
 class adc1785 :public smBase {
     public:
         adc1785(const std::string& n);
         ~adc1785();
-        virtual void* getHelp() {return (void*)&base;};
+        virtual bool queryInterface(const string& funcName, adc1785Func ptr);
+        uint32_t getBaseAddr() {return base;};
         typedef uint32_t regAddrType;
         typedef uint16_t regType;
 

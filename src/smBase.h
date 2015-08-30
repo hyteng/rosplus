@@ -66,7 +66,8 @@ class smBase {
 
         void init(stateMessager* msg, configSet* cfg, dataStream* data, const std::vector< std::pair<std::string, smBase*> > *other);
         virtual int doAction(command cmId, void* para[]=NULL);
-        virtual void* getHelp() {return NULL;};
+        virtual smBase* getHelp() {return this;};
+        virtual bool queryInterface(const string& funcName, void* ptr) = 0;
 
     protected:
         virtual int InitializedLOAD(void* argv[]=NULL) {return 2;};
