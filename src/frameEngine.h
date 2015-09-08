@@ -11,7 +11,6 @@ class frameEngine :public smBase {
         frameEngine(const std::string& n);
         ~frameEngine();
 
-        virtual bool queryInterface(const std::string& funcName, void* ptr) {return false;};
         void setMachine(stateMachine* m);
 
     protected:

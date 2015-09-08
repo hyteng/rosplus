@@ -25,7 +25,7 @@ class adc1785 :public smBase {
     public:
         adc1785(const std::string& n);
         ~adc1785();
-        virtual bool queryInterface(const string& funcName, adc1785Func ptr);
+        virtual bool queryInterface(const string& funcName, void* para[], void* ret);
         uint32_t getBaseAddr() {return base;};
         typedef uint32_t regAddrType;
         typedef uint16_t regType;

@@ -253,17 +253,12 @@ adc1785::adc1785(const string& n): smBase(n) {
 adc1785::~adc1785() {
 }
 
-bool adc1785::queryInterface(const string& funcName, adc1785Func ptr) {
-    bool res;
+bool adc1785::queryInterface(const string& funcName, void* para[], void* ret) {
+    bool res = false;
     if(funcName == "getBaseAddr") {
-        ptr = &adc1785::getBaseAddr;
+        *(uint32_t*)ret = getBaseAddr();
         res = true;
     }
-    else {
-        ptr = NULL;
-        res = false;
-    }
-
     return res;
 }
 
@@ -408,7 +403,8 @@ int adc1785::configAdc() {
         std::vector< std::pair<std::string, smBase*> >::const_iterator iter;
         for(iter=helpList->begin(); iter!=helpList->end(); iter++) {
             if(iter->first == vmeModeName)
-                pvme = (VMEBridge*)(iter->second->getHelp());
+                if(!iter->second->queryInterface("getVME", NULL, (void*)pvme))
+                    return 0;
         }
     }
     if(pvme == NULL) {

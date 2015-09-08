@@ -22,9 +22,10 @@ class mqdc32 :public smBase {
     public:
         mqdc32(const std::string& n);
         ~mqdc32();
-        virtual void* getHelp() {return (void*)&base;};
         typedef uint32_t regAddrType;
         typedef uint16_t regType;
+
+        virtual bool queryInterface(const std::string& funcName, void* para[], void* res);
 
     protected:
         virtual int InitializedLOAD(void* argv[]=NULL);

@@ -449,11 +449,12 @@ int mqdc32::configAdc() {
         std::vector< std::pair<std::string, smBase*> >::const_iterator iter;
         for(iter=helpList->begin(); iter!=helpList->end(); iter++) {
             if(iter->first == vmeModeName)
-                pvme = (VMEBridge*)(iter->second->getHelp());
+                if(!iter->second->queryInterface("getVME", NULL, (void*)pvme))
+                    return 0;
         }
     }
     if(pvme == NULL) {
-        debugMsg << name << "# " << "helper " << vmeModeName << " not found.";
+        debugMsg << name << "# " << "helper " << vmeModeName << " do not give a VME bridge.";
         stMsg->stateOut(debugMsg);
         return 0;
     }

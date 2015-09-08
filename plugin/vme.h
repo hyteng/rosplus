@@ -12,8 +12,11 @@ class vme :public smBase {
     public:
         vme(const std::string& n);
         ~vme();
+
+        virtual bool queryInterface(const std::string& funcName, void* para[], void* ret);
         VMEBridge* getVME() {return pvme;};
         int getImgCtrl(int i, uint32_t& addr);
+
     protected:
         virtual int InitializedLOAD(void* argv[]=NULL);
         virtual int LoadedUNLD(void* argv[]=NULL);

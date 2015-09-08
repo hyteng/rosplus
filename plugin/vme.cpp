@@ -24,6 +24,19 @@ vme::vme(const string& n): smBase(n) {
 vme::~vme() {
 }
 
+bool vme::queryInterface(const std::string& funcName, void* para[], void* ret) {
+    bool res = false;
+    if(funcName == "getVME") {
+        ret = (void*)getVME();
+        res = true;
+    }
+    if(funcName == "getImgCtrl") {
+        if(getImgCtrl(*(int*)para[0], *(uint32_t*)ret) == 1)
+            res = true;
+    }
+    return res;
+}
+
 int vme::getImgCtrl(int i, uint32_t& addr) {
     if(i < 0 || i >= 18)
         return 0;
@@ -160,11 +173,8 @@ int vme::prepVme() {
         std::vector< std::pair<std::string, smBase*> >::const_iterator iter;
         for(iter=helpList->begin(); iter!=helpList->end(); iter++) {
             if(iter->first == adcModeName) {
-                adc1785* adc0 = iter->second->getHelp();
-                adc1785Func adc0Func0;
-                if(adc0->queryInterface("getBaseAddr", adc0Func0)) {
-                    adc0Base = adc0->adc0Func0();
-                }
+                if(!iter->second->queryInterface("getBaseAddr", NULL, (void*)&adc0Base))
+                    return 0;
             }
         }
     }
