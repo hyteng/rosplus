@@ -12,7 +12,7 @@
 #define DATAPORT 4001
 #define CTRLPORT 4002
 #define BACKLOG 10
-#define MAXMSG 200
+#define MAXMSG 256
 
 using std::string;
 using std::stringstream;
@@ -190,11 +190,13 @@ int stateMessager::contrlMsg(int socketMsg) {
         }
         ctrlMsg = string(msg);
         cout << "ctrlMsg: " << ctrlMsg << endl;
-        if(ctrlMsg == "cmd#ctrl#quitMsgThread")
+        if(ctrlMsg == "cmd#all#quitMsgThread#")
             return 1;
-        res = pMachine->dispatch2(msg);
+        res = pMachine->dispatch2(ctrlMsg);
         if(res == 0)
             break;
+
+        sendMsg(ctrlMsg);
 
         //lock.unlock();
         //lock.release();

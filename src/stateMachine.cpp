@@ -134,7 +134,7 @@ int stateMachine::dispatch1() {
     return 1;
 }
 
-int stateMachine::dispatch2(const string& ctrl) {
+int stateMachine::dispatch2(string& ctrl) {
 
     string type, dev, msg;
     stringstream sCtrl(ctrl);
@@ -166,6 +166,7 @@ int stateMachine::dispatch2(const string& ctrl) {
                     res = pModule->doAction(cmd);
                 }
             }
+            ctrl = dev+"#"+type+"#"+msg+"#";
 
             if(res != 1) {
                 return 0;
@@ -196,6 +197,8 @@ int stateMachine::dispatch2(const string& ctrl) {
             //configSet::infoValue* data*;
             void* para[] = {&ctrlName, &rw, &value};
             pModule->doAction(smBase::CMID_CTRL, para);
+            // reverse the deve and type in string
+            ctrl = dev+"#"+type+"#"+ctrlName+";"+rw+";"+value+";"+"#";
         }
 
     }

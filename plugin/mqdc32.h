@@ -54,6 +54,7 @@ class mqdc32 :public smBase {
         int enableAdc();
         int disableAdc();
         int setDWAdc(int dw);
+        //int runAdc();
         int accessRegNormal(const regAddrType addr, const int rw, regType* data);
         VMEBridge *pvme;
 
