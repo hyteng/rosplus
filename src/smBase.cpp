@@ -148,7 +148,6 @@ int smBase::OTFCTRL(void* argv[]) {
                 if((res=cfgInfo->infoSetDouble(cfgIdx, v2)) == 1) {
                     debugMsg << name << "# " << cfgIdx << " set " << v2;
                     stMsg->stateOut(debugMsg);
-        //virtual smBase* getHelp() {return this;};
                 }
                 else {
                     debugMsg << name << "# " << cfgIdx << " not set. ";
@@ -175,6 +174,5 @@ int smBase::OTFCTRL(void* argv[]) {
     }
 
     *(string*)argv[2] = result.str();
-
     return (int)stId;
 }
