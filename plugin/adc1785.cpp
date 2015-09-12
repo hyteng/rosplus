@@ -259,7 +259,15 @@ bool adc1785::queryInterface(const string& funcName, void* para[], void* ret) {
         *(uint32_t*)ret = getBaseAddr();
         res = true;
     }
+    if(funcName == "run") {
+        run();
+        res = true;
+    }
     return res;
+}
+
+int adc1785::run() {
+    pvme->waitIrq(confValue[irqLevel], confValue[irqVector]);
 }
 
 int adc1785::InitializedLOAD(void* argv[]) {

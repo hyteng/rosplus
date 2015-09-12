@@ -50,6 +50,7 @@ class vme :public smBase {
         std::thread *t0;
 
         VMEBridge *pvme;
+        smBase *pDev;
         unsigned int dmaNumber;
         uint32_t dmaSize, adc0Base;
         uintptr_t dmaBase;

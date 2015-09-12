@@ -27,6 +27,7 @@ class adc1785 :public smBase {
         ~adc1785();
         virtual bool queryInterface(const string& funcName, void* para[], void* ret);
         uint32_t getBaseAddr() {return base;};
+        int run();
         typedef uint32_t regAddrType;
         typedef uint16_t regType;
 

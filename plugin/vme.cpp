@@ -173,7 +173,8 @@ int vme::prepVme() {
         std::vector< std::pair<std::string, smBase*> >::const_iterator iter;
         for(iter=helpList->begin(); iter!=helpList->end(); iter++) {
             if(iter->first == adcModeName) {
-                if(!iter->second->queryInterface("getBaseAddr", NULL, (void*)&adc0Base))
+                pDev = iter->second;
+                if(!pDev->queryInterface("getBaseAddr", NULL, (void*)&adc0Base))
                     return 0;
             }
         }
@@ -218,17 +219,18 @@ void vme::runVme() {
         if(runVmeCtrl == TASK_STOP) {
             break;
         }
-        /*       
-        pvme->waitIrq(7, 0);
+        
+        pDev->queryInterface("run", NULL, NULL);
+        //pvme->waitIrq(7, 0);
         int offset = pvme->DMAread(adc0Base, dmaSize, A32, D32);
         if(offset < 0) {
             vmeStatus = TASK_ERROR;
             break;
         }
         unsigned int tranSize = dataPool->devWrite((void*)(dmaBase+offset), dmaSize);
-        */
-        sleep(1);
-        unsigned int tranSize = dataPool->devWrite(tmp, dmaSize);
+        
+        //sleep(1);
+        //unsigned int tranSize = dataPool->devWrite(tmp, dmaSize);
 
         genSize += dmaSize;
         sndSize += tranSize;
