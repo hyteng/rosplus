@@ -345,9 +345,15 @@ class devFrame(wx.Frame):
         b = event.GetEventObject()
         st = b.GetValue()
         if st==0 :
-            self.C[n].hide()
+            plt.figure(n)
+            plt.close()
+            #if self.C[n] != -1 :
+                #self.C[n].Close()
+                #self.C[n] = -1
         else :
-            self.C[n].show()
+            plt.figure(n)
+            plt.draw()
+            plt.show()
             #self.C[n] = ROOT.TCanvas("ch"+str(n), "ch"+str(n), 800, 600)
             #self.C[n].cd()
             #if self.dev!=-1 :
@@ -362,8 +368,10 @@ class devFrame(wx.Frame):
         self.dev = d
         self.SetTitle(_(d.name))
         for i in range(16) :
-            self.C[n] = plt.figure()
-            self.C[n].hist(self.dev.hist[idx0][idx1], bins=4098, range=(-1.5, 4096.5), normed=False, weights=None, cumulative=False, bottom=None, histtype='step', align='mid', orientation='vertical', rwidth=None, log=False, color=None, label=None, stacked=False, hold=None)
+            self.C[i] = plt.figure(i)
+            self.C[i].add_subplot(111).plot()
+            plt.draw()
+            #hist(self.dev.hist[idx0][idx1], bins=4098, range=(-1.5, 4096.5), normed=False, weights=None, cumulative=False, bottom=None, histtype='step', align='mid', orientation='vertical', rwidth=None, log=False, color=None, label=None, stacked=False, hold=None)
 
 
 
@@ -392,12 +400,16 @@ class devApp:
     def fillCh(self, n, v):
         idx0 = n/8
         idx1 = n%8
+        #self.hist[idx0][idx1].Fill(v)
         self.hist[idx0][idx1].append(v)
-        if self.frame!= -1:
+        if self.frame!=-1 :
             if (self.frame.C[n]!=-1) and (self.frame.C[n]!=None) :
                 print "fill and update hist%d\n"%(n)
                 #self.frame.C[n].Modified()
                 #self.frame.C[n].Update()
+                self.frame.C[n].draw()
+                plt.plot("hist", self.hist[idx0][idx1])
+
 
 
 # end of class devApp
