@@ -19,17 +19,16 @@ class regUint16 :public regData {
 };
 
 class adc1785;
-typedef uint32_t (adc1785::* adc1785Func)();
+//typedef uint32_t (adc1785::* adc1785Func)();
 
 class adc1785 :public smBase {
     public:
+        typedef uint32_t regAddrType;
+        typedef uint16_t regType;
+
         adc1785(const std::string& n);
         ~adc1785();
         virtual bool queryInterface(const string& funcName, void* para[], void* ret);
-        uint32_t getBaseAddr() {return base;};
-        int run();
-        typedef uint32_t regAddrType;
-        typedef uint16_t regType;
 
     protected:
         virtual int InitializedLOAD(void* argv[]=NULL);
@@ -49,6 +48,9 @@ class adc1785 :public smBase {
         virtual int unmaskRegData(regData& data, regData& mask);
 
     private:
+        uintptr_t getBuffAddr() {return base;};
+        int run();
+
         int configAdc();
         int releaseAdc();
         int prepAdc();
@@ -61,7 +63,7 @@ class adc1785 :public smBase {
         VMEBridge *pvme;
 
         int image;
-        uint32_t base, length;
+        uint32_t base, length; // 32bit VME address
         unsigned int regValue[80], confValue[100]; //reg is 16bit, use uint32 and cut later
 };
 

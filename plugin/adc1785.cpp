@@ -255,8 +255,8 @@ adc1785::~adc1785() {
 
 bool adc1785::queryInterface(const string& funcName, void* para[], void* ret) {
     bool res = false;
-    if(funcName == "getBaseAddr") {
-        *(uint32_t*)ret = getBaseAddr();
+    if(funcName == "getBuffAddr") {
+        *(uintptr_t*)ret = getBuffAddr();
         res = true;
     }
     if(funcName == "run") {
@@ -268,6 +268,7 @@ bool adc1785::queryInterface(const string& funcName, void* para[], void* ret) {
 
 int adc1785::run() {
     pvme->waitIrq(confValue[irqLevel], confValue[irqVector]);
+    return 1;
 }
 
 int adc1785::InitializedLOAD(void* argv[]) {

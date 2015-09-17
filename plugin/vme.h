@@ -12,10 +12,7 @@ class vme :public smBase {
     public:
         vme(const std::string& n);
         ~vme();
-
         virtual bool queryInterface(const std::string& funcName, void* para[], void* ret);
-        VMEBridge* getVME() {return pvme;};
-        int getImgCtrl(int i, uint32_t& addr);
 
     protected:
         virtual int InitializedLOAD(void* argv[]=NULL);
@@ -32,6 +29,9 @@ class vme :public smBase {
         virtual int OTFCONF(void* argv[]=NULL);
 
     private:
+        VMEBridge* getVME() {return pvme;};
+        int getImgCtrl(int i, uint32_t& addr);
+
         int configVme();
         int releaseVme();
         int prepVme();
@@ -52,7 +52,7 @@ class vme :public smBase {
         VMEBridge *pvme;
         smBase *pDev;
         unsigned int dmaNumber;
-        uint32_t dmaSize, adc0Base;
-        uintptr_t dmaBase;
+        uint32_t dmaSize;
+        uintptr_t dmaBase, devBuff;
 };
 #endif

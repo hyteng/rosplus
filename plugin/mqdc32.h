@@ -20,12 +20,12 @@ class regUint16 :public regData {
 
 class mqdc32 :public smBase {
     public:
-        mqdc32(const std::string& n);
-        ~mqdc32();
         typedef uint32_t regAddrType;
         typedef uint16_t regType;
 
-        virtual bool queryInterface(const std::string& funcName, void* para[], void* res);
+        mqdc32(const std::string& n);
+        ~mqdc32();
+        virtual bool queryInterface(const std::string& funcName, void* para[], void* ret);
 
     protected:
         virtual int InitializedLOAD(void* argv[]=NULL);
@@ -45,6 +45,9 @@ class mqdc32 :public smBase {
         virtual int unmaskRegData(regData& data, regData& mask);
 
     private:
+        uintptr_t getBuffAddr() {return base;};
+        int run();
+
         int configAdc();
         int releaseAdc();
         int prepAdc();
@@ -56,11 +59,13 @@ class mqdc32 :public smBase {
         int setDWAdc(int dw);
         int runAdc();
         int accessRegNormal(const regAddrType addr, const int rw, regType* data);
+
         VMEBridge *pvme;
+        smBase *vmeCtrl;
 
         int image;
         uint32_t base, length, imgCtrlAddr;
-        uint32_t  regValue[100], confValue[100]; //reg is 16bit, use uint32 and cut later
+        uint32_t  regValue[200], confValue[200]; //reg is 16bit, use uint32 and cut later
 
         std::mutex semMutex;
 };

@@ -166,20 +166,21 @@ int vme::releaseVme() {
 
 int vme::prepVme() {
 
-    adc0Base = -1;
+    // set to 0 for invaild address
+    devBuff = 0;
     string adcModeName;
     int res;
-    if((res=cfgInfo->infoGetString("config."+name+".adcModeName", adcModeName)) == 1) {
+    if((res=cfgInfo->infoGetString("config."+name+".devModeName", adcModeName)) == 1) {
         std::vector< std::pair<std::string, smBase*> >::const_iterator iter;
         for(iter=helpList->begin(); iter!=helpList->end(); iter++) {
             if(iter->first == adcModeName) {
                 pDev = iter->second;
-                if(!pDev->queryInterface("getBaseAddr", NULL, (void*)&adc0Base))
+                if(!pDev->queryInterface("getBuffAddr", NULL, (void*)&devBuff))
                     return 0;
             }
         }
     }
-    if(adc0Base == -1) {
+    if(devBuff == 0) {
         debugMsg << name << "# " << "helper " << adcModeName << " not found.";
         stMsg->stateOut(debugMsg);
         return 0;
@@ -222,7 +223,7 @@ void vme::runVme() {
         
         pDev->queryInterface("run", NULL, NULL);
         //pvme->waitIrq(7, 0);
-        int offset = pvme->DMAread(adc0Base, dmaSize, A32, D32);
+        uintptr_t offset = pvme->DMAread(devBuff, dmaSize, A32, D32);
         if(offset < 0) {
             vmeStatus = TASK_ERROR;
             break;

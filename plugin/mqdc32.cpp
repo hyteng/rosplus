@@ -14,8 +14,8 @@ using std::endl;
 #define MAX_MINOR 17
 
 // register inform
-#define MQDC32_BASE                 0xCC000000
-#define MQDC32_LENGTH               0x10000
+#define MQDC32_BASE                 0xDD000000
+#define MQDC32_LENGTH               0x100000
 #define MQDC32_FIFO_Offset          0x0000
 #define MQDC32_Ch00Th_Offset        0x4000
 #define MQDC32_Ch01Th_Offset        0x4002
@@ -229,26 +229,28 @@ static uint32_t DataWidth[3] = {D16, D32, D64};
 
 // ctrl, conf, and reg infomation
 
-#define ctrlSize 111
+#define ctrlSize 112
 
-static string ctrlMQDC32[ctrlSize] = {/*buf*/"buffer", /*ChTh*/"Ch00Th", "Ch01Th", "Ch02Th", "Ch03Th", "Ch04Th", "Ch05Th", "Ch06Th", "Ch07Th", "Ch08Th", "Ch09Th", "Ch10Th", "Ch11Th", "Ch12Th", "Ch13Th", "Ch14Th", "Ch15Th", "Ch16Th", "Ch17Th", "Ch18Th", "Ch19Th", "Ch20Th", "Ch21Th", "Ch22Th", "Ch23Th", "Ch24Th", "Ch25Th", "Ch26Th", "Ch27Th", "Ch28Th", "Ch29Th", "Ch30Th", "Ch31Th", /*board*/"addrSource", "addrReg", "moduleId", "fastVme", "softReset", "firmware", /*irq*/"irqLevel", "irqVector", "irqTest", "irqReset", "irqTh", "maxTransfer", "irqWithdraw", /*blt*/"bltCtrl", "cbltAddr", "mcstAddr", /*fifo*/"dataLength", "dataFormat", "readoutReset", "multiEvent", "skipBerr", "countUnit", "markType", "startAcq", "fifoReset", "dataReady", /*adc*/"bankConnect", "switchPull0", "switchPull1", "shiftBank0", "shiftBank1", "slideScale", "overFlow", "disableTh", /*delay*/"limitBank0", "limitBank1", "expDelay0", "expDelay1", /*io*/"inputCouple0", "inputCouple1", "BLR", "terGate0", "terGate1", "terReset", "terBank0", "terBank1", "eclGate1Osc", "eclFCReset", "gateSelect", "nimGate1Osc", "nimFCReset", "nimBusy", /*pulser*/"pulserSt", "pulserDac", /*rc*/"rcBusNo", "rcModNum", "rcOpCode", "rcAddr", "rcSt", "rcData", /*ctra*/"ctraReset", "ctrbReset", "extReset", "eventCounter", "tsSource", "tsDivisor", "tsCounter", /*ctrb*/"adcTime", "gate1Time", "time0", "time1", "time2", "stopCounterB", "stopCounterA", /*limit*/"limit0High", "limit0Low", "limit1High", "limit1Low"};
+static string ctrlMQDC32[ctrlSize] = {/*buf*/"buffer", /*ChTh*/"Ch00Th", "Ch01Th", "Ch02Th", "Ch03Th", "Ch04Th", "Ch05Th", "Ch06Th", "Ch07Th", "Ch08Th", "Ch09Th", "Ch10Th", "Ch11Th", "Ch12Th", "Ch13Th", "Ch14Th", "Ch15Th", "Ch16Th", "Ch17Th", "Ch18Th", "Ch19Th", "Ch20Th", "Ch21Th", "Ch22Th", "Ch23Th", "Ch24Th", "Ch25Th", "Ch26Th", "Ch27Th", "Ch28Th", "Ch29Th", "Ch30Th", "Ch31Th", /*board*/"addrSource", "addrReg", "moduleId", "fastVme", "softReset", "firmware", /*irq*/"irqLevel", "irqVector", "irqTest", "irqReset", "irqTh", "maxTransfer", "irqWithdraw", /*blt*/"cbltCtrl", "mcstCtrl", "cbltAddr", "mcstAddr", /*fifo*/"dataLength", "dataFormat", "readoutReset", "multiEvent", "skipBerr", "countUnit", "markType", "startAcq", "fifoReset", "dataReady", /*adc*/"bankConnect", "switchPull0", "switchPull1", "shiftBank0", "shiftBank1", "slideScale", "overFlow", "disableTh", /*delay*/"limitBank0", "limitBank1", "expDelay0", "expDelay1", /*io*/"inputCouple0", "inputCouple1", "BLR", "terGate0", "terGate1", "terReset", "terBank0", "terBank1", "eclGate1Osc", "eclFCReset", "gateSelect", "nimGate1Osc", "nimFCReset", "nimBusy", /*pulser*/"pulserSt", "pulserDac", /*rc*/"rcBusNo", "rcModNum", "rcOpCode", "rcAddr", "rcSt", "rcData", /*ctra*/"ctraReset", "ctrbReset", "extReset", "eventCounter", "tsSource", "tsDivisor", "tsCounter", /*ctrb*/"adcTime", "gate1Time", "time0", "time1", "time2", "stopCounterB", "stopCounterA", /*limit*/"limit0High", "limit0Low", "limit1High", "limit1Low"};
 
-static int ctrlSizeMQDC32[ctrlSize] = {/*buf*/1, /*ChTh*/1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, /*board*/1, 1, 1, 1, 1, 1, /*irq*/1, 1, 1, 1, 1, 1, 1, /*blt*/1, 1, 1, /*fifo*/1, 1, 1, 1, 1, 1, 1, 1, 1, 1, /*adc*/1, 1, 1, 1, 1, 1, 1, 1, /*delay*/1, 1, 1, 1, /*io*/1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, /*pulser*/1, 1, /*rc*/1, 1, 1, 1, 1, 1, /*ctra*/1, 1, 1, 2, 1, 1, 2, /*ctrb*/2, 2, 1, 1, 1, 1, 1, /*limit*/1, 1, 1, 1}; // number of conf
+static int ctrlSizeMQDC32[ctrlSize] = {/*buf*/1, /*ChTh*/1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, /*board*/1, 1, 1, 1, 1, 1, /*irq*/1, 1, 1, 1, 1, 1, 1, /*blt*/1, 1, 1, 1, /*fifo*/1, 1, 1, 1, 1, 1, 1, 1, 1, 1, /*adc*/1, 1, 1, 1, 1, 1, 1, 1, /*delay*/1, 1, 1, 1, /*io*/1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, /*pulser*/1, 1, /*rc*/1, 1, 1, 1, 1, 1, /*ctra*/1, 1, 1, 2, 1, 1, 2, /*ctrb*/2, 2, 1, 1, 1, 1, 1, /*limit*/1, 1, 1, 1}; // number of conf
 
-static int ctrlRWMQDC32[ctrlSize] = {/*buf*/1, /*ChTh*/0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /*board*/0, 0, 0, 0, 2, 1, /*irq*/0, 0, 2, 2, 0, 0, 0, /*blt*/0, 0, 1, /*fifo*/1, 0, 2, 0, 0, 0, 0, 0, 2, 1, /*adc*/0, 0, 0, 0, 0, 0, 0, 0, /*delay*/0, 0, 0, 0, /*io*/0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /*pulser*/0, 0, /*rc*/0, 0, 0, 0, 0, 1, /*ctra*/0, 0, 0, 1, 0, 0, 1, /*ctrb*/1, 1, 1, 1, 1, 0, 0, /*limit*/1, 1, 1, 1}; // disable: -1, rw: 0, ro: 1, wo: 2
+static int ctrlRWMQDC32[ctrlSize] = {/*buf*/1, /*ChTh*/0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /*board*/0, 0, 0, 0, 2, 1, /*irq*/0, 0, 2, 2, 0, 0, 0, /*blt*/0, 0, 0, 1, /*fifo*/1, 0, 2, 0, 0, 0, 0, 0, 2, 1, /*adc*/0, 0, 0, 0, 0, 0, 0, 0, /*delay*/0, 0, 0, 0, /*io*/0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /*pulser*/0, 0, /*rc*/0, 0, 0, 0, 0, 1, /*ctra*/0, 0, 0, 1, 0, 0, 1, /*ctrb*/1, 1, 1, 1, 1, 0, 0, /*limit*/1, 1, 1, 1}; // disable: -1, rw: 0, ro: 1, wo: 2
 
-#define confSize 115
-#define confSetSize 80
+//#define confSize 116
+#define confSetSize 76
 
-static string confNameMQDC32[confSize] = {/*buf*/"buffer", /*ChTh*/"Ch00Th", "Ch01Th", "Ch02Th", "Ch03Th", "Ch04Th", "Ch05Th", "Ch06Th", "Ch07Th", "Ch08Th", "Ch09Th", "Ch10Th", "Ch11Th", "Ch12Th", "Ch13Th", "Ch14Th", "Ch15Th", "Ch16Th", "Ch17Th", "Ch18Th", "Ch19Th", "Ch20Th", "Ch21Th", "Ch22Th", "Ch23Th", "Ch24Th", "Ch25Th", "Ch26Th", "Ch27Th", "Ch28Th", "Ch29Th", "Ch30Th", "Ch31Th", /*board*/"addrSource", "addrReg", "moduleId", "fastVme", "softReset", "firmware", /*irq*/"irqLevel", "irqVector", "irqTest", "irqReset", "irqTh", "maxTransfer", "irqWithdraw", /*blt*/"bltCtrl", "cbltAddr", "mcstAddr", /*fifo*/"dataLength", "dataFormat", "readoutReset", "multiEvent", "skipBerr", "countUnit", "markType", "startAcq", "fifoReset", "dataReady", /*adc*/"bankConnect", "switchPull0", "switchPull1", "shiftBank0", "shiftBank1", "slideScale", "overFlow", "disableTh", /*delay*/"limitBank0", "limitBank1", "expDelay0", "expDelay1", /*io*/"inputCouple0", "inputCouple1", "BLR", "terGate0", "terGate1", "terReset", "terBank0", "terBank1", "eclGate1Osc", "eclFCReset", "gateSelect", "nimGate1Osc", "nimFCReset", "nimBusy", /*pulser*/"pulserSt", "pulserDac", /*rc*/"rcBusNo", "rcModNum", "rcOpCode", "rcAddr", "rcData", "rcSt", /*ctra*/"ctraReset", "ctrbReset", "extReset", "eventCounterLow", "eventCounterHigh", "tsSource", "tsDivisor", "tsCounterLow", "tsCounterHigh", /*ctrb*/"adcTimeLow", "adcTimeHigh", "gate1TimeLow", "gate1TimeHigh", "time0", "time1", "time2", "stopCounterB", "stopCounterA", /*limit*/"limit0High", "limit0Low", "limit1High", "limit1Low"};
+enum MQDC32Conf {/*buf*/buffer=0, /*ChTh*/Ch00Th, Ch01Th, Ch02Th, Ch03Th, Ch04Th, Ch05Th, Ch06Th, Ch07Th, Ch08Th, Ch09Th, Ch10Th, Ch11Th, Ch12Th, Ch13Th, Ch14Th, Ch15Th, Ch16Th, Ch17Th, Ch18Th, Ch19Th, Ch20Th, Ch21Th, Ch22Th, Ch23Th, Ch24Th, Ch25Th, Ch26Th, Ch27Th, Ch28Th, Ch29Th, Ch30Th, Ch31Th, /*board*/addrSource, addrReg, moduleId, fastVme, softReset, firmware, /*irq*/irqLevel, irqVector, irqTest, irqReset, irqTh, maxTransfer, irqWithdraw, /*blt*/cbltCtrl, mcstctrl, cbltAddr, mcstAddr, /*fifo*/dataLength, dataFormat, readoutReset, multiEvent, skipBerr, countUnit, markType, startAcq, fifoReset, dataReady, /*adc*/bankConnect, switchPull0, switchPull1, shiftBank0, shiftBank1, slideScale, overFlow, disableTh, /*delay*/limitBank0, limitBank1, expDelay0, expDelay1, /*io*/inputCouple0, inputCouple1, BLR, terGate0, terGate1, terReset, terBank0, terBank1, eclGate1Osc, eclFCReset, gateSelect, nimGate1Osc, nimFCReset, nimBusy, /*pulser*/pulserSt, pulserDac, /*rc*/rcBusNo, rcModNum, rcOpCode, rcAddr, rcData, rcSt, /*ctra*/ctraReset, ctrbReset, extReset, eventCounterLow, eventCounterHigh, tsSource, tsDivisor, tsCounterLow, tsCounterHigh, /*ctrb*/adcTimeLow, adcTimeHigh, gate1TimeLow, gate1TimeHigh, time0, time1, time2, stopCounterB, stopCounterA, /*limit*/limit0High, limit0Low, limit1High, limit1Low, confSize};
 
-static uint16_t confMaskMQDC32[confSize] = {/*buf*/0xFFFF, /*ChTh*/0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, /*board*/0x0001, 0xFFFF, 0x00FF, 0x0001, 0x0001, 0xFFFF, /*irq*/0x0007, 0x00FF, 0x0000, 0x0000, 0xFFFF, 0xFFFF, 0x0001, /*blt*/0x00FF, 0x00FF, 0x00FF, /*fifo*/0xFFFF, 0x0003, 0x0000, 0x0003, 0x0004, 0x0008, 0x0003, 0x0001, 0x0000, 0x0001, /*adc*/0x0001, 0x0002, 0x0004, 0x00FF, 0x00FF, 0x0001, 0x0001, 0x0001, /*delay*/0x00FF, 0x00FF, 0x3FFF, 0x3FFF, /*io*/0x0001, 0x0002, 0x0004, 0x0001, 0x0002, 0x0004, 0x0008, 0x0010, 0x0001, 0x0003, 0x0001, 0x0003, 0x0003, 0x000F, /*pluser*/0x000F, 0x00FF, /*rc*/0x0003, 0x000F, 0x007F, 0x00FF, 0xFFFF, 0x000F, /*ctra*/0x0001, 0x0002, 0x000C, 0xFFFF, 0xFFFF, 0x0003, 0xFFFF, 0xFFFF, 0xFFFF, /*ctrb*/0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x0001, 0x0002, /*limit*/0x003F, 0x003F, 0x001F, 0x001F};
+static string confNameMQDC32[confSize] = {/*buf*/"buffer", /*ChTh*/"Ch00Th", "Ch01Th", "Ch02Th", "Ch03Th", "Ch04Th", "Ch05Th", "Ch06Th", "Ch07Th", "Ch08Th", "Ch09Th", "Ch10Th", "Ch11Th", "Ch12Th", "Ch13Th", "Ch14Th", "Ch15Th", "Ch16Th", "Ch17Th", "Ch18Th", "Ch19Th", "Ch20Th", "Ch21Th", "Ch22Th", "Ch23Th", "Ch24Th", "Ch25Th", "Ch26Th", "Ch27Th", "Ch28Th", "Ch29Th", "Ch30Th", "Ch31Th", /*board*/"addrSource", "addrReg", "moduleId", "fastVme", "softReset", "firmware", /*irq*/"irqLevel", "irqVector", "irqTest", "irqReset", "irqTh", "maxTransfer", "irqWithdraw", /*blt*/"cbltCtrl", "mcstCtrl", "cbltAddr", "mcstAddr", /*fifo*/"dataLength", "dataFormat", "readoutReset", "multiEvent", "skipBerr", "countUnit", "markType", "startAcq", "fifoReset", "dataReady", /*adc*/"bankConnect", "switchPull0", "switchPull1", "shiftBank0", "shiftBank1", "slideScale", "overFlow", "disableTh", /*delay*/"limitBank0", "limitBank1", "expDelay0", "expDelay1", /*io*/"inputCouple0", "inputCouple1", "BLR", "terGate0", "terGate1", "terReset", "terBank0", "terBank1", "eclGate1Osc", "eclFCReset", "gateSelect", "nimGate1Osc", "nimFCReset", "nimBusy", /*pulser*/"pulserSt", "pulserDac", /*rc*/"rcBusNo", "rcModNum", "rcOpCode", "rcAddr", "rcData", "rcSt", /*ctra*/"ctraReset", "ctrbReset", "extReset", "eventCounterLow", "eventCounterHigh", "tsSource", "tsDivisor", "tsCounterLow", "tsCounterHigh", /*ctrb*/"adcTimeLow", "adcTimeHigh", "gate1TimeLow", "gate1TimeHigh", "time0", "time1", "time2", "stopCounterB", "stopCounterA", /*limit*/"limit0High", "limit0Low", "limit1High", "limit1Low"};
 
-static int confDuplicMQDC32[13] = {53, 54, 60, 61, 72, 73, 75, 76, 77, 78, 94, 95, 111};
+static uint16_t confMaskMQDC32[confSize] = {/*buf*/0xFFFF, /*ChTh*/0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, 0x1FFF, /*board*/0x0001, 0xFFFF, 0x00FF, 0x0001, 0x0001, 0xFFFF, /*irq*/0x0007, 0x00FF, 0x0000, 0x0000, 0xFFFF, 0xFFFF, 0x0001, /*blt*/0x003F, 0x00C0, 0x00FF, 0x00FF, /*fifo*/0xFFFF, 0x0003, 0x0000, 0x0003, 0x0004, 0x0008, 0x0003, 0x0001, 0x0000, 0x0001, /*adc*/0x0001, 0x0002, 0x0004, 0x00FF, 0x00FF, 0x0001, 0x0001, 0x0001, /*delay*/0x00FF, 0x00FF, 0x3FFF, 0x3FFF, /*io*/0x0001, 0x0002, 0x0004, 0x0001, 0x0002, 0x0004, 0x0008, 0x0010, 0x0001, 0x0003, 0x0001, 0x0003, 0x0003, 0x000F, /*pluser*/0x000F, 0x00FF, /*rc*/0x0003, 0x000F, 0x007F, 0x00FF, 0xFFFF, 0x000F, /*ctra*/0x0001, 0x0002, 0x000C, 0xFFFF, 0xFFFF, 0x0003, 0xFFFF, 0xFFFF, 0xFFFF, /*ctrb*/0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x0001, 0x0002, /*limit*/0x003F, 0x003F, 0x001F, 0x001F};
 
-static int confDefaultIdxMQDC32[confSetSize] = {/*ChTh*/1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, /*board*/35, 36, /*irq*/39, 40, 43, 44, /*blt*/46, /*fifo*/52, 53, 54, 55, /*adc*/59, 60, 61, 64, 65, 66, /*delay*/67, 68, 69, 70, /*io*/71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, /*pulser*/85, 86, /*rc*//*ctra*/93, 94, 95, 98, 99, /*ctrb*/109, 110, /*limit*/111, 112, 113, 114};
+static int confDuplicMQDC32[14] = {47, 54, 55, 61, 62, 73, 74, 76, 77, 78, 79, 95, 96, 111};
 
-static uint16_t confDefaultValueMQDC32[confSetSize] = {/*ChTh*/0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /*board*/0xFF, 0, /*irq*/1, 0x000F, 8, 8, /*blt*/0x0055, /*fifo*/0, 1, 1, 0, /*adc*/0, 0, 0, 0, 0, 0, /*delay*/255, 255, 0, 0, /*io*/0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, /*pulser*/0, 32, /*rc*//*ctra*/1, 1, 0, 0, 0x0001, /*ctrb*/0, 0, /*limit*/32, 0, 16, 0};
+static int confDefaultIdxMQDC32[confSetSize] = {/*ChTh*/1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, /*board*/35, 36, /*irq*/39, 40, 43, 44, /*blt*/46, 47, /*fifo*/53, 54, 55, 56, /*adc*/60, 61, 62, 65, 66, 67, /*delay*/68, 69, 70, 71, /*io*/72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, /*pulser*/86, 87, /*rc*//*ctra*/99, 100, /*ctrb*//*limit*/112, 113, 114, 115};
+
+static uint16_t confDefaultValueMQDC32[confSetSize] = {/*ChTh*/0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /*board*/0xFF, 0, /*irq*/1, 0x000F, 8, 8, /*blt*/0x0015, 0x0001, /*fifo*/0, 1, 1, 0, /*adc*/0, 0, 0, 0, 0, 0, /*delay*/255, 255, 0, 0, /*io*/0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, /*pulser*/0, 32, /*rc*//*ctra*/0, 0x0001, /*ctrb*//*limit*/32, 0, 16, 0};
 
 #define regSize 102
 
@@ -258,7 +260,7 @@ static int regRWMQDC32[regSize] = {/*buf*/1, /*ChTh*/0, 0, 0, 0, 0, 0, 0, 0, 0, 
 
 static map<string, vector<string> > mqdc32_ctrl2conf;
 static map<string, int> mqdc32_conf2reg;
-static map<string, uintptr_t>mqdc32_conf2mask;
+static map<string, uintptr_t> mqdc32_conf2mask;
 static vector<uintptr_t> mqdc32_regAddr;
 static vector<int> mqdc32_regRWIdx;
 
@@ -307,6 +309,24 @@ mqdc32::mqdc32(const string& n): smBase(n) {
 }
 
 mqdc32::~mqdc32() {
+}
+
+bool mqdc32::queryInterface(const std::string& funcName, void* para[], void* ret) {
+    bool res = false;
+    if(funcName == "getBuffAddr") {
+        *(uintptr_t*)ret = getBuffAddr();
+        res = true;
+    }
+    if(funcName == "run") {
+        run();
+        res = true;
+    }
+    return res;
+}
+
+int mqdc32::run() {
+    pvme->waitIrq(confValue[irqLevel], confValue[irqVector]);
+    return 1;
 }
 
 int mqdc32::InitializedLOAD(void* argv[]) {
@@ -448,9 +468,11 @@ int mqdc32::configAdc() {
     if((res=cfgInfo->infoGetString("config."+name+".vmeModeName", vmeModeName)) == 1) {
         std::vector< std::pair<std::string, smBase*> >::const_iterator iter;
         for(iter=helpList->begin(); iter!=helpList->end(); iter++) {
-            if(iter->first == vmeModeName)
-                if(!iter->second->queryInterface("getVME", NULL, (void*)pvme))
+            if(iter->first == vmeModeName) {
+                vmeCtrl = iter->second;
+                if(!vmeCtrl->queryInterface("getVME", NULL, (void*)pvme))
                     return 0;
+            }
         }
     }
     if(pvme == NULL) {
@@ -475,9 +497,10 @@ int mqdc32::configAdc() {
     image = pvme->getImage(base, length, A32, D16, MASTER);
     if(image < MIN_IMAGE || image > MAX_IMAGE)
         return 0;
-    imgCtrlAddr = 0x100;
-    //if(vmeDev->getImgCtrl(image, imgCtrlAddr) != 1)
-        //return 0;
+    //imgCtrlAddr = 0x100;
+    void* para0 = (void*)&image;
+    if(vmeCtrl->queryInterface("getImgCtrl", (void**)&para0, (void*)&imgCtrlAddr) != 1)
+        return 0;
 
     uint32_t confTemp;
     regUint16 data, mask;
