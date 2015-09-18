@@ -202,13 +202,15 @@ class dataSwitch(threading.Thread):
                 event = buf[:idx]
                 buf = buf[idx+4:]
             
-            #print "%s"%(data)
+            print "%s"%(data)
         print "dataSwitch is finished."
 
 class ctrlSwitch(threading.Thread):
-    def __init__(self, s):
+    def __init__(self, s, fl, nl):
         super(ctrlSwitch, self).__init__()
         self.socket = s
+        self.frameList = fl
+        self.nameList = nl
         self.mutex = threading.Lock()
 
     def sendCtrl(self, cs):
@@ -219,6 +221,36 @@ class ctrlSwitch(threading.Thread):
         else :
             print "ctrlSwitch is busy."
 
+    def run(self):
+        print "ctrlSwitch is running"
+        line = ""
+        while True :
+            data = self.socket.recv(4)
+            if data=='' :
+                break
+            line += data
+            idx = line.find('\0')
+            if idx<0 :
+                continue
+            else :
+                msg = line[:idx]
+                line = line[idx+1:]
+            #print "%s"%(msg)
+            idx = msg.find('#')
+            name = msg[:idx]
+            idx = msg.find('#', idx+1)
+            control = msg[len(name)+1:idx]
+            frame = -1
+            #print name
+            #print self.nameList
+            if self.nameList.count(name)==1 : 
+                i = self.nameList.index(name)
+                #print "message from %s in devList %dth"%(name,i)
+                frame = self.frameList[i]
+                if (frame!=-1) and (frame!=None) :
+                    ctrlObj = frame.ctrlHandler
+                    wx.CallAfter(ctrlObj, msg)
+        print "ctrlSwitch is finished."
 
 class ctrlApp(wx.App):
     def OnInit(self):
@@ -267,6 +299,7 @@ class ctrlApp(wx.App):
         self.thpool = []
         self.thpool.append(msgSwitch(self.socketMsg, self.frames, self.names))
         self.thpool.append(dataSwitch(self.socketData, self.devs, self.names))
+        self.thpool.append(ctrlSwitch(self.socketCtrl, self.devs, self.names))
 
         #frame0.setSocket(self.socketCtrl)
         self.SetTopWindow(frame0)

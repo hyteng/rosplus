@@ -176,6 +176,7 @@ int stateMachine::dispatch2(string& ctrl) {
                     return 1;
             }
         }
+
     }
     // for configure reg
     if(type == "ctrl") {

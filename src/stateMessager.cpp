@@ -164,7 +164,7 @@ int stateMessager::setCtrlSocket() {
             tc->join();
         }
         clientCtrl = remoteCtrl;
-        tc = new thread(&stateMessager::contrlMsg, this, clientCtrl);
+        tc = new thread(&stateMessager::controlRun, this, clientCtrl);
         lock.unlock();
         lock.release();
     }
@@ -173,7 +173,7 @@ int stateMessager::setCtrlSocket() {
     return 1;
 }
 
-int stateMessager::contrlMsg(int socketMsg) {
+int stateMessager::controlRun(int socketMsg) {
     std::unique_lock<std::mutex> lock(ctrlMutex);
     int rval, res;
     char msg[MAXMSG];
@@ -196,7 +196,7 @@ int stateMessager::contrlMsg(int socketMsg) {
         if(res == 0)
             break;
 
-        sendMsg(ctrlMsg);
+        sendCtrl(ctrlMsg);
 
         //lock.unlock();
         //lock.release();
@@ -243,6 +243,27 @@ int stateMessager::sendData(void* p0, const unsigned int &nBytes) {
         }
     }
     //cout << "stateMessager: sendData " << nBytes << ", transfer " << tranSize << " bytes." << endl;
+    return tranSize;
+}
+
+int stateMessager::sendCtrl(const string& msg) {
+    std::unique_lock<std::mutex> lock(msgMutex);
+    if(clientMsg==-1)
+        return 0;
+    unsigned int tranSize = 0;
+    int result;
+    char* p1 = (char*)msg.c_str();
+    unsigned int nBytes = msg.length()+1;//strlen(msg.c_str())+1;
+    while(tranSize < nBytes) {
+        result = send(clientCtrl, (char*)p1, nBytes, 0);
+        if(result <= 0)
+            return tranSize;
+        else {
+            p1 += result;
+            nBytes -= result;
+            tranSize += result;
+        }
+    }
     return tranSize;
 }
 
