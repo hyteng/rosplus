@@ -18,7 +18,7 @@ class regUint16 :public regData {
         uint16_t v;
 };
 
-class adc1785;
+//class adc1785;
 //typedef uint32_t (adc1785::* adc1785Func)();
 
 class adc1785 :public smBase {

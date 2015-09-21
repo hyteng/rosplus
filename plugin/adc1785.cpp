@@ -350,11 +350,11 @@ int adc1785::PausedRESU(void* argv[]) {
 
 int adc1785::OTFCTRL(void* argv[]) {
     // D32 to D16
-    finishAdc();
+    //finishAdc();
     // call smBase::OTFCTRL
     smBase::OTFCTRL(argv);
     // D16 to D32
-    prepAdc();
+    //prepAdc();
 
     return (int)stId;
 }
@@ -716,3 +716,5 @@ extern "C" smBase* create(const string& n) {
 extern "C" void destroy(smBase* pModule) {
     delete pModule;
 }
+
+

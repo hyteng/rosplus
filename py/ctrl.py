@@ -122,7 +122,7 @@ class ctrlFrame(wx.Frame):
             #b = event.GetEventObject()
             #st = b.GetValue()
             #cmdId += st
-        msg = "cmd#all#"+str(cmdId)
+        msg = "cmd#all#"+str(cmdId)+"#"
         self.ctrl.sendCtrl(msg.encode('utf8'))
         event.Skip()
 
@@ -146,9 +146,13 @@ class ctrlFrame(wx.Frame):
 # end of class ctrlFrame
 
 class msgSwitch(threading.Thread):
-    def __init__(self, s, fl, nl):
+    def __init__(self, s):
         super(msgSwitch, self).__init__()
         self.socket = s
+        self.frameList = []
+        self.nameList = []
+
+    def setList(self, fl, nl):
         self.frameList = fl
         self.nameList = nl
 
@@ -181,9 +185,13 @@ class msgSwitch(threading.Thread):
         print "msgSwitch is finished."
 
 class dataSwitch(threading.Thread):
-    def __init__(self, s, dl, nl):
+    def __init__(self, s):
         super(dataSwitch, self).__init__()
         self.socket = s
+        self.devList = []
+        self.nameList = []
+
+    def setList(self, dl, nl):
         self.devList = dl
         self.nameList = nl
 
@@ -206,12 +214,16 @@ class dataSwitch(threading.Thread):
         print "dataSwitch is finished."
 
 class ctrlSwitch(threading.Thread):
-    def __init__(self, s, dl, nl):
+    def __init__(self, s):
         super(ctrlSwitch, self).__init__()
         self.socket = s
+        self.devList = []
+        self.nameList = []
+        self.mutex = threading.Lock()
+    
+    def setList(self, dl, nl):
         self.devList = dl
         self.nameList = nl
-        self.mutex = threading.Lock()
 
     def sendCtrl(self, cs):
         if self.mutex.acquire(1) :
@@ -240,6 +252,7 @@ class ctrlSwitch(threading.Thread):
             name = msg[:idx]
             idx = msg.find('#', idx+1)
             control = msg[len(name)+1:idx]
+            ret = msg[idx+1:-1]
             dev = -1
             #print name
             #print self.nameList
@@ -248,8 +261,8 @@ class ctrlSwitch(threading.Thread):
                 #print "message from %s in devList %dth"%(name,i)
                 dev = self.devList[i]
                 if (dev!=-1) and (dev!=None) :
-                    ctrlObj = dev.ctrlHandler
-                    wx.CallAfter(ctrlObj, msg)
+                    dev.ctrlHandler(control, ret)
+                    #wx.CallAfter(dev.ctrlHandler, msg)
         print "ctrlSwitch is finished."
 
 class ctrlApp(wx.App):
@@ -263,7 +276,13 @@ class ctrlApp(wx.App):
         self.addrCtrl = (HOST, CTRLPORT)
         self.socketCtrl = socket(AF_INET, SOCK_STREAM)
 
-        self.ctrl = -1#ctrlSwitch(self.socketCtrl)
+        self.thpool = []
+        self.thpool.append(msgSwitch(self.socketMsg))
+        self.thpool.append(dataSwitch(self.socketData))
+        self.thpool.append(ctrlSwitch(self.socketCtrl))
+        self.msg = self.thpool[0]
+        self.data = self.thpool[1]
+        self.ctrl = self.thpool[2]
 
         self.isCfg=os.path.exists("./mlist.conf")
         self.cfgFile = None
@@ -296,16 +315,12 @@ class ctrlApp(wx.App):
             self.frames[-1].setDev(self.devs[-1])
             self.devs[-1].setFrame(self.frames[-1])
 
-        self.thpool = []
-        self.thpool.append(msgSwitch(self.socketMsg, self.frames, self.names))
-        self.thpool.append(dataSwitch(self.socketData, self.devs, self.names))
-        self.thpool.append(ctrlSwitch(self.socketCtrl, self.devs, self.names))
-        self.ctrl = self.thpool[-1]
+        self.msg.setList(self.frames, self.names)
+        self.data.setList(self.devs, self.names)
+        self.ctrl.setList(self.devs, self.names)
 
-        #frame0.setSocket(self.socketCtrl)
         self.SetTopWindow(frame0)
         frame0.Show()
-        #self.frames[1].Show()
 
         return 1
 
@@ -331,8 +346,6 @@ class ctrlApp(wx.App):
         self.stop()
         if frame0!=None :
             frame0.Destroy()
-        if self.frame1!=None :
-            self.frame1.Destroy()
 
         return 1
 
