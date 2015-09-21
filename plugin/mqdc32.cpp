@@ -407,11 +407,11 @@ int mqdc32::PausedRESU(void* argv[]) {
 
 int mqdc32::OTFCTRL(void* argv[]) {
     // D32 to D16
-    setDWAdc(0);
+    //setDWAdc(0);
     // call smBase::OTFCTRL
-    smBase::OTFCTRL(argv);
+    //smBase::OTFCTRL(argv);
     // D16 to D32
-    setDWAdc(1);
+    //setDWAdc(1);
 
     return (int)stId;
 }
