@@ -12,10 +12,10 @@
 #
 #
 EXECUTABLE := 	# 可执行文件名
-LIBDIR :=	../src ../universeII/vmelib # 静态库目录
+LIBDIR :=	../universeII/vmelib # 静态库目录
 LIBS := # 静态库文件名
 INCLUDES :=  ../universeII/vmelib ../src # 头文件目录
-SRCDIR:=     # 除了当前目录外，其他的源代码文件目录
+SRCDIR:=  # 除了当前目录外，其他的源代码文件目录
 #
 # # Now alter any implicit rules' variables if you like, e.g.:
 
@@ -24,7 +24,7 @@ CFLAGS := -g -Wall -std=c++11 -pthread -fPIC
 CPPFLAGS := $(CFLAGS)
 CPPFLAGS += $(addprefix -I,$(INCLUDES))
 CPPFLAGS += -MMD
-LINKOPT:= -pthread -lstdc++ -Wall -fPIC -export-dynamic
+LINKOPT:= -pthread -lstdc++ -Wall -fPIC
 #
 # # The next bit checks to see whether rm is in your djgpp bin
 # # directory; if not it uses del instead, but this can cause (harmless)

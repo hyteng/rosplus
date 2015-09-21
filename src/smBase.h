@@ -38,6 +38,8 @@
 
 class regData {
     public:
+        //regData() {};
+        //virtual ~regData() {};
         virtual void setValueS(std::stringstream& ss) = 0;
         virtual void setValueP(const void* p) = 0;
         virtual void* getValueP() = 0;

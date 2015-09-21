@@ -7,8 +7,8 @@
 
 class regUint16 :public regData {
     public:
-        regUint16();
-        ~regUint16();
+        //regUint16() {};
+        //virtual ~regUint16() {};
         virtual void setValueS(std::stringstream& ss) {ss>>v;};
         virtual void setValueP(const void* p) {v=*(const uint16_t*)p;};
         virtual void* getValueP() {return &v;};

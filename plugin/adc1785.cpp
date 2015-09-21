@@ -246,8 +246,8 @@ adc1785::adc1785(const string& n): smBase(n) {
     regAddr = &adc1785_regAddr;
     regRWIdx = &adc1785_regRWIdx;
 
-    vd = (regData*) new regUint16();
-    vm = (regData*) new regUint16();
+    vd = new regUint16();
+    vm = new regUint16();
 }
 
 adc1785::~adc1785() {
