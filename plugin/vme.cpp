@@ -92,14 +92,14 @@ int vme::ReadySTOP(void* argv[]) {
 int vme::ReadySATR(void* argv[]) {
     debugMsg << name << "# " << "ReadySATR";
     stMsg->stateOut(debugMsg);
-    startVme();
+    //startVme();
     return 5;
 }
 
 int vme::RunningSPTR(void* argv[]) {
     debugMsg << name << "# " << "RunningSPTR";
     stMsg->stateOut(debugMsg);
-    stopVme();
+    //stopVme();
     return 4;
 }
 
@@ -110,7 +110,7 @@ int vme::RunningPAUS(void* argv[]) {
 int vme::PausedSPTR(void* argv[]) {
     debugMsg << name << "# " << "PausedSPTR";
     stMsg->stateOut(debugMsg);
-    stopVme();
+    //stopVme();
     return 4;
 }
 

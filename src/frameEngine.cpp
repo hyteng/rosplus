@@ -25,11 +25,11 @@ int frameEngine::InitializedLOAD(void* argv[]) {
     string modeList;
     if((res=cfgInfo->infoGetString("config.module", modeList)) != 1) {
         return -1;
-    }                    
+    }
 
     if((res=cfgInfo->infoGetString("config.libDir", libDir)) != 1) {
-        return -1;       
-    }                    
+        return -1;
+    }
     
     sharedLibHandle.clear();
     dev2libMap.clear();
@@ -82,7 +82,6 @@ int frameEngine::loadSharedModule(const string& modeName, const string& devName,
 
     char* dlsym_error;
     string libPath = dir+"/"+modeName+".so";
-
     if(sharedLibHandle.find(modeName) == sharedLibHandle.end()) {
         void* libHandle = dlopen(libPath.c_str(), RTLD_LAZY);
         dlsym_error = dlerror();
