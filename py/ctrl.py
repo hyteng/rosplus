@@ -249,18 +249,19 @@ class ctrlSwitch(threading.Thread):
                 line = line[idx+1:]
             #print "%s"%(msg)
             idx = msg.find('#')
-            name = msg[:idx]
+            control = msg[:idx]
             idx = msg.find('#', idx+1)
-            control = msg[len(name)+1:idx]
+            name = msg[len(control)+1:idx]
             ret = msg[idx+1:-1]
             dev = -1
-            #print name
             #print self.nameList
             if self.nameList.count(name)==1 : 
                 i = self.nameList.index(name)
                 #print "message from %s in devList %dth"%(name,i)
                 dev = self.devList[i]
+                print "%s" %(dev.name)
                 if (dev!=-1) and (dev!=None) :
+                    print "%s, %s" %(control, ret)
                     dev.ctrlHandler(control, ret)
                     #wx.CallAfter(dev.ctrlHandler, msg)
         print "ctrlSwitch is finished."

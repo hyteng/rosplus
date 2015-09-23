@@ -267,7 +267,7 @@ bool adc1785::queryInterface(const string& funcName, void* para[], void* ret) {
 }
 
 int adc1785::run() {
-    pvme->waitIrq(confValue[irqLevel], confValue[irqVector]);
+    //pvme->waitIrq(confValue[irqLevel], confValue[irqVector]);
     return 1;
 }
 

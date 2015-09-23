@@ -222,16 +222,15 @@ void vme::runVme() {
         }
         
         pDev->queryInterface("run", NULL, NULL);
-        //pvme->waitIrq(7, 0);
-        uintptr_t offset = pvme->DMAread(devBuff, dmaSize, A32, D32);
-        if(offset < 0) {
-            vmeStatus = TASK_ERROR;
-            break;
-        }
-        unsigned int tranSize = dataPool->devWrite((void*)(dmaBase+offset), dmaSize);
+        //uintptr_t offset = pvme->DMAread(devBuff, dmaSize, A32, D32);
+        //if(offset < 0) {
+            //vmeStatus = TASK_ERROR;
+            //break;
+        //}
+        //unsigned int tranSize = dataPool->devWrite((void*)(dmaBase+offset), dmaSize);
         
-        //sleep(1);
-        //unsigned int tranSize = dataPool->devWrite(tmp, dmaSize);
+        sleep(1);
+        unsigned int tranSize = dataPool->devWrite(tmp, dmaSize);
 
         genSize += dmaSize;
         sndSize += tranSize;

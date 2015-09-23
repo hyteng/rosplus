@@ -423,15 +423,18 @@ class devApp:
                 plt.plot("hist", self.hist[idx0][idx1])
 
     def ctrlHandler(self, control, ret):
-        if control==list("ctrl") :
+        if control=="ctrl" :
             idx = ret.find(';')
             ctrlName = ret[:idx]
             idx = ret.find(';', idx+1)
             rw = ret[len(ctrlName)+1:idx]
             value = ret[idx+1:-1]
+            print "ctrlHandler for adc1785 %s" %(ctrlName) 
             obj = getattr(self.frame, ''.join(ctrlName))
-            if (obj!=None) and (obj.ctrlHander!=None) :
-                obj.ctrlHander(rw, value)
+            if obj!=None :
+                #if obj.ctrlHander!=None :
+                    #obj.ctrlHander(rw, value)
+                print "control acknowledge from %s with value %s" %(ctrlName, value)
 
 
 
