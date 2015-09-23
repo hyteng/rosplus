@@ -266,6 +266,21 @@ class ctrlSwitch(threading.Thread):
                     #wx.CallAfter(dev.ctrlHandler, msg)
         print "ctrlSwitch is finished."
 
+class timeDamon(threading.Thread):
+    def __init__(self, d, t):
+        super(timeDamon, self).__init__()
+        self.dev = d
+        self.runTime = t
+
+    def run(self):
+        print "timeDamon is running"
+        while True : 
+            time.sleep(self.runTime)
+            print "time step %f" %(self.runTime)
+            self.dev.timerHandler()
+        print "timeDamon is finished"
+
+
 class ctrlApp(wx.App):
     def OnInit(self):
         wx.InitAllImageHandlers()
@@ -281,6 +296,7 @@ class ctrlApp(wx.App):
         self.thpool.append(msgSwitch(self.socketMsg))
         self.thpool.append(dataSwitch(self.socketData))
         self.thpool.append(ctrlSwitch(self.socketCtrl))
+        self.thpool.append(timeDamon(self, 0.1))
         self.msg = self.thpool[0]
         self.data = self.thpool[1]
         self.ctrl = self.thpool[2]
@@ -324,6 +340,11 @@ class ctrlApp(wx.App):
         frame0.Show()
 
         return 1
+
+    def timerHandler(self):
+        for dev in self.devs :
+            if (dev!=self) : 
+                dev.timerHandler()
 
     def start(self):
         self.socketMsg.connect(self.addrMsg)

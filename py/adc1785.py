@@ -289,10 +289,10 @@ class devFrame(wx.Frame):
         cs = "ctrl#"+self.dev.name+"#stepTh;w;"
         if st==0 :
             cs += "0;"
-            tb.SetLabel("StepTh X16")
+            tb.SetLabel("stepTh X16")
         else :
             cs += "1;"
-            tb.SetLabel("StepTh X2")
+            tb.SetLabel("stepTh X2")
         self.ctrl.sendCtrl(cs.encode('utf8'))
         event.Skip()
 
@@ -430,12 +430,14 @@ class devApp:
             rw = ret[len(ctrlName)+1:idx]
             value = ret[idx+1:-1]
             print "ctrlHandler for adc1785 %s" %(ctrlName) 
-            obj = getattr(self.frame, ''.join(ctrlName))
+            obj = getattr(self.frame, ctrlName)
             if obj!=None :
                 #if obj.ctrlHander!=None :
                     #obj.ctrlHander(rw, value)
                 print "control acknowledge from %s with value %s" %(ctrlName, value)
 
+    def timerHandler(self):
+        print "timerHandler for adc1785"
 
 
 # end of class devApp
