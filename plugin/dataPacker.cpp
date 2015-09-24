@@ -144,7 +144,7 @@ void dataPacker::runPack() {
 
 int dataPacker::packData(unsigned int& packSize) {
 
-    unsigned int tmp[18];
+    uint32_t tmp[18];
     unsigned int tmpIdx;
 
     dataPool->devSetSnap();
@@ -204,7 +204,7 @@ int dataPacker::packData(unsigned int& packSize) {
 
 int dataPacker::packDataTest(unsigned int& packSize) {
 
-    unsigned int tmp[18];
+    uint32_t tmp[18];
     unsigned int tmpIdx;
 
     dataPool->devSetSnap();

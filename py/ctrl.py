@@ -343,7 +343,7 @@ class ctrlApp(wx.App):
 
     def timerHandler(self):
         for dev in self.devs :
-            if (dev!=self) : 
+            if dev.callTimer==True : 
                 dev.timerHandler()
 
     def start(self):

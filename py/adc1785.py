@@ -383,6 +383,7 @@ class devApp:
         #dev0 = devFrame(None, wx.ID_ANY, "")
         #self.SetTopWindow(dev0)
         self.name = n;
+        self.callTimer = True
         self.frame = -1
         self.th = [[0 for i in range(8)] for j in range(2)]
         self.hist = [[0 for i in range(8)] for j in range(2)]
