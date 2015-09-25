@@ -242,24 +242,25 @@ void vme::runVme() {
         if(runVmeCtrl == TASK_STOP) {
             break;
         }
-        
+        // wait for trigger device
         triDev->queryInterface("run", NULL, NULL);
+
         //uintptr_t offset = pvme->DMAread(buff, dmaSize, A32, D32);
         //if(offset < 0) {
             //vmeStatus = TASK_ERROR;
             //break;
         //}
         //unsigned int tranSize = dataPool->devWrite((void*)(dmaBase+offset), dmaSize);
-        
-        //pvme->execCmdPktList(listNumber);
-        //unsigned int tranSize = 0;
-        //for(int i=0; i< listSize; i++) {
-            //dataPool->devWrite((void*)(dmaBase+offsetList[i]), sizeList[i]);
-            //tranSize += sizeList[i];
-        //}
-
         sleep(1);
         unsigned int tranSize = dataPool->devWrite(tmp, dmaSize);
+
+        //pvme->execCmdPktList(listNumber);
+        //unsigned int tranSize = 0;
+        //dmaSize = 0;
+        //for(int i=0; i< listSize; i++) {
+            //tranSize += dataPool->devWrite((void*)(dmaBase+offsetList[i]), sizeList[i]);
+            //dmaSize += sizeList[i];
+        //}
 
         genSize += dmaSize;
         sndSize += tranSize;
