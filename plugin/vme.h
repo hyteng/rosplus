@@ -6,10 +6,9 @@
 #include "../src/smBase.h"
 #include "vmelib.h"
 
-uint32_t imgCtrlAddr[18] = {0x100, 0x114, 0x128, 0x13C, 0x1A0, 0x1B4, 0x1C8, 0x1DC, 0x400, 0x200, 0xF00, 0xF14, 0xF28, 0xF3C, 0xF90, 0xFA4, 0xFB8, 0xFCC};
-
 class vme :public smBase {
     public:
+        #define VMEADDRPTR uint32_t
         vme(const std::string& n);
         ~vme();
         virtual bool queryInterface(const std::string& funcName, void* para[], void* ret);
@@ -31,6 +30,7 @@ class vme :public smBase {
     private:
         VMEBridge* getVME() {return pvme;};
         int getImgCtrl(int i, uint32_t& addr);
+        int devStringSplit(const string& dList);
 
         int configVme();
         int releaseVme();
@@ -50,9 +50,18 @@ class vme :public smBase {
         std::thread *t0;
 
         VMEBridge *pvme;
-        smBase *pDev;
+        smBase *triDev;
+        int listNumber, listSize;
+        std::vector<uintptr_t> offsetList;
+        std::vector<std::string> devList;
+        std::vector<VMEADDRPTR> buffList;
+        std::vector<uint32_t> sizeList; // since the vme has a limit of 256 words on blt
+        std::vector<uint32_t> awList;
+        std::vector<uint32_t> dwList;
+
+        
         unsigned int dmaNumber;
         uint32_t dmaSize;
-        uintptr_t dmaBase, devBuff;
+        uintptr_t dmaBase;
 };
 #endif
