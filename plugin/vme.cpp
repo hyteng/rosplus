@@ -170,7 +170,7 @@ int vme::prepVme() {
     triDev = NULL;
     if((res=cfgInfo->infoGetString("config."+name+".triggerDevice", triggerDevice)) == 1) {
         for(iter=helpList->begin(); iter!=helpList->end(); iter++) {
-            if(iter->first == triggerDivice) {
+            if(iter->first == triggerDevice) {
                 triDev = iter->second;
             }
         }
@@ -299,7 +299,7 @@ int vme::getImgCtrl(int i, uint32_t& addr) {
 }
 
 int vme::devStringSplit(const string& dList) {
-    stringstream sList(dList), sIdx, sSize;
+    stringstream sList(dList);
     string idx, dev, addr, size, aw, dw;
     uint32_t tSize, tAW, tDW;
     debugMsg << name << "# " << "vme take device list" << dList << endl;
@@ -313,7 +313,7 @@ int vme::devStringSplit(const string& dList) {
         listSize++;
         debugMsg << name << "# " << "dev link " << listSize << ", " << idx << endl;
         stMsg->stateOut(debugMsg);
-        sIdx(idx);
+        stringstream sIdx(idx);
         getline(sIdx, dev, ',');
         getline(sIdx, size, ',');
         getline(sIdx, aw, ',');
@@ -322,7 +322,7 @@ int vme::devStringSplit(const string& dList) {
         debugMsg << name << "# " << "dev link: " << dev << ", " << size << ", " << aw << ", " << dw <<endl;
         stMsg->stateOut(debugMsg);
 
-        sSize(size);
+        stringstream sSize(size);
         sSize >> tSize;
         
         if(aw == "A16")
