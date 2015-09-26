@@ -76,30 +76,43 @@ int dataPacker::prepPacker() {
                 vmeDev = iter->second;
                 if(!vmeDev->queryInterface("getListSize", NULL, (void*)&listSize))
                     return 0;
-                devList.clear();
-                devList.resize(listSize);
                 if(!vmeDev->queryInterface("getDevList", NULL, (void*)devList))
                     return 0;
             }
         }
     }
 
-    packList.clear();
-    packList.resize(listSize);
-    for(int i=0; i<listSize; i++) {
-        for(iter=helpList->begin(); iter!=helpList->end(); iter++) {
-            if(iter->first == devList[i]) {
-                packList[i] = iter->second;
+    devList.clear();
+    devList.resize(listSize);
+        for(int i=0; i<listSize; i++) {
+            for(iter=helpList->begin(); iter!=helpList->end(); iter++) {
+                if(iter->first == devList[i]) {
+                    smBase* pDev = iter->second;
+                    if(!pDev->queryInterface("getBuffAddr", NULL, (void*)&buffList[i]))
+                        return 0;
+                    if(!pDev->queryInterface("getTranSize", NULL, (void*)&sizeList[i])) // if the dev change transfer size, sizeList will be updated
+                        return 0;
+                }
             }
         }
     }
 
-    if(vmeDev == NULL || listSize == 0) {
+    if(triDev == NULL || listSize == 0) {
         debugMsg << name << "# " << "helper or link List not found.";
         stMsg->stateOut(debugMsg);
         return 0;
     }
 
+    listNumber = pvme->newCmdPktList();
+    if(listNumber < 0 || listNumber > 255)
+        return 0;
+    else {
+        offsetList.clear();
+        offsetList.resize(listSize, 0);
+        for(int i=0; i<listSize;i++) {
+            offsetList[i] = pvme->addCmdPkt(listNumber, 0, buffList[i], sizeList[i], awList[i], dwList[i]);
+        }
+    }
     devMsgQue = dataPool->getDevMsgQue();
     netMsgQue = dataPool->getNetMsgQue();
     return 1;
@@ -125,7 +138,6 @@ void dataPacker::runPack() {
     totalPackSize = 0;
     unsigned int recSize = 0;
     unsigned int sndSize = 0;
-    int i = -1;
     while(1) {
         if((msgrcv(devMsgQue, &packMsg, sizeof(packMsg), 0, 0)) < 0) {
             packStatus = TASK_ERROR;
@@ -136,10 +148,8 @@ void dataPacker::runPack() {
         //stMsg->stateOut(debugMsg);
 
         packCount += packMsg.count;
-        i = (i+1)%listSize;
-        packSize[i] = packMsg.count;
         totalPackSize += packMsg.size;
-        if(packMsg.signal==2 || i+1==listSize) {
+        if(packMsg.signal == 2 || totalPackSize >= 72) {
  
             unsigned int packTranSize = totalPackSize;
             if(!packData(packTranSize)) {
@@ -181,18 +191,7 @@ void dataPacker::runPack() {
     stMsg->stateOut(debugMsg);
 }
 
-int dataPacker::packData(unsigned int& packTranSize) {
-    unsigned int tranSize = 0;
-    for(int i=0; i<listSize; i++) {
-        bool ret = false;
-        packList[i]->queryInterface("packData", (void**)&((void*)&packSize[i]), (void*)&ret);
-        tranSize += packSize[i];
-    }
-    packTranSize = tranSize;
-    return 1;
-}
-
-int dataPacker::packDataTest2(unsigned int& packSize) {
+int dataPacker::packData(unsigned int& packSize) {
 
     uint32_t tmp[18];
     unsigned int tmpIdx;
@@ -252,7 +251,7 @@ int dataPacker::packDataTest2(unsigned int& packSize) {
     return 1;
 }
 
-int dataPacker::packDataTest1(unsigned int& packSize) {
+int dataPacker::packDataTest(unsigned int& packSize) {
 
     uint32_t tmp[18];
     unsigned int tmpIdx;

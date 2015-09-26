@@ -186,6 +186,8 @@ int vme::prepVme() {
                     smBase* pDev = iter->second;
                     if(!pDev->queryInterface("getBuffAddr", NULL, (void*)&buffList[i]))
                         return 0;
+                    if(!pDev->queryInterface("getTranSize", NULL, (void*)&sizeList[i])) // if the dev change transfer size, sizeList will be updated
+                        return 0;
                 }
             }
         }

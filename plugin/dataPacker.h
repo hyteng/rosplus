@@ -35,5 +35,10 @@ class dataPacker :public smBase {
         unsigned int totalPackSize;
         streamMsg packMsg;
         std::thread *t0;
+
+        smBase *vmeDev;
+        int listSize;
+        std::vector<std::string> devList;
+        std::vector<smBase*> packList;
 };
 #endif
