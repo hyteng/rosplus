@@ -25,7 +25,8 @@ class dataPacker :public smBase {
         int stopPacker();
         void runPack();
         int packData(unsigned int& packSize);
-        int packDataTest(unsigned int& packSize);
+        int packDataTest1(unsigned int& packSize); // test is just for adc1785 single board
+        int packDataTest2(unsigned int& packSize);
 
     private:
         int runPackCtrl;
@@ -37,7 +38,7 @@ class dataPacker :public smBase {
         std::thread *t0;
 
         smBase *vmeDev;
-        int listSize;
+        int listSize, eventTh;
         std::vector<std::string> devList;
         std::vector<smBase*> packList;
 };

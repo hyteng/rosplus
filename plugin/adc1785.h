@@ -23,6 +23,7 @@ class adc1785 :public smBase {
     public:
         typedef uint32_t regAddrType;
         typedef uint16_t regType;
+        typedef std::vector< std::vector<uint32_t> > adc1785Data;
 
         adc1785(const std::string& n);
         ~adc1785();
@@ -48,6 +49,7 @@ class adc1785 :public smBase {
     private:
         uintptr_t getBuffAddr() {return base;};
         int run();
+        int packData(unsigned int &packTranSize);
 
         int configAdc();
         int releaseAdc();
@@ -63,6 +65,7 @@ class adc1785 :public smBase {
         int image;
         uint32_t base, length; // 32bit VME address
         unsigned int regValue[80], confValue[100]; //reg is 16bit, use uint32 and cut later
+        adc1785Data *data;
 };
 
 #endif

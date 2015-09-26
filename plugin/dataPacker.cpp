@@ -139,6 +139,7 @@ void dataPacker::runPack() {
         i = (i+1)%listSize;
         packSize[i] = packMsg.count;
         totalPackSize += packMsg.size;
+
         if(packMsg.signal==2 || i+1==listSize) {
  
             unsigned int packTranSize = totalPackSize;
@@ -146,7 +147,15 @@ void dataPacker::runPack() {
                 packStatus = TASK_ERROR;
                 break;
             }
-            
+
+            packMsg.signal = 0;
+            packMsg.size = eventTh;
+            int packSend = msgsnd(netMsgQue, &packMsg, sizeof(packMsg)-sizeof(long), 0);
+            if(packSend < 0) {
+                packStatus = TASK_ERROR;
+                break;
+            }
+    
             recSize += totalPackSize;
             sndSize += packTranSize;
             debugMsg << name << "# " << "read" << recSize << "data and send " << sndSize << endl;
@@ -183,11 +192,12 @@ void dataPacker::runPack() {
 
 int dataPacker::packData(unsigned int& packTranSize) {
     unsigned int tranSize = 0;
+    int ret = 0;
     for(int i=0; i<listSize; i++) {
-        bool ret = false;
         packList[i]->queryInterface("packData", (void**)&((void*)&packSize[i]), (void*)&ret);
         tranSize += packSize[i];
     }
+
     packTranSize = tranSize;
     return 1;
 }

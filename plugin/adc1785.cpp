@@ -118,6 +118,8 @@ using std::endl;
 #define ADC1785_ThCh7H_Mask      0x01FF  
 #define ADC1785_ThCh7L_Mask      0x01FF  
 
+#define EVENTSIZE 72
+
 // status and contrl
 enum ADC1785Conf {geoAddr=0, cbltAddr, irqLevel, irqVector, addrHigh, addrLow, eventTh, loadTest, fclrw, crateSel, slideConst, threshold0H, threshold0L, threshold1H, threshold1L, threshold2H, threshold2L, threshold3H, threshold3L, threshold4H, threshold4L, threshold5H, threshold5L, threshold6H, threshold6L, threshold7H, threshold7L, /*WO*/ssReset, cbltCtrl, incEvent, incOffset, wTestAddr, memTestHigh, memTestLow, testEventW, countReset, rTestAddr, swComm, /*BitSet*/berrFlag, selAddr, softReset, blkend, progResetMod, busError, align64, mode, offline, clearData, overRange, lowTh, testACQ, slideScale, stepTh, autoInc, emptyProg, slideSub, allTrigger, /*RO*/firmware, DRDY, gDRDY, busy, gbusy, purged, termOn, termOff, EVRDY, buffEmpty, buffFull, DSel0, DSel1, CSel0, CSel1, eventCountLow, eventCountHigh, aad, bad, /*Size*/ConfSize};
 #define ConfRO 19
@@ -269,6 +271,72 @@ bool adc1785::queryInterface(const string& funcName, void* para[], void* ret) {
 int adc1785::run() {
     //pvme->waitIrq(confValue[irqLevel], confValue[irqVector]);
     return 1;
+}
+
+int adc1785::packData(unsigned int &packTranSize) {
+    uint32_t tmp[EVENTSIZE];
+    unsigned int tmpIdx;
+    dataPool->devSetSnap();
+    unsigned int bias = 0;
+    void* p;
+    unsigned int value;
+    unsigned int tranSize = 0;
+    for(unsigned int i=0; i<packSize/4; i++,bias+=4) {
+        p = dataPool->devGetSnapPtr(bias, 4);
+        if(p == NULL)
+            return 0;
+        value = *(uint32_t*)p;
+
+        // invalid data
+        if((value&0x00000007) == 0x00000006) {
+            tmpIdx=0;
+            continue;
+        }
+        // header
+        if((value&0x00000007) == 0x00000002) {
+            memset(tmp, 0, 18*sizeof(unsigned int));
+            tmp[0]=value;
+            tmpIdx=1;
+            continue;
+        }
+        // valid data
+        if((value&0x00000007) == 0x00000000 && tmpIdx > 0 && tmpIdx < 17) {
+            tmp[tmpIdx]=value;
+            tmpIdx++;
+            continue;
+        }
+        // end of event
+        if((value&0x00000007) == 0x00000004 && tmpIdx > 0 && tmpIdx < 18) {
+            tmp[tmpIdx]=value;
+            tmpIdx++;
+            // copy to data
+            data[dataIdx].clear();
+            data[dataIdx].resize(tmpIdx);
+            memcpy(data[dataIdx], tmp, tmpIdx*4)
+            dataIdx++;
+            if(dataIdx == data.size())
+                dataIdx = 0;
+            
+            //dataPool->netWrite(tmp, tmpIdx*4);
+            tranSize += tmpIdx*4;
+            debugMsg << name << "# " << "pack data: " << endl;
+            for(int i=0; i<tmpIdx; i++) {
+                debugMsg << std::hex << tmp[i] << " ";
+            }
+            stMsg->stateOut(debugMsg);
+            tmpIdx=0;
+            continue;
+        }
+        // reserved data
+    }
+
+    unsigned int popSize = dataPool->devPopSnap(packSize);
+    if(popSize != packSize)
+        return 0;
+
+    packSize = tranSize;
+    return 1;
+
 }
 
 int adc1785::InitializedLOAD(void* argv[]) {
@@ -620,6 +688,8 @@ int adc1785::configAdc() {
         pvme->ww(image, base+ADC1785_RTestAddr_Offset, pvme->swap16(regValue[RTestAddr]&ADC1785_RTestAddr_Mask));
     }
 
+    data = new adc1785Data;
+
     return 1;
 }
 
@@ -630,7 +700,9 @@ int adc1785::releaseAdc() {
 }
 
 int adc1785::prepAdc() {
-    // get vmebus lock
+    data->clear();
+    data->resize(confValue[eventTh]*2);
+    dataIdx = 0;
 
     // D16 to D32
     uint32_t lsi0_ctl = pvme->readUniReg(0x100);
@@ -646,7 +718,6 @@ int adc1785::finishAdc() {
     lsi0_ctl &= 0xFF3FFFFF;
     lsi0_ctl |= D16;
     pvme->writeUniReg(0x100, lsi0_ctl);
-    // release vmebus lock
 
     return 1;
 }
