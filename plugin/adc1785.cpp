@@ -1,5 +1,6 @@
 #include "adc1785.h"
 #include <algorithm>
+#include <string.h>
 
 using std::string;
 using std::stringstream;
@@ -268,77 +269,6 @@ bool adc1785::queryInterface(const string& funcName, void* para[], void* ret) {
     return res;
 }
 
-int adc1785::run() {
-    //pvme->waitIrq(confValue[irqLevel], confValue[irqVector]);
-    return 1;
-}
-
-int adc1785::packData(unsigned int &packTranSize) {
-    uint32_t tmp[EVENTSIZE];
-    unsigned int tmpIdx;
-    dataPool->devSetSnap();
-    unsigned int bias = 0;
-    void* p;
-    unsigned int value;
-    unsigned int tranSize = 0;
-    for(unsigned int i=0; i<packSize/4; i++,bias+=4) {
-        p = dataPool->devGetSnapPtr(bias, 4);
-        if(p == NULL)
-            return 0;
-        value = *(uint32_t*)p;
-
-        // invalid data
-        if((value&0x00000007) == 0x00000006) {
-            tmpIdx=0;
-            continue;
-        }
-        // header
-        if((value&0x00000007) == 0x00000002) {
-            memset(tmp, 0, 18*sizeof(unsigned int));
-            tmp[0]=value;
-            tmpIdx=1;
-            continue;
-        }
-        // valid data
-        if((value&0x00000007) == 0x00000000 && tmpIdx > 0 && tmpIdx < 17) {
-            tmp[tmpIdx]=value;
-            tmpIdx++;
-            continue;
-        }
-        // end of event
-        if((value&0x00000007) == 0x00000004 && tmpIdx > 0 && tmpIdx < 18) {
-            tmp[tmpIdx]=value;
-            tmpIdx++;
-            // copy to data
-            data[dataIdx].clear();
-            data[dataIdx].resize(tmpIdx);
-            memcpy(data[dataIdx], tmp, tmpIdx*4)
-            dataIdx++;
-            if(dataIdx == data.size())
-                dataIdx = 0;
-            
-            //dataPool->netWrite(tmp, tmpIdx*4);
-            tranSize += tmpIdx*4;
-            debugMsg << name << "# " << "pack data: " << endl;
-            for(int i=0; i<tmpIdx; i++) {
-                debugMsg << std::hex << tmp[i] << " ";
-            }
-            stMsg->stateOut(debugMsg);
-            tmpIdx=0;
-            continue;
-        }
-        // reserved data
-    }
-
-    unsigned int popSize = dataPool->devPopSnap(packSize);
-    if(popSize != packSize)
-        return 0;
-
-    packSize = tranSize;
-    return 1;
-
-}
-
 int adc1785::InitializedLOAD(void* argv[]) {
     debugMsg << name << "# " << "InitializedLOAD";
     stMsg->stateOut(debugMsg);
@@ -468,6 +398,81 @@ int adc1785::unmaskRegData(regData& data, regData& mask) {
     }
     mData = (mData&mTest)>>shift;
     data.setValueP(&mData);
+    return 1;
+}
+
+int adc1785::run() {
+    //pvme->waitIrq(confValue[irqLevel], confValue[irqVector]);
+    return 1;
+}
+
+int adc1785::packData(unsigned int &packSize) {
+    uint32_t tmp[EVENTSIZE];
+    unsigned int tmpIdx;
+    dataPool->devSetSnap();
+    unsigned int bias = 0;
+    void* p;
+    unsigned int value;
+    unsigned int tranSize = 0;
+    for(unsigned int i=0; i<packSize/4; i++,bias+=4) {
+        p = dataPool->devGetSnapPtr(bias, 4);
+        if(p == NULL)
+            return 0;
+        value = *(uint32_t*)p;
+
+        // invalid data
+        if((value&0x00000007) == 0x00000006) {
+            tmpIdx=0;
+            continue;
+        }
+        // header
+        if((value&0x00000007) == 0x00000002) {
+            memset(tmp, 0, 18*sizeof(unsigned int));
+            tmp[0]=value;
+            tmpIdx=1;
+            continue;
+        }
+        // valid data
+        if((value&0x00000007) == 0x00000000 && tmpIdx > 0 && tmpIdx < 17) {
+            tmp[tmpIdx]=value;
+            tmpIdx++;
+            continue;
+        }
+        // end of event
+        if((value&0x00000007) == 0x00000004 && tmpIdx > 0 && tmpIdx < 18) {
+            tmp[tmpIdx]=value;
+            tmpIdx++;
+            // copy to data
+            (*eventBuff)[eventIdx].clear();
+            (*eventBuff)[eventIdx].resize(tmpIdx*4);
+            memcpy((void*)(&(*eventBuff)[eventIdx][0]), tmp, tmpIdx*4);
+            eventIdx++;
+            if(eventIdx == eventBuff->size())
+                eventIdx = 0;
+            
+            //dataPool->netWrite(tmp, tmpIdx*4);
+            tranSize += tmpIdx*4;
+            debugMsg << name << "# " << "pack data: " << endl;
+            for(int i=0; i<tmpIdx; i++) {
+                debugMsg << std::hex << tmp[i] << " ";
+            }
+            stMsg->stateOut(debugMsg);
+            tmpIdx=0;
+            continue;
+        }
+        // reserved data
+    }
+
+    unsigned int popSize = dataPool->devPopSnap(packSize);
+    if(popSize != packSize)
+        return 0;
+
+    packSize = tranSize;
+    return 1;
+
+}
+
+int adc1785::fillEvent(unsigned int& packSize) {
     return 1;
 }
 
@@ -688,7 +693,7 @@ int adc1785::configAdc() {
         pvme->ww(image, base+ADC1785_RTestAddr_Offset, pvme->swap16(regValue[RTestAddr]&ADC1785_RTestAddr_Mask));
     }
 
-    data = new adc1785Data;
+    eventBuff = new adc1785EventSet;
 
     return 1;
 }
@@ -700,9 +705,9 @@ int adc1785::releaseAdc() {
 }
 
 int adc1785::prepAdc() {
-    data->clear();
-    data->resize(confValue[eventTh]*2);
-    dataIdx = 0;
+    eventBuff->clear();
+    eventBuff->resize(confValue[eventTh]*2);
+    eventIdx = 0;
 
     // D16 to D32
     uint32_t lsi0_ctl = pvme->readUniReg(0x100);

@@ -1,10 +1,11 @@
 #include "vme.h"
+#include <thread>
 #include <sys/msg.h>
 #include <sys/ipc.h>
 #include <sys/types.h>
-#include <string.h>
 #include <unistd.h>
 
+using std::stringstream;
 using std::string;
 using std::thread;
 using std::cout;
@@ -172,6 +173,8 @@ int vme::prepVme() {
         for(iter=helpList->begin(); iter!=helpList->end(); iter++) {
             if(iter->first == triggerDevice) {
                 triDev = iter->second;
+                if(!triDev->queryInterface("getEventTh", NULL, (void*)&eventTh))
+                    return 0;
             }
         }
     }
@@ -234,8 +237,8 @@ int vme::stopVme() {
 void vme::runVme() {
     vmeStatus = TASK_RUN;
 
-    vmeCount = 0;
-    totalVmeSize = 0;
+    //vmeCount = 0;
+    //totalVmeSize = 0;
     unsigned int genSize = 0;
     unsigned int sndSize = 0;
     char *tmp = "ABCDEFGH";
@@ -246,23 +249,33 @@ void vme::runVme() {
         }
         // wait for trigger device
         triDev->queryInterface("run", NULL, NULL);
-
+        
+        // test adc1785 single board
         //uintptr_t offset = pvme->DMAread(buff, dmaSize, A32, D32);
         //if(offset < 0) {
             //vmeStatus = TASK_ERROR;
             //break;
         //}
         //unsigned int tranSize = dataPool->devWrite((void*)(dmaBase+offset), dmaSize);
-        sleep(1);
-        unsigned int tranSize = dataPool->devWrite(tmp, dmaSize);
+        
+        // test 2
+        //sleep(1);
+        //unsigned int tranSize = dataPool->devWrite(tmp, dmaSize);
 
-        //pvme->execCmdPktList(listNumber);
-        //unsigned int tranSize = 0;
-        //dmaSize = 0;
-        //for(int i=0; i< listSize; i++) {
-            //tranSize += dataPool->devWrite((void*)(dmaBase+offsetList[i]), sizeList[i]);
-            //dmaSize += sizeList[i];
-        //}
+        pvme->execCmdPktList(listNumber);
+        unsigned int tranSize = 0;
+        dmaSize = 0;
+        for(int i=0; i< listSize; i++) {
+            tranSize += dataPool->devWrite((void*)(dmaBase+offsetList[i]), sizeList[i]);
+            dmaSize += sizeList[i];
+        }
+        vmeMsg.signal = 1;
+        vmeMsg.size = eventTh;
+        int eventSend = msgsnd(devMsgQue, &vmeMsg, sizeof(vmeMsg), 0);
+        if(eventSend < 0) {
+            vmeStatus = TASK_ERROR;
+            break;
+        }
 
         genSize += dmaSize;
         sndSize += tranSize;

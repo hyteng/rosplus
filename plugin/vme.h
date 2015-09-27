@@ -1,7 +1,6 @@
 #ifndef vme_h
 #define vme_h
 
-#include <thread>
 #include <stdint.h>
 #include "../src/smBase.h"
 #include "vmelib.h"
@@ -51,7 +50,7 @@ class vme :public smBase {
 
         VMEBridge *pvme;
         smBase *triDev;
-        int listNumber, listSize;
+        int listNumber, listSize, eventTh;
         std::vector<uintptr_t> offsetList;
         std::vector<std::string> devList;
         std::vector<VMEADDRPTR> buffList;

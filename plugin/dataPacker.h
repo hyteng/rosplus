@@ -1,7 +1,6 @@
 #ifndef dataPacker_h
 #define dataPacker_h 
 
-#include <thread>
 #include "../src/smBase.h"
 
 class dataPacker :public smBase {
@@ -21,12 +20,14 @@ class dataPacker :public smBase {
 
     private:
         int prepPacker();
+        int packStringSplit(const std::string& pList);
         int startPacker();
         int stopPacker();
         void runPack();
         int packData(unsigned int& packSize);
         int packDataTest1(unsigned int& packSize); // test is just for adc1785 single board
         int packDataTest2(unsigned int& packSize);
+        int fillEvent(unsigned int& packSize);
 
     private:
         int runPackCtrl;
@@ -38,8 +39,10 @@ class dataPacker :public smBase {
         std::thread *t0;
 
         smBase *vmeDev;
-        int listSize, eventTh;
+        int vmeSize, listSize, eventTh;
+        std::vector<std::string> vmeList;
         std::vector<std::string> devList;
         std::vector<smBase*> packList;
+        std::vector<unsigned int> dataSize;
 };
 #endif

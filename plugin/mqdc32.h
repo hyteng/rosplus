@@ -45,6 +45,8 @@ class mqdc32 :public smBase {
     private:
         uintptr_t getBuffAddr() {return base;};
         int run();
+        int packData(unsigned int &packSize);
+        int fillEvent(unsigned int &packSize);
 
         int configAdc();
         int releaseAdc();

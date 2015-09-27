@@ -1,5 +1,6 @@
 #include "mqdc32.h"
 #include <algorithm>
+#include <string.h>
 
 using std::string;
 using std::stringstream;
@@ -324,11 +325,6 @@ bool mqdc32::queryInterface(const std::string& funcName, void* para[], void* ret
     return res;
 }
 
-int mqdc32::run() {
-    pvme->waitIrq(confValue[irqLevel], confValue[irqVector]);
-    return 1;
-}
-
 int mqdc32::InitializedLOAD(void* argv[]) {
     debugMsg << name << "# " << "InitializedLOAD";
     stMsg->stateOut(debugMsg);
@@ -457,6 +453,19 @@ int mqdc32::unmaskRegData(regData& data, regData& mask) {
     }
     mData = (mData&mTest)>>shift;
     data.setValueP(&mData);
+    return 1;
+}
+
+int mqdc32::run() {
+    pvme->waitIrq(confValue[irqLevel], confValue[irqVector]);
+    return 1;
+}
+
+int mqdc32::packData(unsigned int &packSize) {
+    return 1;
+}
+
+int mqdc32::fillEvent(unsigned int &packSize) {
     return 1;
 }
 
