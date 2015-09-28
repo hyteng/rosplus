@@ -407,7 +407,9 @@ int adc1785::run() {
 }
 
 int adc1785::packData(unsigned int &packSize) {
-    uint32_t tmp[EVENTSIZE];
+    //uint32_t tmp[EVENTSIZE/4];
+    vector<uint32_t> tmp;
+    tmp.reserve(EVENTSIZE/4);
     unsigned int tmpIdx;
     dataPool->devSetSnap();
     unsigned int bias = 0;
@@ -427,7 +429,8 @@ int adc1785::packData(unsigned int &packSize) {
         }
         // header
         if((value&0x00000007) == 0x00000002) {
-            memset(tmp, 0, 18*sizeof(unsigned int));
+            //memset(tmp, 0, EVENTSIZE);
+            tmp.resize(EVENTSIZE/4);
             tmp[0]=value;
             tmpIdx=1;
             continue;
@@ -442,13 +445,11 @@ int adc1785::packData(unsigned int &packSize) {
         if((value&0x00000007) == 0x00000004 && tmpIdx > 0 && tmpIdx < 18) {
             tmp[tmpIdx]=value;
             tmpIdx++;
-            // copy to data
-            (*eventBuff)[eventIdx].clear();
-            (*eventBuff)[eventIdx].resize(tmpIdx*4);
-            memcpy((void*)(&(*eventBuff)[eventIdx][0]), tmp, tmpIdx*4);
-            eventIdx++;
-            if(eventIdx == eventBuff->size())
-                eventIdx = 0;
+            // copy to data set
+            //vector<uint32_t> tmpV(tmp, tmp+tmpIdx);
+            //eventSet->push(tmpV);
+            tmp.resize(tmpIdx);
+            eventSet->push(tmp);
             
             //dataPool->netWrite(tmp, tmpIdx*4);
             tranSize += tmpIdx*4;
@@ -473,6 +474,8 @@ int adc1785::packData(unsigned int &packSize) {
 }
 
 int adc1785::fillEvent(unsigned int& packSize) {
+    vector<uint32_t> &tmpEvent = eventSet->front();
+    dataPool->netWrite(&tmpEvent[0], tmpEvent.size()*4);
     return 1;
 }
 
@@ -693,7 +696,7 @@ int adc1785::configAdc() {
         pvme->ww(image, base+ADC1785_RTestAddr_Offset, pvme->swap16(regValue[RTestAddr]&ADC1785_RTestAddr_Mask));
     }
 
-    eventBuff = new adc1785EventSet;
+    eventSet = new adc1785EventSet;
 
     return 1;
 }
@@ -705,9 +708,7 @@ int adc1785::releaseAdc() {
 }
 
 int adc1785::prepAdc() {
-    eventBuff->clear();
-    eventBuff->resize(confValue[eventTh]*2);
-    eventIdx = 0;
+    eventSet->clear();
 
     // D16 to D32
     uint32_t lsi0_ctl = pvme->readUniReg(0x100);
