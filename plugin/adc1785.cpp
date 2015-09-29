@@ -256,17 +256,30 @@ adc1785::adc1785(const string& n): smBase(n) {
 adc1785::~adc1785() {
 }
 
-bool adc1785::queryInterface(const string& funcName, void* para[], void* ret) {
-    bool res = false;
-    if(funcName == "getBuffAddr") {
-        *(uintptr_t*)ret = getBuffAddr();
-        res = true;
-    }
+int adc1785::queryInterface(const string& funcName, void* para[], void* ret) {
     if(funcName == "run") {
         run();
-        res = true;
+        return 1;
     }
-    return res;
+    if(funcName == "getBuffAddr") {
+        *(uintptr_t*)ret = getBuffAddr();
+        return 1;
+    }
+    if(funcName == "getEventTh") {
+        *(uint32_t*)ret = getEventTh();
+        return 1;
+    }
+    if(funcName == "getTranSize") {
+        *(uint32_t*)ret = getTranSize();
+        return 1;
+    }
+    if(funcName == "packData") {
+        return packData(*(unsigned int*)para[0]);
+    }
+    if(funcName == "fillEvent") {
+        return fillEvent(*(unsigned int*)para[0]);
+    }
+    return 0;
 }
 
 int adc1785::InitializedLOAD(void* argv[]) {
@@ -406,6 +419,18 @@ int adc1785::run() {
     return 1;
 }
 
+uintptr_t adc1785::getBuffAddr() {
+    return base;
+}
+
+uint32_t adc1785::getEventTh() {
+    return confValue[eventTh];
+}
+
+uint32_t adc1785::getTranSize() {
+    return confValue[eventTh];
+}
+
 int adc1785::packData(unsigned int &packSize) {
     //uint32_t tmp[EVENTSIZE/4];
     vector<uint32_t> tmp;
@@ -488,7 +513,7 @@ int adc1785::configAdc() {
         std::vector< std::pair<std::string, smBase*> >::const_iterator iter;
         for(iter=helpList->begin(); iter!=helpList->end(); iter++) {
             if(iter->first == vmeModeName)
-                if(!iter->second->queryInterface("getVME", NULL, (void*)pvme))
+                if(!iter->second->queryInterface("getVME", NULL, (void*)&pvme))
                     return 0;
         }
     }

@@ -313,17 +313,30 @@ mqdc32::mqdc32(const string& n): smBase(n) {
 mqdc32::~mqdc32() {
 }
 
-bool mqdc32::queryInterface(const std::string& funcName, void* para[], void* ret) {
-    bool res = false;
-    if(funcName == "getBuffAddr") {
-        *(uintptr_t*)ret = getBuffAddr();
-        res = true;
-    }
+int mqdc32::queryInterface(const std::string& funcName, void* para[], void* ret) {
     if(funcName == "run") {
         run();
-        res = true;
+        return 1;
     }
-    return res;
+    if(funcName == "getBuffAddr") {
+        *(uintptr_t*)ret = getBuffAddr();
+        return 1;
+    }
+    if(funcName == "getEventTh") {
+        *(uint32_t*)ret = getEventTh();
+        return 1;
+    }
+    if(funcName == "getTranSize") {
+        *(uint32_t*)ret = getTranSize();
+        return 1;
+    }
+    if(funcName == "packData") {
+        return packData(*(unsigned int*)para[0]);
+    }
+    if(funcName == "fillEvent") {
+        return fillEvent(*(unsigned int*)para[0]);
+    }
+    return 0;
 }
 
 int mqdc32::InitializedLOAD(void* argv[]) {
@@ -458,8 +471,20 @@ int mqdc32::unmaskRegData(regData& data, regData& mask) {
 }
 
 int mqdc32::run() {
-    pvme->waitIrq(confValue[irqLevel], confValue[irqVector]);
+    //pvme->waitIrq(confValue[irqLevel], confValue[irqVector]);
     return 1;
+}
+
+uintptr_t mqdc32::getBuffAddr() {
+    return base;
+}
+
+uint32_t mqdc32::getEventTh() {
+    return confValue[irqTh];
+}
+
+uint32_t mqdc32::getTranSize() {
+    return confValue[maxTransfer];
 }
 
 int mqdc32::packData(unsigned int &packSize) {

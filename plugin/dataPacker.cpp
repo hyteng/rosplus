@@ -89,6 +89,12 @@ int dataPacker::prepPacker() {
         packStringSplit(packListAll);
     }
 
+    if(vmeDev == NULL || listSize == 0) {
+        debugMsg << name << "# " << "helper or link List not found.";
+        stMsg->stateOut(debugMsg);
+        return 0;
+    }
+
     packList.clear();
     packList.resize(listSize);
     for(int i=0; i<listSize; i++) {
@@ -99,37 +105,9 @@ int dataPacker::prepPacker() {
         }
     }
 
-    if(vmeDev == NULL || listSize == 0) {
-        debugMsg << name << "# " << "helper or link List not found.";
-        stMsg->stateOut(debugMsg);
-        return 0;
-    }
-
     devMsgQue = dataPool->getDevMsgQue();
     netMsgQue = dataPool->getNetMsgQue();
     return 1;
-}
-
-int dataPacker::packStringSplit(const string& pList) {
-    stringstream sList(pList);
-    string dev;
-    debugMsg << name << "# " << "vme take device list" << pList << endl;
-    stMsg->stateOut(debugMsg);
-    devList.clear();
-    listSize = 0;
-    while(getline(sList, dev, ';')) {
-        if(listSize < vmeSize && dev != vmeList[listSize]) {
-            debugMsg << name << "# " << "vme list do not contain the device" << dev << endl;
-            devList.clear();
-            listSize = 0;
-            break;
-        }
-        devList.push_back(dev);
-        listSize++;
-        debugMsg << name << "# " << "dev link " << listSize << ", " << dev << endl;
-        stMsg->stateOut(debugMsg);
-    }
-    return listSize;
 }
 
 int dataPacker::startPacker() {
@@ -216,8 +194,30 @@ void dataPacker::runPack() {
     stMsg->stateOut(debugMsg);
 }
 
-int dataPacker::packData(unsigned int& packSize) {
+int dataPacker::packStringSplit(const string& pList) {
+    stringstream sList(pList);
+    string dev;
+    debugMsg << name << "# " << "vme take device list" << pList << endl;
+    stMsg->stateOut(debugMsg);
+    devList.clear();
+    listSize = 0;
+    while(getline(sList, dev, ';')) {
+        if(listSize < vmeSize && dev != vmeList[listSize]) {
+            debugMsg << name << "# " << "vme list do not contain the device" << dev << endl;
+            devList.clear();
+            listSize = 0;
+            break;
+        }
+        devList.push_back(dev);
+        listSize++;
+        debugMsg << name << "# " << "dev link " << listSize << ", " << dev << endl;
+        stMsg->stateOut(debugMsg);
+    }
+    return listSize;
+}
 
+
+int dataPacker::packData(unsigned int& packSize) {
     unsigned int tranSize = 0, tmpSize;
     int ret = 0;
     int dSize = dataSize.size();
@@ -230,7 +230,6 @@ int dataPacker::packData(unsigned int& packSize) {
         packList[i]->queryInterface("packData", &pSize, (void*)&ret);
         tranSize += *(unsigned int*)pSize;
     }
-
     // device in packList could be more than device in vme module, since some device need not to transfer data through DMA, which are arranged to the end of packing sequence
     tranSize = 0;
     for(int i=0; i<eventTh; i++) {
@@ -242,7 +241,6 @@ int dataPacker::packData(unsigned int& packSize) {
             tranSize += *(unsigned int*)pSize;
         }
     }
-
     packSize = tranSize;
     return 1;
 }

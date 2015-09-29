@@ -10,7 +10,7 @@ class vme :public smBase {
         #define VMEADDRPTR uint32_t
         vme(const std::string& n);
         ~vme();
-        virtual bool queryInterface(const std::string& funcName, void* para[], void* ret);
+        virtual int queryInterface(const std::string& funcName, void* para[], void* ret);
 
     protected:
         virtual int InitializedLOAD(void* argv[]=NULL);
@@ -29,6 +29,7 @@ class vme :public smBase {
     private:
         VMEBridge* getVME() {return pvme;};
         int getImgCtrl(int i, uint32_t& addr);
+        std::vector<std::string>& getDevList();
         int devStringSplit(const string& dList);
 
         int configVme();

@@ -29,7 +29,7 @@ class adc1785 :public smBase {
 
         adc1785(const std::string& n);
         ~adc1785();
-        virtual bool queryInterface(const string& funcName, void* para[], void* ret);
+        virtual int queryInterface(const string& funcName, void* para[], void* ret);
 
     protected:
         virtual int InitializedLOAD(void* argv[]=NULL);
@@ -49,8 +49,10 @@ class adc1785 :public smBase {
         virtual int unmaskRegData(regData& data, regData& mask);
 
     private:
-        uintptr_t getBuffAddr() {return base;};
         int run();
+        uintptr_t getBuffAddr();
+        uint32_t getEventTh();
+        uint32_t getTranSize();
         int packData(unsigned int &packSize);
         int fillEvent(unsigned int &packSize);
 

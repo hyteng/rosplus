@@ -20,10 +20,10 @@ class dataPacker :public smBase {
 
     private:
         int prepPacker();
-        int packStringSplit(const std::string& pList);
         int startPacker();
         int stopPacker();
         void runPack();
+        int packStringSplit(const std::string& pList);
         int packData(unsigned int& packSize);
         int packDataTest1(unsigned int& packSize); // test is just for adc1785 single board
         int packDataTest2(unsigned int& packSize);

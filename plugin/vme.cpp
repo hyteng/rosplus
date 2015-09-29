@@ -30,17 +30,19 @@ vme::vme(const string& n): smBase(n) {
 vme::~vme() {
 }
 
-bool vme::queryInterface(const std::string& funcName, void* para[], void* ret) {
-    bool res = false;
+int vme::queryInterface(const std::string& funcName, void* para[], void* ret) {
     if(funcName == "getVME") {
-        ret = (void*)getVME();
-        res = true;
+        *(VMEBridge**)ret = getVME();
+        return 1;
     }
     if(funcName == "getImgCtrl") {
         if(getImgCtrl(*(int*)para[0], *(uint32_t*)ret) == 1)
-            res = true;
+            return 1;
     }
-    return res;
+    if(funcName == "getDevList") {
+        *(std::vector<std::string>*)ret = getDevList();
+    }
+    return 0;
 }
 
 int vme::InitializedLOAD(void* argv[]) {
@@ -148,6 +150,7 @@ int vme::configVme() {
     dmaBase = pvme->requestDMA(dmaNumber);
     pvme->setOption(DMA, BLT_ON);
 
+    // dmaSize is used for adc1785 single board transfer and will be kick out soon
     if((res=cfgInfo->infoGetUint("config."+name+".dmaSize", dmaSize)) != 1) {
         debugMsg << name << "# " << "config."+name+".dmaSize not found.";
         stMsg->stateOut(debugMsg);
@@ -259,9 +262,9 @@ void vme::runVme() {
         //unsigned int tranSize = dataPool->devWrite((void*)(dmaBase+offset), dmaSize);
         
         // test 2
-        //sleep(1);
-        //unsigned int tranSize = dataPool->devWrite(tmp, dmaSize);
-
+        sleep(1);
+        unsigned int tranSize = dataPool->devWrite(tmp, 8);
+        /*
         pvme->execCmdPktList(listNumber);
         unsigned int tranSize = 0;
         dmaSize = 0;
@@ -269,6 +272,7 @@ void vme::runVme() {
             tranSize += dataPool->devWrite((void*)(dmaBase+offsetList[i]), sizeList[i]);
             dmaSize += sizeList[i];
         }
+        */
         vmeMsg.signal = 1;
         vmeMsg.size = eventTh;
         int eventSend = msgsnd(devMsgQue, &vmeMsg, sizeof(vmeMsg), 0);
@@ -312,6 +316,10 @@ int vme::getImgCtrl(int i, uint32_t& addr) {
         addr = imgCtrlAddr[i];
     }
     return 1;
+}
+
+std::vector<std::string>& vme::getDevList() {
+    return devList;
 }
 
 int vme::devStringSplit(const string& dList) {
