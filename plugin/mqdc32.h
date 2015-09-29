@@ -3,6 +3,8 @@
 
 #include "../src/smBase.h"
 #include <stdint.h>
+#include <queue>
+#include <vector>
 #include "vmelib.h"
 
 class regUint16 :public regData {
@@ -20,6 +22,7 @@ class mqdc32 :public smBase {
     public:
         typedef uint32_t regAddrType;
         typedef uint16_t regType;
+        typedef std::queue< std::vector<uint32_t> > mqdc32EventSet;
 
         mqdc32(const std::string& n);
         ~mqdc32();
@@ -68,6 +71,8 @@ class mqdc32 :public smBase {
         uint32_t  regValue[200], confValue[200]; //reg is 16bit, use uint32 and cut later
 
         std::mutex semMutex;
+
+        mqdc32EventSet* eventSet;
 };
 
 

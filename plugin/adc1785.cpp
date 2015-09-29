@@ -470,11 +470,11 @@ int adc1785::packData(unsigned int &packSize) {
 
     packSize = tranSize;
     return 1;
-
 }
 
 int adc1785::fillEvent(unsigned int& packSize) {
     vector<uint32_t> &tmpEvent = eventSet->front();
+    packSize = tmpEvent.size()*4;
     dataPool->netWrite(&tmpEvent[0], tmpEvent.size()*4);
     return 1;
 }
@@ -696,8 +696,6 @@ int adc1785::configAdc() {
         pvme->ww(image, base+ADC1785_RTestAddr_Offset, pvme->swap16(regValue[RTestAddr]&ADC1785_RTestAddr_Mask));
     }
 
-    eventSet = new adc1785EventSet;
-
     return 1;
 }
 
@@ -708,23 +706,13 @@ int adc1785::releaseAdc() {
 }
 
 int adc1785::prepAdc() {
-    eventSet->clear();
-
-    // D16 to D32
-    uint32_t lsi0_ctl = pvme->readUniReg(0x100);
-    lsi0_ctl &= 0xFF3FFFFF;
-    lsi0_ctl |= D32;
-    pvme->writeUniReg(0x100, lsi0_ctl);
+    if(eventSet != NULL)
+        delete eventSet;
+    eventSet = new adc1785EventSet;
     return 1;
 }
 
 int adc1785::finishAdc() {
-    // D32 to D16
-    uint32_t lsi0_ctl = pvme->readUniReg(0x100);
-    lsi0_ctl &= 0xFF3FFFFF;
-    lsi0_ctl |= D16;
-    pvme->writeUniReg(0x100, lsi0_ctl);
-
     return 1;
 }
 

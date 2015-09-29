@@ -224,6 +224,7 @@ using std::endl;
 #define MQDC32_Limit1High_Mask		0x001F
 #define MQDC32_Limit1Low_Mask		0x001F
 
+#define EVENTSIZE 136
 
 // data width definition
 static uint32_t DataWidth[3] = {D16, D32, D64};
@@ -462,10 +463,75 @@ int mqdc32::run() {
 }
 
 int mqdc32::packData(unsigned int &packSize) {
+    //uint32_t tmp[EVENTSIZE/4];
+    vector<uint32_t> tmp;
+    tmp.reserve(EVENTSIZE/4);
+    unsigned int tmpIdx;
+    dataPool->devSetSnap();
+    unsigned int bias = 0;
+    void* p;
+    unsigned int value;
+    unsigned int tranSize = 0;
+    for(unsigned int i=0; i<packSize/4; i++,bias+=4) {
+        p = dataPool->devGetSnapPtr(bias, 4);
+        if(p == NULL)
+            return 0;
+        value = *(uint32_t*)p;
+
+        // invalid data
+        if((value&0x00000007) == 0x00000006) {
+            tmpIdx=0;
+            continue;
+        }
+        // header
+        if((value&0x00000007) == 0x00000002) {
+            //memset(tmp, 0, EVENTSIZE);
+            tmp.resize(EVENTSIZE/4);
+            tmp[0]=value;
+            tmpIdx=1;
+            continue;
+        }
+        // valid data
+        if((value&0x00000007) == 0x00000000 && tmpIdx > 0 && tmpIdx < 17) {
+            tmp[tmpIdx]=value;
+            tmpIdx++;
+            continue;
+        }
+        // end of event
+        if((value&0x00000007) == 0x00000004 && tmpIdx > 0 && tmpIdx < 18) {
+            tmp[tmpIdx]=value;
+            tmpIdx++;
+            // copy to data set
+            //vector<uint32_t> tmpV(tmp, tmp+tmpIdx);
+            //eventSet->push(tmpV);
+            tmp.resize(tmpIdx);
+            eventSet->push(tmp);
+            
+            //dataPool->netWrite(tmp, tmpIdx*4);
+            tranSize += tmpIdx*4;
+            debugMsg << name << "# " << "pack data: " << endl;
+            for(int i=0; i<tmpIdx; i++) {
+                debugMsg << std::hex << tmp[i] << " ";
+            }
+            stMsg->stateOut(debugMsg);
+            tmpIdx=0;
+            continue;
+        }
+        // reserved data
+    }
+
+    unsigned int popSize = dataPool->devPopSnap(packSize);
+    if(popSize != packSize)
+        return 0;
+
+    packSize = tranSize;
     return 1;
 }
 
 int mqdc32::fillEvent(unsigned int &packSize) {
+    vector<uint32_t> &tmpEvent = eventSet->front();
+    packSize = tmpEvent.size()*4;
+    dataPool->netWrite(&tmpEvent[0], packSize);
     return 1;
 }
 
@@ -542,11 +608,15 @@ int mqdc32::configAdc() {
 }
 
 int mqdc32::releaseAdc() {
+    pvme->freeIrq(image, confValue[irqLevel], confValue[irqVector]);
     pvme->releaseImage(image);
     return 1;
 }
 
 int mqdc32::prepAdc() {
+    if(eventSet != NULL)
+        delete eventSet;
+    eventSet = new mqdc32EventSet;
     return 1;
 }
 

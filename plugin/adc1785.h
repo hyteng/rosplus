@@ -3,6 +3,8 @@
 
 #include "../src/smBase.h"
 #include <stdint.h>
+#include <queue>
+#include <vector>
 #include "vmelib.h"
 
 class regUint16 :public regData {
