@@ -307,8 +307,7 @@ int configSet::readConfig(const string& cfg) {
         getline(ss, s[1], '\t');
         getline(ss, s[2], '\t');
 
-        //cout << "sline: " << cfgLine << endl;
-        //cout << "s1: " << s[1] << endl;
+        //cout << cfgLine << "; s: " << s[0] << "; " << s[1] << "; " << s[2] <<endl;
         int bit = infoExist(s[1]);
         if(bit != 0) {
             cout << "conflict! type: " << s[0] << ", name: " << s[1] << ", value: " << s[2] << endl;

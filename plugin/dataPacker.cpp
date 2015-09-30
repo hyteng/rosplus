@@ -72,6 +72,8 @@ int dataPacker::prepPacker() {
 
     vmeDev = NULL;
     if((res=cfgInfo->infoGetString("config."+name+".vmeDev", vmeDevice)) == 1) {
+        debugMsg << name << "# " << "helper get " << vmeDevice;
+        stMsg->stateOut(debugMsg);
         for(iter=helpList->begin(); iter!=helpList->end(); iter++) {
             if(iter->first == vmeDevice) {
                 vmeDev = iter->second;
@@ -79,6 +81,8 @@ int dataPacker::prepPacker() {
                 if(!vmeDev->queryInterface("getDevList", NULL, (void*)&vmeList))
                     return 0;
                 vmeSize = vmeList.size();
+                debugMsg << name << "# " << "helper get " << vmeDevice << " and get " << vmeSize << " from its devList.";
+                stMsg->stateOut(debugMsg);
             }
         }
     }

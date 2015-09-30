@@ -41,6 +41,7 @@ int vme::queryInterface(const std::string& funcName, void* para[], void* ret) {
     }
     if(funcName == "getDevList") {
         *(std::vector<std::string>*)ret = getDevList();
+        return 1;
     }
     return 0;
 }
