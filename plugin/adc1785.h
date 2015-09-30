@@ -3,7 +3,7 @@
 
 #include "../src/smBase.h"
 #include <stdint.h>
-#include <queue>
+#include <list>
 #include <vector>
 #include "vmelib.h"
 
@@ -25,7 +25,7 @@ class adc1785 :public smBase {
     public:
         typedef uint32_t regAddrType;
         typedef uint16_t regType;
-        typedef std::queue< std::vector<uint32_t> > adc1785EventSet;
+        typedef std::list< std::vector<uint32_t> > adc1785EventSet;
 
         adc1785(const std::string& n);
         ~adc1785();
@@ -54,6 +54,7 @@ class adc1785 :public smBase {
         uint32_t getEventTh();
         uint32_t getTranSize();
         int packData(unsigned int &packSize);
+        int packDataTest(unsigned int& packSize);
         int fillEvent(unsigned int &packSize);
 
         int configAdc();

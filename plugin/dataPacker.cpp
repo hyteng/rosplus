@@ -141,15 +141,16 @@ void dataPacker::runPack() {
             break;
         }
 
-        //debugMsg << name << "# " << "fetch devMsg " << packMsg.size;
-        //stMsg->stateOut(debugMsg);
-        if(packMsg.signal == 0) {
+        debugMsg << name << "# " << "fetch devMsg " << packMsg.size;
+        stMsg->stateOut(debugMsg);
+        if(packMsg.signal == 1) {
             packCount += packMsg.count;
             totalPackSize += packMsg.size;
-            dataSize.push_back(packMsg.count);
+            dataSize.push_back(packMsg.size);
+            continue;
         }
 
-        if(packMsg.signal == 1) {
+        if(packMsg.signal == 2) {
             eventTh = packMsg.size;
             unsigned int packTranSize = totalPackSize;
             if(!packData(packTranSize)) {
@@ -171,15 +172,17 @@ void dataPacker::runPack() {
             packCount = 0;
             totalPackSize = 0;
             dataSize.clear();
+
+            continue;
         }
 
-        if(packMsg.signal == 2) {
+        if(packMsg.signal == 3) {
             break;
         }
     }
 
     //if(runPackCtrl == TASK_STOP || packStatus == TASK_ERROR) {
-        packMsg.signal = 2;
+        packMsg.signal = 3;
         packMsg.size = 0;
         int stopSend = msgsnd(netMsgQue, &packMsg, sizeof(packMsg)-sizeof(long), 0);
         if(stopSend < 0) {
@@ -229,9 +232,14 @@ int dataPacker::packData(unsigned int& packSize) {
     for(int i=0; i<listSize; i++) {
         if(i < dSize)
             pSize = (void*)&dataSize[i];
-        else
+        else {
+            tmpSize = 0;
             pSize = (void*)&tmpSize;
+        }
+        debugMsg << name << "# " << "before pack " << *(unsigned int*)pSize << ";";
         packList[i]->queryInterface("packData", &pSize, (void*)&ret);
+        debugMsg << name << "# " << "dev " << devList[i] << ": after pack " << *(unsigned int*)pSize << "bytes data";
+        stMsg->stateOut(debugMsg);
         tranSize += *(unsigned int*)pSize;
     }
     // device in packList could be more than device in vme module, since some device need not to transfer data through DMA, which are arranged to the end of packing sequence
@@ -242,6 +250,8 @@ int dataPacker::packData(unsigned int& packSize) {
         pSize = (void*)&tmpSize;
         for(int j=0; j<listSize; j++) {
             packList[j]->queryInterface("fillEvent", &pSize, (void*)&ret);
+            debugMsg << name << "# " << "dev: " << devList[i] << " fill " << *(uint32_t*)pSize << "bytes data to a event";
+            stMsg->stateOut(debugMsg);
             tranSize += *(unsigned int*)pSize;
         }
     }
@@ -249,7 +259,7 @@ int dataPacker::packData(unsigned int& packSize) {
     return 1;
 }
 
-int dataPacker::packDataTest1(unsigned int& packSize) {
+int dataPacker::packDataTest(unsigned int& packSize) {
 
     uint32_t tmp[18];
     unsigned int tmpIdx;
@@ -265,66 +275,6 @@ int dataPacker::packDataTest1(unsigned int& packSize) {
             return 0;
         dataPool->netWrite(p, 4);
         tranSize += 4;
-    }
-
-    unsigned int popSize = dataPool->devPopSnap(packSize);
-    if(popSize != packSize)
-        return 0;
-
-    packSize = tranSize;
-    return 1;
-}
-
-int dataPacker::packDataTest2(unsigned int& packSize) {
-
-    uint32_t tmp[18];
-    unsigned int tmpIdx;
-
-    dataPool->devSetSnap();
-    unsigned int bias = 0;
-    void* p;
-    unsigned int value;
-    unsigned int tranSize = 0;
-    for(unsigned int i=0; i<packSize/4; i++,bias+=4) {
-        p = dataPool->devGetSnapPtr(bias, 4);
-        if(p == NULL)
-            return 0;
-        value = *(uint32_t*)p;
-
-        // invalid data
-        if((value&0x00000007) == 0x00000006) {
-            tmpIdx=0;
-            continue;
-        }
-        // header
-        if((value&0x00000007) == 0x00000002) {
-            memset(tmp, 0, 18*sizeof(unsigned int));
-            tmp[0]=value;
-            tmpIdx=1;
-            continue;
-        }
-        // valid data
-        if((value&0x00000007) == 0x00000000 && tmpIdx > 0 && tmpIdx < 17) {
-            tmp[tmpIdx]=value;
-            tmpIdx++;
-            continue;
-        }
-        // end of block
-        if((value&0x00000007) == 0x00000004 && tmpIdx > 0 && tmpIdx < 18) {
-            tmp[tmpIdx]=value;
-            tmpIdx++;
-            // copy to Output
-            dataPool->netWrite(tmp, tmpIdx*4);
-            tranSize += tmpIdx*4;
-            debugMsg << name << "# " << "pack data: " << endl;
-            for(int i=0; i<tmpIdx; i++) {
-                debugMsg << std::hex << tmp[i] << " ";
-            }
-            stMsg->stateOut(debugMsg);
-            tmpIdx=0;
-            continue;
-        }
-        // reserved data
     }
 
     unsigned int popSize = dataPool->devPopSnap(packSize);

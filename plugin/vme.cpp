@@ -49,14 +49,14 @@ int vme::queryInterface(const std::string& funcName, void* para[], void* ret) {
 int vme::InitializedLOAD(void* argv[]) {
     debugMsg << name << "# " << "InitializedLOAD";
     stMsg->stateOut(debugMsg); 
-    //pvme = new VMEBridge;
+    pvme = new VMEBridge;
     return 2;
 }
 
 int vme::LoadedUNLD(void* argv[]) {
     debugMsg << name << "# " << "LoadedUNLD";
     stMsg->stateOut(debugMsg);
-    //delete pvme;
+    delete pvme;
     return 1;
 }
 
@@ -77,29 +77,29 @@ int vme::ConfiguredUNCF(void* argv[]) {
 int vme::ConfiguredPREP(void* argv[]) {
     debugMsg << name << "# " << "ConfiguredPREP";
     stMsg->stateOut(debugMsg);
-    //if(!prepVme())
-        //return -1;
+    if(!prepVme())
+        return -1;
     return 4;
 }
 
 int vme::ReadySTOP(void* argv[]) {
     debugMsg << name << "# " << "ReadySTOP";
     stMsg->stateOut(debugMsg);
-    //finishVme();
+    finishVme();
     return 3;
 }
 
 int vme::ReadySATR(void* argv[]) {
     debugMsg << name << "# " << "ReadySATR";
     stMsg->stateOut(debugMsg);
-    //startVme();
+    startVme();
     return 5;
 }
 
 int vme::RunningSPTR(void* argv[]) {
     debugMsg << name << "# " << "RunningSPTR";
     stMsg->stateOut(debugMsg);
-    //stopVme();
+    stopVme();
     return 4;
 }
 
@@ -110,7 +110,7 @@ int vme::RunningPAUS(void* argv[]) {
 int vme::PausedSPTR(void* argv[]) {
     debugMsg << name << "# " << "PausedSPTR";
     stMsg->stateOut(debugMsg);
-    //stopVme();
+    stopVme();
     return 4;
 }
 
@@ -162,7 +162,6 @@ int vme::configVme() {
 
 int vme::releaseVme() {
     pvme->releaseDMA();
-    pvme->delCmdPktList(listNumber);
     return 1;
 }
 
@@ -179,6 +178,8 @@ int vme::prepVme() {
                 triDev = iter->second;
                 if(!triDev->queryInterface("getEventTh", NULL, (void*)&eventTh))
                     return 0;
+                debugMsg << name << "# " << "helper get " << triggerDevice << " and get " << eventTh << " eventTh";
+                stMsg->stateOut(debugMsg);
             }
         }
     }
@@ -205,7 +206,7 @@ int vme::prepVme() {
         stMsg->stateOut(debugMsg);
         return 0;
     }
-
+    /*
     listNumber = pvme->newCmdPktList();
     if(listNumber < 0 || listNumber > 255)
         return 0;
@@ -216,12 +217,13 @@ int vme::prepVme() {
             offsetList[i] = pvme->addCmdPkt(listNumber, 0, buffList[i], sizeList[i], awList[i], dwList[i]);
         }
     }
-    
+    */
     devMsgQue = dataPool->getDevMsgQue();
     return 1;
 }
 
 int vme::finishVme() {
+    //pvme->delCmdPktList(listNumber);
     return 1;
 }
 
@@ -245,7 +247,7 @@ void vme::runVme() {
     //totalVmeSize = 0;
     unsigned int genSize = 0;
     unsigned int sndSize = 0;
-    char *tmp = "ABCDEFGH";
+    char *tmp = "ABCDEFGHabcdefgh";
     while(1) {
 
         if(runVmeCtrl == TASK_STOP) {
@@ -264,7 +266,7 @@ void vme::runVme() {
         
         // test 2
         sleep(1);
-        unsigned int tranSize = dataPool->devWrite(tmp, 8);
+        unsigned int tranSize = dataPool->devWrite(tmp, 16);
         /*
         pvme->execCmdPktList(listNumber);
         unsigned int tranSize = 0;
@@ -274,7 +276,7 @@ void vme::runVme() {
             dmaSize += sizeList[i];
         }
         */
-        vmeMsg.signal = 1;
+        vmeMsg.signal = 2;
         vmeMsg.size = eventTh;
         int eventSend = msgsnd(devMsgQue, &vmeMsg, sizeof(vmeMsg), 0);
         if(eventSend < 0) {
@@ -292,7 +294,7 @@ void vme::runVme() {
     }
 
     if(runVmeCtrl == TASK_STOP || vmeStatus == TASK_ERROR) {
-        vmeMsg.signal = 2;
+        vmeMsg.signal = 3;
         vmeMsg.size = 0;
         int stopSend = msgsnd(devMsgQue, &vmeMsg, sizeof(vmeMsg), 0);
         if(stopSend < 0) {

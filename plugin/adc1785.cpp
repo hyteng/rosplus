@@ -274,7 +274,7 @@ int adc1785::queryInterface(const string& funcName, void* para[], void* ret) {
         return 1;
     }
     if(funcName == "packData") {
-        return packData(*(unsigned int*)para[0]);
+        return packDataTest(*(unsigned int*)para[0]);
     }
     if(funcName == "fillEvent") {
         return fillEvent(*(unsigned int*)para[0]);
@@ -416,6 +416,8 @@ int adc1785::unmaskRegData(regData& data, regData& mask) {
 
 int adc1785::run() {
     //pvme->waitIrq(confValue[irqLevel], confValue[irqVector]);
+    debugMsg << name << "# " << "triggered";
+    stMsg->stateOut(debugMsg);
     return 1;
 }
 
@@ -474,7 +476,7 @@ int adc1785::packData(unsigned int &packSize) {
             //vector<uint32_t> tmpV(tmp, tmp+tmpIdx);
             //eventSet->push(tmpV);
             tmp.resize(tmpIdx);
-            eventSet->push(tmp);
+            eventSet->push_back(tmp);
             
             //dataPool->netWrite(tmp, tmpIdx*4);
             tranSize += tmpIdx*4;
@@ -497,10 +499,56 @@ int adc1785::packData(unsigned int &packSize) {
     return 1;
 }
 
+
+int adc1785::packDataTest(unsigned int& packSize) {
+    //uint32_t tmp[18];
+    vector<uint32_t> tmp;
+    tmp.reserve(EVENTSIZE/4);
+    unsigned int tmpIdx = 0;
+
+    dataPool->devSetSnap();
+    unsigned int bias = 0;
+    void* p;
+    unsigned int value;
+    unsigned int tranSize = 0;
+    for(unsigned int i=0; i<packSize/4; i++,bias+=4) {
+        debugMsg << name << "# " << "pack data " << i;
+        stMsg->stateOut(debugMsg);
+        p = dataPool->devGetSnapPtr(bias, 4);
+        if(p == NULL)
+            return 0;
+        tmp[tmpIdx]=*(uint32_t*)p;
+        debugMsg << name << "# " << "pack data value " << tmp[tmpIdx];
+        stMsg->stateOut(debugMsg);
+        tmpIdx++;
+        tranSize += 4;
+        if(tmpIdx == 2) {
+            debugMsg << name << "# " << "pack event";
+            stMsg->stateOut(debugMsg);
+            //tmpV = vector<uint32_t>(tmp, tmp+tmpIdx);
+            tmp.resize(tmpIdx);
+            eventSet->push_back(tmp);
+            debugMsg << name << "# " << "pack data: " << endl;
+            for(int j=0; j<tmpIdx; j++) {
+                debugMsg << std::hex << tmp[j] << " ";
+            }
+            stMsg->stateOut(debugMsg);
+            tmpIdx=0;
+        }
+    }
+    unsigned int popSize = dataPool->devPopSnap(packSize);
+    if(popSize != packSize)
+        return 0;
+
+    packSize = tranSize;
+    return 1;
+}
+
 int adc1785::fillEvent(unsigned int& packSize) {
     vector<uint32_t> &tmpEvent = eventSet->front();
     packSize = tmpEvent.size()*4;
     dataPool->netWrite(&tmpEvent[0], tmpEvent.size()*4);
+    eventSet->pop_front();
     return 1;
 }
 
@@ -738,6 +786,8 @@ int adc1785::prepAdc() {
 }
 
 int adc1785::finishAdc() {
+    if(eventSet != NULL)
+        delete eventSet;
     return 1;
 }
 
