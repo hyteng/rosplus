@@ -20,12 +20,13 @@ class regUint16 :public regData {
 
 //class adc1785;
 //typedef uint32_t (adc1785::* adc1785Func)();
+#define ADC1785EVENTUINTSIZE 18
 
 class adc1785 :public smBase {
     public:
         typedef uint32_t regAddrType;
         typedef uint16_t regType;
-        typedef std::list< std::vector<uint32_t> > adc1785EventSet;
+        typedef uint32_t (*adc1785Event)[ADC1785EVENTUINTSIZE];
 
         adc1785(const std::string& n);
         ~adc1785();
@@ -71,8 +72,9 @@ class adc1785 :public smBase {
         int image;
         uint32_t base, length; // 32bit VME address
         unsigned int regValue[80], confValue[100]; //reg is 16bit, use uint32 and cut later
-        adc1785EventSet *eventSet;
-        int eventIdx;
+        adc1785Event eventSet;
+        int eventPtrR, eventPtrW;
+        std::queue<int> *eventIdx;
 };
 
 #endif
