@@ -454,6 +454,8 @@ int adc1785::packData(unsigned int &packSize) {
         // header
         if((value&0x00000007) == 0x00000002) {
             //memset(tmp, 0, EVENTSIZE);
+            if(eventPtrW == -1)
+                return 0;
             eventSet[eventPtrW][0] = value;
             tmpIdx=1;
             continue;
@@ -466,7 +468,7 @@ int adc1785::packData(unsigned int &packSize) {
         }
         // end of event
         if((value&0x00000007) == 0x00000004 && tmpIdx > 0 && tmpIdx < 18) {
-            eventSet[eventPtrW][tmpIdx]=value;
+            eventSet[eventPtrW][tmpIdx] = value;
             tmpIdx++;
             // copy to data set
             eventIdx->push_back(tmpIdx);
@@ -478,13 +480,15 @@ int adc1785::packData(unsigned int &packSize) {
             }
             stMsg->stateOut(debugMsg);
             tmpIdx=0;
+            if(eventPtrR == -1)
+                eventPtrR = eventPtrW;
             eventPtrW++;
             if(eventPtrW==confValue[eventTh]*2)
                 eventPtrW = 0;
             if(eventPtrW == eventPtrR) {
                 debugMsg << name << "# " << "event pack buffer full";
                 stMsg->stateOut(debugMsg);
-                return 0;
+                eventPtrW = -1;
             }
             continue;
         }
@@ -501,9 +505,7 @@ int adc1785::packData(unsigned int &packSize) {
 
 
 int adc1785::packDataTest(unsigned int& packSize) {
-    uint32_t tmp[18];
     unsigned int tmpIdx = 0;
-
     dataPool->devSetSnap();
     unsigned int bias = 0;
     void* p;
@@ -515,7 +517,7 @@ int adc1785::packDataTest(unsigned int& packSize) {
         p = dataPool->devGetSnapPtr(bias, 4);
         if(p == NULL)
             return 0;
-        tmp[tmpIdx]=*(uint32_t*)p;
+        eventSet[eventPtrW][tmpIdx] = value;
         debugMsg << name << "# " << "pack data value " << tmp[tmpIdx];
         stMsg->stateOut(debugMsg);
         tmpIdx++;
@@ -543,10 +545,22 @@ int adc1785::packDataTest(unsigned int& packSize) {
 }
 
 int adc1785::fillEvent(unsigned int& packSize) {
-    vector<uint32_t> &tmpEvent = eventSet->front();
-    packSize = tmpEvent.size()*4;
-    dataPool->netWrite(&tmpEvent[0], tmpEvent.size()*4);
+    if(eventPtrR == -1)
+        return 0;
+    packSize = eventIdx->front() * 4;
+    dataPool->netWrite(&eventSet[eventPtrR][0], packSize);
     eventSet->pop_front();
+    if(eventPtrW == -1)
+        eventPtrW = eventPtrR;
+    eventPtrR++;
+    if(eventPtrR == confValue[eventTh]*2)
+        eventPtrR = 0;
+    if(eventPtrW == eventPtrR) {
+        debugMsg << name << "# " << "event pack buffer empty";
+        stMsg->stateOut(debugMsg);
+        eventPtrR = -1;
+    }
+
     return 1;
 }
 

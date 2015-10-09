@@ -74,7 +74,7 @@ class adc1785 :public smBase {
         unsigned int regValue[80], confValue[100]; //reg is 16bit, use uint32 and cut later
         adc1785Event eventSet;
         int eventPtrR, eventPtrW;
-        std::queue<int> *eventIdx;
+        std::queue<unsigned int> *eventIdx;
 };
 
 #endif
