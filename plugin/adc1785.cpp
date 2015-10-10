@@ -470,13 +470,13 @@ int adc1785::packData(unsigned int &packSize) {
         if((value&0x00000007) == 0x00000004 && tmpIdx > 0 && tmpIdx < 18) {
             eventSet[eventPtrW][tmpIdx] = value;
             tmpIdx++;
-            // copy to data set
-            eventIdx->push_back(tmpIdx);
+            // copy to idx set
+            eventIdx->push(tmpIdx);
             //dataPool->netWrite(tmp, tmpIdx*4);
             tranSize += tmpIdx*4;
             debugMsg << name << "# " << "pack data: " << endl;
             for(int i=0; i<tmpIdx; i++) {
-                debugMsg << std::hex << (*eventPtrW)[i] << " ";
+                debugMsg << std::hex << eventSet[eventPtrW][i] << " ";
             }
             stMsg->stateOut(debugMsg);
             tmpIdx=0;
@@ -517,23 +517,36 @@ int adc1785::packDataTest(unsigned int& packSize) {
         p = dataPool->devGetSnapPtr(bias, 4);
         if(p == NULL)
             return 0;
+        if(eventPtrW == -1)
+            return 0;
         eventSet[eventPtrW][tmpIdx] = value;
-        debugMsg << name << "# " << "pack data value " << tmp[tmpIdx];
+        debugMsg << name << "# " << "pack data value " << eventSet[eventPtrW][tmpIdx];
         stMsg->stateOut(debugMsg);
         tmpIdx++;
-        tranSize += 4;
         if(tmpIdx == 2) {
             debugMsg << name << "# " << "pack event";
             stMsg->stateOut(debugMsg);
-            //tmpV = vector<uint32_t>(tmp, tmp+tmpIdx);
-            tmp.resize(tmpIdx);
-            eventSet->push_back(tmp);
+            // copy to idx set
+            eventIdx->push(tmpIdx);
+            //dataPool->netWrite(tmp, tmpIdx*4);
+            tranSize += tmpIdx*4;
             debugMsg << name << "# " << "pack data: " << endl;
-            for(int j=0; j<tmpIdx; j++) {
-                debugMsg << std::hex << tmp[j] << " ";
+            for(int i=0; i<tmpIdx; i++) {
+                debugMsg << std::hex << eventSet[eventPtrW][i] << " ";
             }
             stMsg->stateOut(debugMsg);
             tmpIdx=0;
+            if(eventPtrR == -1)
+                eventPtrR = eventPtrW;
+            eventPtrW++;
+            if(eventPtrW==confValue[eventTh]*2)
+                eventPtrW = 0;
+            if(eventPtrW == eventPtrR) {
+                debugMsg << name << "# " << "event pack buffer full";
+                stMsg->stateOut(debugMsg);
+                eventPtrW = -1;
+            }
+            continue;
         }
     }
     unsigned int popSize = dataPool->devPopSnap(packSize);
@@ -549,7 +562,7 @@ int adc1785::fillEvent(unsigned int& packSize) {
         return 0;
     packSize = eventIdx->front() * 4;
     dataPool->netWrite(&eventSet[eventPtrR][0], packSize);
-    eventSet->pop_front();
+    eventIdx->pop();
     if(eventPtrW == -1)
         eventPtrW = eventPtrR;
     eventPtrR++;
@@ -560,7 +573,6 @@ int adc1785::fillEvent(unsigned int& packSize) {
         stMsg->stateOut(debugMsg);
         eventPtrR = -1;
     }
-
     return 1;
 }
 
@@ -794,16 +806,19 @@ int adc1785::prepAdc() {
     if(eventSet != NULL)
         delete eventSet;
     eventSet = new uint32_t[confValue[eventTh]*2][ADC1785EVENTUINTSIZE];
-    eventPtr = eventSet[0];
+    eventPtrW = 0;
+    eventPtrR = -1;
     if(eventIdx != NULL)
         delete eventIdx;
-    eventIdx = new std::queue<int>;
+    eventIdx = new std::queue<unsigned int>;
     return 1;
 }
 
 int adc1785::finishAdc() {
     if(eventSet != NULL)
         delete [] eventSet;
+    eventPtrW = 0;
+    eventPtrR = -1;
     if(eventIdx != NULL)
         delete eventIdx;
     return 1;

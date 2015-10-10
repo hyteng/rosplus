@@ -3,7 +3,7 @@
 
 #include "../src/smBase.h"
 #include <stdint.h>
-#include <list>
+#include <queue>
 #include <vector>
 #include "vmelib.h"
 
