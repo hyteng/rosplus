@@ -127,7 +127,7 @@ void daq::runDaq() {
 
         daqCount++;
         totalDaqSize += daqMsg.size;
-        if(daqCount >= 5 || daqMsg.signal == 3) {
+        if(daqMsg.signal == 2) {
             dataPool->netSetSnap();
             netPtr = dataPool->netGetSnapPtr(0, totalDaqSize);
             if(netPtr != NULL) {
@@ -145,10 +145,13 @@ void daq::runDaq() {
 
             daqCount = 0;
             totalDaqSize = 0;
+
+            continue;
         }
 
-        if(daqMsg.signal == 3)
+        if(daqMsg.signal == 3) {
             break;
+        }
     }
     //if(runDaqCtrl == TASK_STOP || daqStatus == TASK_ERROR) {
         if(daqStatus == TASK_RUN)
