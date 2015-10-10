@@ -237,6 +237,7 @@ int dataPacker::packData(unsigned int& packSize) {
             pSize = (void*)&tmpSize;
         }
         debugMsg << name << "# " << "before pack " << *(unsigned int*)pSize << ";";
+        stMsg->stateOut(debugMsg);
         packList[i]->queryInterface("packData", &pSize, (void*)&ret);
         debugMsg << name << "# " << "dev " << devList[i] << ": after pack " << *(unsigned int*)pSize << "bytes data";
         stMsg->stateOut(debugMsg);
@@ -250,7 +251,7 @@ int dataPacker::packData(unsigned int& packSize) {
         pSize = (void*)&tmpSize;
         for(int j=0; j<listSize; j++) {
             packList[j]->queryInterface("fillEvent", &pSize, (void*)&ret);
-            debugMsg << name << "# " << "dev: " << devList[i] << " fill " << *(uint32_t*)pSize << "bytes data to a event";
+            debugMsg << name << "# " << "dev: " << devList[i] << " fill " << *(unsigned int*)pSize << "bytes data to a event";
             stMsg->stateOut(debugMsg);
             tranSize += *(unsigned int*)pSize;
         }
@@ -286,6 +287,7 @@ int dataPacker::packDataTest(unsigned int& packSize) {
 }
 
 int dataPacker::fillEvent(unsigned int& packSize) {
+    packSize = 0;
     return 1;
 }
 

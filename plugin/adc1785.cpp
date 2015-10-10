@@ -299,6 +299,8 @@ int adc1785::LoadedCONF(void* argv[]) {
     stMsg->stateOut(debugMsg);
     //if(!configAdc())
         //return -1;
+    // for test
+    confValue[eventTh] = 2;
     return 3;
 }
 
@@ -312,14 +314,14 @@ int adc1785::ConfiguredUNCF(void* argv[]) {
 int adc1785::ConfiguredPREP(void* argv[]) {
     debugMsg << name << "# " << "ConfiguredPREP";
     stMsg->stateOut(debugMsg);
-    //prepAdc();
+    prepAdc();
     return 4;
 }
 
 int adc1785::ReadySTOP(void* argv[]) {
     debugMsg << name << "# " << "ReadySTOP";
     stMsg->stateOut(debugMsg);
-    //finishAdc();
+    finishAdc();
     return 3;
 }
 
@@ -558,8 +560,10 @@ int adc1785::packDataTest(unsigned int& packSize) {
 }
 
 int adc1785::fillEvent(unsigned int& packSize) {
-    if(eventPtrR == -1)
+    if(eventPtrR==-1 || eventIdx->size()==0) {
+        packSize = 0;
         return 0;
+    }
     packSize = eventIdx->front() * 4;
     dataPool->netWrite(&eventSet[eventPtrR][0], packSize);
     eventIdx->pop();

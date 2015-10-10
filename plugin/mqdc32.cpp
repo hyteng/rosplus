@@ -369,14 +369,14 @@ int mqdc32::ConfiguredUNCF(void* argv[]) {
 int mqdc32::ConfiguredPREP(void* argv[]) {
     debugMsg << name << "# " << "ConfiguredPREP";
     stMsg->stateOut(debugMsg);
-    //prepAdc();
+    prepAdc();
     return 4;
 }
 
 int mqdc32::ReadySTOP(void* argv[]) {
     debugMsg << name << "# " << "ReadySTOP";
     stMsg->stateOut(debugMsg);
-    //finishAdc();
+    finishAdc();
     return 3;
 }
 
@@ -558,8 +558,10 @@ int mqdc32::packData(unsigned int &packSize) {
 }
 
 int mqdc32::fillEvent(unsigned int &packSize) {
-    if(eventPtrR == -1)
+    if(eventPtrR==-1 || eventIdx->size()==0) {
+        packSize = 0;
         return 0;
+    }
     packSize = eventIdx->front() * 4;
     dataPool->netWrite(&eventSet[eventPtrR][0], packSize);
     eventIdx->pop();
