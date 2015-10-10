@@ -804,7 +804,7 @@ int adc1785::releaseAdc() {
 
 int adc1785::prepAdc() {
     if(eventSet != NULL)
-        delete eventSet;
+        delete [] eventSet;
     eventSet = new uint32_t[confValue[eventTh]*2][ADC1785EVENTUINTSIZE];
     eventPtrW = 0;
     eventPtrR = -1;

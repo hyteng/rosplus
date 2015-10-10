@@ -18,11 +18,12 @@ class regUint16 :public regData {
         uint16_t v;
 };
 
+#define MQDC32EVENTUINTSIZE 34
 class mqdc32 :public smBase {
     public:
         typedef uint32_t regAddrType;
         typedef uint16_t regType;
-        typedef std::queue< std::vector<uint32_t> > mqdc32EventSet;
+        typedef uint32_t (*mqdc32Event)[MQDC32EVENTUINTSIZE];
 
         mqdc32(const std::string& n);
         ~mqdc32();
@@ -74,8 +75,9 @@ class mqdc32 :public smBase {
 
         std::mutex semMutex;
 
-        mqdc32EventSet* eventSet;
+        mqdc32Event eventSet;
+        int eventPtrR, eventPtrW;
+        std::queue<unsigned int> *eventIdx;
 };
-
 
 #endif
