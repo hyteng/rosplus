@@ -242,6 +242,8 @@ static int setCtrl() {
 
 static int dummy = setCtrl();
 
+#define wordSize 4
+
 adc1785::adc1785(const string& n): smBase(n) {
     ctrl2conf = &adc1785_ctrl2conf;
     conf2reg = &adc1785_conf2reg;
@@ -442,11 +444,24 @@ int adc1785::packData(unsigned int &packSize) {
     void* p;
     unsigned int value;
     unsigned int tranSize = 0;
-    for(unsigned int i=0; i<packSize/4; i++,bias+=4) {
-        p = dataPool->devGetSnapPtr(bias, 4);
+    unsigned int readSize, restSize, j;
+    for(unsigned int i=0; i<packSize/wordSize; i++,bias+=wordSize) {
+        readSize = wordSize;
+        p = dataPool->devGetSnapPtr(bias, readSize);
         if(p == NULL)
             return 0;
-        value = *(uint32_t*)p;
+        if(readSize < wordSize) {
+            for(j=0; j<readSize; j++)
+                v[j] = *((char*)p+j);
+            restSize = wordSize-readSize;
+            p = dataPool->devGetSnapPtr(bias+readSize, restSize);
+            for(j=readSize; j<wordSize; j++)
+                v[j] = *((char*)p+j);
+            value = (unsigned int)(*(uint32_t*)v);
+        }
+        else {
+            value = (unsigned int)*(uint32_t*)p;
+        }
 
         // invalid data
         if((value&0x00000007) == 0x00000006) {
@@ -513,12 +528,27 @@ int adc1785::packDataTest(unsigned int& packSize) {
     void* p;
     unsigned int value;
     unsigned int tranSize = 0;
-    for(unsigned int i=0; i<packSize/4; i++,bias+=4) {
+    unsigned int readSize, restSize, j;
+    for(unsigned int i=0; i<packSize/wordSize; i++,bias+=wordSize) {
         debugMsg << name << "# " << "pack data " << i;
         stMsg->stateOut(debugMsg);
-        p = dataPool->devGetSnapPtr(bias, 4);
+        readSize = wordSize;
+        p = dataPool->devGetSnapPtr(bias, readSize);
         if(p == NULL)
             return 0;
+        if(readSize < wordSize) {
+            for(j=0; j<readSize; j++)
+                v[j] = *((char*)p+j);
+            restSize = wordSize-readSize;
+            p = dataPool->devGetSnapPtr(bias+readSize, restSize);
+            for(j=readSize; j<wordSize; j++)
+                v[j] = *((char*)p+j);
+            value = (unsigned int)(*(uint32_t*)v);
+        }
+        else {
+            value = (unsigned int)*(uint32_t*)p;
+        }
+
         if(eventPtrW == -1)
             return 0;
         eventSet[eventPtrW][tmpIdx] = value;

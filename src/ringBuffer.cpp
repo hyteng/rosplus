@@ -251,7 +251,7 @@ int ringBuffer::rmSnapRead() {
     return 1;
 }
 
-void* ringBuffer::getSnapPtr(const unsigned int& nBias, const unsigned int& nLength) {
+void* ringBuffer::getSnapPtr(const unsigned int& nBias, unsigned int& nLength) {
 
     if(snapSignal != 1)
         return NULL;
@@ -269,12 +269,14 @@ void* ringBuffer::getSnapPtr(const unsigned int& nBias, const unsigned int& nLen
     else {
         p1 = checkSnapRead(virtualSize0);
         if(virtualSize0 < nBias)
-            return (void*)(bufStart+nBias-(snapLastWrite-(char*)p0));
+            return (void*)(bufStart+nBias-(snapLastWrite-(char*)p1));
         else {
-            if((nBias-(snapLastWrite-(char*)p0)) == 0)
+            if(nBias == (snapLastWrite-(char*)p1))
                 return (void*)(bufStart);
-            else
-                return NULL;
+            else {
+                nLength = (snapLastWrite-(char*)p0)-nBias;
+                return (void*)((char*)p0+nBias);
+            }
         }
     }
 }

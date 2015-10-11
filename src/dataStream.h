@@ -22,25 +22,24 @@ class dataStream {
         int getDevMsgQue();
         int getNetMsgQue();
 
-        unsigned int devWrite(const void* addr, const unsigned int& nBytes);
+        unsigned int devWrite(const void* addr, const unsigned int& nBytes, int sendMsg=1); // default sending message
         int devSetSnap();
         int devAddSnapRead();
         int devRmSnapRead();
-        void* devGetSnapPtr(const unsigned int& nBias, const unsigned int& nBytes);
+        void* devGetSnapPtr(const unsigned int& nBias, unsigned int& nBytes);
         unsigned int devPopSnap(const unsigned int& nBytes);
 
-        unsigned int netWrite(const void* addr, const unsigned int& nBytes);
+        unsigned int netWrite(const void* addr, const unsigned int& nBytes, int sendMsg=0); // default not sending message
         int netSetSnap();
         int netAddSnapRead();
         int netRmSnapRead();
-        void* netGetSnapPtr(const unsigned int& nBias, const unsigned int& nBytes);
+        void* netGetSnapPtr(const unsigned int& nBias, unsigned int& nBytes);
         unsigned int netPopSnap(const unsigned int& nBytes);
 
     private:
         /* data */
         ringBuffer *devRing, *netRing;
         unsigned int devRingSize, netRingSize;
-        unsigned int devCount, netCount;
         unsigned int totalDevSize, totalNetSize;
         key_t devKey, netKey;
         int devMsgQue, netMsgQue;

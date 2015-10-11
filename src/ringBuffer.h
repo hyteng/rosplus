@@ -20,7 +20,7 @@ class ringBuffer {
         unsigned int dmaWrite(const void* addr, const unsigned int& nBytes);
         unsigned int dmaRead(void* addr, const unsigned int& nBytes);
         int setSnapStatus();
-        void* getSnapPtr(const unsigned int& nBias, const unsigned int& nLength);
+        void* getSnapPtr(const unsigned int& nBias, unsigned int& nLength);
         unsigned int popSnapRead(const unsigned int& nBytes);
         int addSnapRead();
         int rmSnapRead();

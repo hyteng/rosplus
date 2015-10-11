@@ -99,7 +99,7 @@ int smBase::OTFCTRL(void* argv[]) {
     stringstream sValue(value);
     string v;
     std::vector<string> &confList = (*ctrl2conf)[ctrlName];
-    for(int i=0; i<confList.size(); i++) {
+    for(unsigned int i=0; i<confList.size(); i++) {
         getline(sValue, v, ',');
         stringstream sv(v);
         (*vd).setValueS(sv);

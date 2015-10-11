@@ -75,6 +75,7 @@ class adc1785 :public smBase {
         adc1785Event eventSet;
         int eventPtrR, eventPtrW;
         std::queue<unsigned int> *eventIdx;
+        char v[4];
 };
 
 #endif

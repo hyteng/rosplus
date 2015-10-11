@@ -270,12 +270,22 @@ int dataPacker::packDataTest(unsigned int& packSize) {
     void* p;
     unsigned int value;
     unsigned int tranSize = 0;
-    for(unsigned int i=0; i<packSize/4; i++,bias+=4) {
-        p = dataPool->devGetSnapPtr(bias, 4);
+    unsigned int wordSize=4, readSize, restSize;
+    for(unsigned int i=0; i<packSize/wordSize; i++,bias+=wordSize) {
+        readSize = wordSize;
+        p = dataPool->devGetSnapPtr(bias, readSize);
         if(p == NULL)
             return 0;
-        dataPool->netWrite(p, 4);
-        tranSize += 4;
+        if(readSize < wordSize) {
+            dataPool->netWrite(p, readSize);
+            restSize = wordSize-readSize;
+            p = dataPool->devGetSnapPtr(bias+readSize, restSize);
+            dataPool->netWrite(p, restSize);
+        }
+        else {
+            dataPool->netWrite(p, readSize);
+        }
+        tranSize += wordSize;
     }
 
     unsigned int popSize = dataPool->devPopSnap(packSize);

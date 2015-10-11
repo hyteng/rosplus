@@ -298,6 +298,8 @@ static int setCtrl() {
 
 static int dummy = setCtrl();
 
+#define wordSize 4
+
 mqdc32::mqdc32(const string& n): smBase(n) {
     ctrl2conf = &mqdc32_ctrl2conf;
     conf2reg = &mqdc32_conf2reg;
@@ -494,11 +496,24 @@ int mqdc32::packData(unsigned int &packSize) {
     void* p;
     unsigned int value;
     unsigned int tranSize = 0;
-    for(unsigned int i=0; i<packSize/4; i++,bias+=4) {
-        p = dataPool->devGetSnapPtr(bias, 4);
+    unsigned int readSize, restSize, j;
+    for(unsigned int i=0; i<packSize/wordSize; i++,bias+=wordSize) {
+        readSize = wordSize;
+        p = dataPool->devGetSnapPtr(bias, readSize);
         if(p == NULL)
             return 0;
-        value = *(uint32_t*)p;
+        if(readSize < wordSize) {
+            for(j=0; j<readSize; j++)
+                v[j] = *((char*)p+j);
+            restSize = wordSize-readSize;
+            p = dataPool->devGetSnapPtr(bias+readSize, restSize);
+            for(j=readSize; j<wordSize; j++)
+                v[j] = *((char*)p+j);
+            value = (unsigned int)(*(uint32_t*)v);
+        }
+        else {
+            value = (unsigned int)*(uint32_t*)p;
+        }
 
         // invalid data
         if((value&0x00000007) == 0x00000006) {

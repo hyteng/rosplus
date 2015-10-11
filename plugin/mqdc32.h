@@ -78,6 +78,7 @@ class mqdc32 :public smBase {
         mqdc32Event eventSet;
         int eventPtrR, eventPtrW;
         std::queue<unsigned int> *eventIdx;
+        char v[4];
 };
 
 #endif
