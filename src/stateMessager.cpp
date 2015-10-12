@@ -231,7 +231,7 @@ int stateMessager::sendData(const string& h0, void* p0, const unsigned int &nByt
         return 0;
     // send the header for device specification
     send(clientData, (char*)&h0, h0.length(), 0);
-    unsigned int tranSize=0, headSize=h0.size(), dataSize=nBytes, totalSize=headSize+dataSize;
+    unsigned int tranSize=0, headSize=h0.length()+1, dataSize=nBytes, totalSize=headSize+dataSize;
     int result;
     char* p1 = (char*)&h0;
     while(tranSize < headSize) {

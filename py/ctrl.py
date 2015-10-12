@@ -59,12 +59,12 @@ class ctrlFrame(wx.Frame):
         self.Bind(wx.EVT_BUTTON, lambda evt, cmdId=0: self.sendCmd(evt, cmdId), self.button_Load)
         self.Bind(wx.EVT_BUTTON, lambda evt, cmdId=2: self.sendCmd(evt, cmdId), self.button_Conf)
         self.Bind(wx.EVT_BUTTON, lambda evt, cmdId=4: self.sendCmd(evt, cmdId), self.button_Prep)
-        self.Bind(wx.EVT_BUTTON, lambda evt, cmdId=5: self.sendCmd(evt, cmdId), self.button_Star)
-        self.Bind(wx.EVT_BUTTON, lambda evt, cmdId=6: self.sendCmd(evt, cmdId), self.button_Paus)
+        self.Bind(wx.EVT_BUTTON, lambda evt, cmdId=6: self.sendCmd(evt, cmdId), self.button_Star)
+        self.Bind(wx.EVT_BUTTON, lambda evt, cmdId=8: self.sendCmd(evt, cmdId), self.button_Paus)
         self.Bind(wx.EVT_BUTTON, lambda evt, cmdId=1: self.sendCmd(evt, cmdId), self.button_unLoad)
         self.Bind(wx.EVT_BUTTON, lambda evt, cmdId=3: self.sendCmd(evt, cmdId), self.button_unConf)
-        self.Bind(wx.EVT_BUTTON, lambda evt, cmdId=7: self.sendCmd(evt, cmdId), self.button_End)
-        self.Bind(wx.EVT_BUTTON, lambda evt, cmdId=10: self.sendCmd(evt, cmdId), self.button_Stop)
+        self.Bind(wx.EVT_BUTTON, lambda evt, cmdId=5: self.sendCmd(evt, cmdId), self.button_End)
+        self.Bind(wx.EVT_BUTTON, lambda evt, cmdId=7: self.sendCmd(evt, cmdId), self.button_Stop)
         self.Bind(wx.EVT_BUTTON, lambda evt, cmdId=9: self.sendCmd(evt, cmdId), self.button_Resu)
         for i in range(self.dCount) :
             self.Bind(wx.EVT_BUTTON, lambda evt, devId=i: self.showDev(evt, devId), self.dev_button[i])
@@ -170,14 +170,14 @@ class msgSwitch(threading.Thread):
             else :
                 msg = line[:idx]
                 line = line[idx+1:]
-            #print "%s"%(msg)
+            print "%s"%(msg)
             name = msg[:msg.find('#')]
             frame = -1
-            #print name
-            #print self.nameList
+            print name
+            print self.nameList
             if self.nameList.count(name)==1 : 
                 i = self.nameList.index(name)
-                #print "message from %s in devList %dth"%(name,i)
+                print "message from %s in devList %dth"%(name,i)
                 frame = self.frameList[i]
                 if (frame!=-1) and (frame!=None) :
                     txt = frame.output0
@@ -296,7 +296,7 @@ class ctrlApp(wx.App):
         self.thpool.append(msgSwitch(self.socketMsg))
         self.thpool.append(dataSwitch(self.socketData))
         self.thpool.append(ctrlSwitch(self.socketCtrl))
-        self.thpool.append(timeDamon(self, 0.1))
+        self.thpool.append(timeDamon(self, 1))
         self.msg = self.thpool[0]
         self.data = self.thpool[1]
         self.ctrl = self.thpool[2]
@@ -312,7 +312,7 @@ class ctrlApp(wx.App):
             self.modLines = self.cfgFile.readlines()
             for idx in self.modLines :
                 m = idx[:idx.find(' ')]
-                n = idx[idx.find(' ')+1:]
+                n = idx[idx.find(' ')+1:idx.find('\n')]
                 self.modList.append(__import__(m))
                 self.modName.append(n)
                 self.modCount += 1 
@@ -343,7 +343,7 @@ class ctrlApp(wx.App):
 
     def timerHandler(self):
         for dev in self.devs :
-            if dev.callTimer==True : 
+            if dev!=self :
                 dev.timerHandler()
 
     def start(self):
