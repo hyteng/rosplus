@@ -30,7 +30,6 @@ class daq :public smBase {
         int startDaq();
         int stopDaq();
         void runDaq();
-        int sendData(void* p0, const unsigned int& nBytes);
 
     private:
         int runDaqCtrl;

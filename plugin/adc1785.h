@@ -57,6 +57,7 @@ class adc1785 :public smBase {
         int packData(unsigned int &packSize);
         int packDataTest(unsigned int& packSize);
         int fillEvent(unsigned int &packSize);
+        int sendEevent();
 
         int configAdc();
         int releaseAdc();
@@ -76,6 +77,7 @@ class adc1785 :public smBase {
         int eventPtrR, eventPtrW;
         std::queue<unsigned int> *eventIdx;
         char v[4];
+        bool sendData;
 };
 
 #endif

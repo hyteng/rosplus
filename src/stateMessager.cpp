@@ -225,20 +225,33 @@ int stateMessager::sendMsg(const string& msg) {
     return tranSize;
 }
 
-int stateMessager::sendData(void* p0, const unsigned int &nBytes) {
+int stateMessager::sendData(const string& h0, void* p0, const unsigned int &nBytes) {
     std::unique_lock<std::mutex> lock(dataMutex);
     if(clientData==-1)
         return 0;
-    unsigned int tranSize=0, totalSize=nBytes;
+    // send the header for device specification
+    send(clientData, (char*)&h0, h0.length(), 0);
+    unsigned int tranSize=0, headSize=h0.size(), dataSize=nBytes, totalSize=headSize+dataSize;
     int result;
-    char* p1 = (char*)p0;
-    while(tranSize < totalSize) {
-        result = send(clientData, p1, totalSize, 0);
+    char* p1 = (char*)&h0;
+    while(tranSize < headSize) {
+        result = send(clientData, p1, headSize, 0);
         if(result <= 0)
             return tranSize;
         else {
             p1 += result;
-            totalSize -= result;
+            headSize -= result;
+            tranSize += result;
+        }
+    }
+    p1 = (char*)p0;
+    while(tranSize < totalSize) {
+        result = send(clientData, p1, dataSize, 0);
+        if(result <= 0)
+            return tranSize;
+        else {
+            p1 += result;
+            dataSize -= result;
             tranSize += result;
         }
     }

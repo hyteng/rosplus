@@ -24,6 +24,7 @@ class dataStream {
 
         unsigned int devWrite(const void* addr, const unsigned int& nBytes, int sendMsg=1); // default sending message
         int devSetSnap();
+        unsigned int devGetSnapSize();
         int devAddSnapRead();
         int devRmSnapRead();
         void* devGetSnapPtr(const unsigned int& nBias, unsigned int& nBytes);
@@ -31,6 +32,7 @@ class dataStream {
 
         unsigned int netWrite(const void* addr, const unsigned int& nBytes, int sendMsg=0); // default not sending message
         int netSetSnap();
+        unsigned int netGetSnapSize();
         int netAddSnapRead();
         int netRmSnapRead();
         void* netGetSnapPtr(const unsigned int& nBias, unsigned int& nBytes);

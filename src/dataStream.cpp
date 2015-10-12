@@ -103,6 +103,10 @@ int dataStream::devSetSnap() {
     return devRing->setSnapStatus();
 }
 
+unsigned int dataStream::devGetSnapSize() {
+    return devRing->getSnapSize();
+}
+
 int dataStream::devAddSnapRead() {
     return devRing->addSnapRead();
 }
@@ -116,7 +120,9 @@ void* dataStream::devGetSnapPtr(const unsigned int& nBias, unsigned int& nBytes)
 }
 
 unsigned int dataStream::devPopSnap(const unsigned int& nBytes) {
-    return devRing->popSnapRead(nBytes);
+    unsigned int readSize = devRing->popSnap(nBytes);
+    totalDevSize -= readSize;
+    return readSize;
 }
 
 unsigned int dataStream::netWrite(const void* addr, const unsigned int& nBytes, int sendMsg) {
@@ -126,7 +132,7 @@ unsigned int dataStream::netWrite(const void* addr, const unsigned int& nBytes, 
     if(sendSize == 0)
         return 0;
 
-    //totalNetSize += sendSize;
+    totalNetSize += sendSize;
     if(sendMsg == 1) {
         netMsg.signal = 1;
         netMsg.size = sendSize;
@@ -144,6 +150,10 @@ int dataStream::netSetSnap() {
     return netRing->setSnapStatus();
 }
 
+unsigned int dataStream::netGetSnapSize() {
+    return netRing->getSnapSize();
+}
+
 int dataStream::netAddSnapRead() {
     return netRing->addSnapRead();
 }
@@ -157,5 +167,7 @@ void* dataStream::netGetSnapPtr(const unsigned int& nBias, unsigned int& nBytes)
 }
 
 unsigned int dataStream::netPopSnap(const unsigned int& nBytes) {
-    return netRing->popSnapRead(nBytes);
+    unsigned int readSize = netRing->popSnap(nBytes);
+    totalNetSize -= readSize;
+    return readSize;
 }

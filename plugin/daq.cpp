@@ -112,8 +112,9 @@ int daq::stopDaq() {
 void daq::runDaq() {
     daqStatus = TASK_RUN;
 
-    daqCount = 0;
+    //daqCount = 0;
     totalDaqSize = 0;
+    unsigned int readSize, restSize;
     unsigned int recSize = 0;
     void* netPtr = NULL;
     while(1) {
@@ -125,14 +126,23 @@ void daq::runDaq() {
         //debugMsg << name << "# " << "fetch netMsg " << daqMsg.size << daqMsg.signal;
         //stMsg->stateOut(debugMsg);
 
-        daqCount++;
-        totalDaqSize += daqMsg.size;
+        //daqCount++;
+        //totalDaqSize += daqMsg.size;
         if(daqMsg.signal == 2) {
             dataPool->netSetSnap();
-            netPtr = dataPool->netGetSnapPtr(0, totalDaqSize);
+            totalDaqSize = dataPool->netGetSnapSize();
+            readSize = totalDaqSize;
+            netPtr = dataPool->netGetSnapPtr(0, readSize);
             if(netPtr != NULL) {
-                outFile.write((const char*)netPtr, totalDaqSize);
-                sendData(netPtr, totalDaqSize);
+                if(readSize == totalDaqSize) {
+                    outFile.write((const char*)netPtr, totalDaqSize);
+                }
+                else {
+                    outFile.write((const char*)netPtr, readSize);
+                    restSize = totalDaqSize - readSize;
+                    netPtr = dataPool->netGetSnapPtr(readSize, restSize);
+                    outFile.write((const char*)netPtr, restSize);
+                }
                 recSize += totalDaqSize;
                 debugMsg << name << "# " << "save " << recSize << "data";
                 stMsg->stateOut(debugMsg);
@@ -143,8 +153,8 @@ void daq::runDaq() {
             }
             dataPool->netPopSnap(totalDaqSize);
 
-            daqCount = 0;
-            totalDaqSize = 0;
+            //daqCount = 0;
+            //totalDaqSize = 0;
 
             continue;
         }
@@ -160,11 +170,6 @@ void daq::runDaq() {
 
     debugMsg << name << "# " << "stop thread" << daqStatus;
     stMsg->stateOut(debugMsg);
-}
-
-int daq::sendData(void* p0, const unsigned int& nBytes) {
-    int sndSize = stMsg->sendData(p0, nBytes);
-    return sndSize;
 }
 
 extern "C" smBase* create(const string& n) {

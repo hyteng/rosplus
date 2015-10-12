@@ -34,7 +34,7 @@ class stateMessager {
         int setCtrlSocket();
         int controlRun(int socketMsg);
         int sendMsg(const std::string& msg);
-        int sendData(void *p0, const unsigned int &nBytes);
+        int sendData(const std::string& h0, void *p0, const unsigned int &nBytes);
         int sendCtrl(const std::string& msg);
 
     private:

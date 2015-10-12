@@ -594,8 +594,10 @@ int adc1785::fillEvent(unsigned int& packSize) {
         packSize = 0;
         return 0;
     }
-    packSize = eventIdx->front() * 4;
+    packSize = eventIdx->front() * wordSize;
     dataPool->netWrite(&eventSet[eventPtrR][0], packSize);
+    if(sendData == true)
+        stMsg->sendData(name+"#", &eventSet[eventPtrR][0], packSize);
     eventIdx->pop();
     if(eventPtrW == -1)
         eventPtrW = eventPtrR;
