@@ -100,7 +100,7 @@ bool ringBuffer::isEmpty() {
 
 unsigned int ringBuffer::nBytesUsed() {
 
-    std::unique_lock<std::mutex> lock(semMutex);
+    //std::unique_lock<std::mutex> lock(semMutex);
 
     if(pWrite == NULL)
         return (bufEnd-bufStart);

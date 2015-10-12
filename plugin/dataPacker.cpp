@@ -236,7 +236,7 @@ int dataPacker::packData(unsigned int& packSize) {
             tmpSize = 0;
             pSize = (void*)&tmpSize;
         }
-        debugMsg << name << "# " << "before pack " << *(unsigned int*)pSize << ";";
+        debugMsg << name << "# " << "dev " << devList[i] << "before pack " << *(unsigned int*)pSize << ";";
         stMsg->stateOut(debugMsg);
         packList[i]->queryInterface("packData", &pSize, (void*)&ret);
         debugMsg << name << "# " << "dev " << devList[i] << ": after pack " << *(unsigned int*)pSize << "bytes data";

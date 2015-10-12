@@ -15,7 +15,6 @@ class ringBuffer {
         int clear();
         bool isFull();
         bool isEmpty();
-        unsigned int nBytesUsed();
         unsigned int dmaApply(const bool& rw, const unsigned int& nBytes, ringBuffer& other);
         unsigned int dmaWrite(const void* addr, const unsigned int& nBytes);
         unsigned int dmaRead(void* addr, const unsigned int& nBytes);
@@ -28,6 +27,7 @@ class ringBuffer {
         void show();
         
     private:
+        unsigned int nBytesUsed();
         void* checkWrite(const unsigned int& nBytes);
         void* checkRead(unsigned int& nBytes);
         void* checkSnapRead(unsigned int& nBytes);
