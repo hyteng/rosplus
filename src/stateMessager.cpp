@@ -21,6 +21,7 @@ using std::endl;
 using std::thread;
 
 //typedef int callFunc(const string&);
+static string endSymbol = "$";
 
 stateMessager::stateMessager() {
 }
@@ -255,6 +256,8 @@ int stateMessager::sendData(const string& h0, void* p0, const unsigned int &nByt
             tranSize += result;
         }
     }
+    // end of event
+    send(clientData, (char*)&endSymbol, 1, 0);
     //cout << "stateMessager: sendData " << nBytes << ", transfer " << tranSize << " bytes." << endl;
     return tranSize;
 }

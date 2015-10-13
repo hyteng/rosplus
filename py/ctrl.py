@@ -202,15 +202,30 @@ class dataSwitch(threading.Thread):
             if data=='' :
                 break
             buf += data
-            idx = buf.find('\0\0\0\0')
+            idx = buf.find('$')
             if idx<0 :
-                continue;
+                continue
             else :
                 event = buf[:idx]
-                buf = buf[idx+4:]
-            
+                buf = buf[idx+1:]
+                switchEvent(event)
+                print "%s"%(event)
             print "%s"%(data)
         print "dataSwitch is finished."
+
+    def switchEvent(self, event):
+        idx = buf.find('#')
+        if idx<0 :
+            print "not valid spacer '#' in event record"
+        else :
+            name = event[:idx]
+            data = event[idx+1:]
+            if self.nameList.count(name)==1 : 
+                i = self.nameList.index(name)
+                print "message from %s in devList %dth"%(name,i)
+                dev = self.devList[i]
+                dev.fillEvent(data)
+
 
 class ctrlSwitch(threading.Thread):
     def __init__(self, s):

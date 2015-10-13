@@ -5,6 +5,7 @@
 #
 
 import wx
+import struct
 import ROOT
 import matplotlib.pyplot as plt
 import numpy as np
@@ -372,10 +373,9 @@ class devFrame(wx.Frame):
             self.C[i].add_subplot(111).plot()
             #hist(self.dev.hist[idx0][idx1], bins=4098, range=(-1.5, 4096.5), normed=False, weights=None, cumulative=False, bottom=None, histtype='step', align='mid', orientation='vertical', rwidth=None, log=False, color=None, label=None, stacked=False, hold=None)
 
-
-
-
 # end of class devFrame
+
+
 class devApp:
     #def OnInit(self):
     def __init__(self, n):
@@ -397,6 +397,28 @@ class devApp:
     def setFrame(self, f):
         self.frame = f
 
+    def fillEvent(self, event):
+        print "filling event\n"
+        num = event.length()/4
+        for idx in range(num) :
+            data = event[idx*4:(idx+1)*4]
+            if (idx>0) and (idx<num-1) :
+                value = struct.unpack(">I", data)
+                ch = (value&0x001C0000)>>18
+                rg = (value&0x00020000)>>17
+                un = (value&0x00002000)>>13
+                ov = (value&0x00001000)>>12
+                adc = (value&0x00000FFF)
+                n = (1-rg)*8+ch
+                print "channel %d: %d\n"%(n, adc)
+                fillCh(n, adc)
+                continue
+            if idx==0 :
+                continue
+            if idx==num-1 :
+                continue
+        print "filling event done\n"
+        
     def fillCh(self, n, v):
         idx0 = n/8
         idx1 = n%8
