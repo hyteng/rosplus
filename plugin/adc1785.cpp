@@ -555,7 +555,7 @@ int adc1785::packDataTest(unsigned int& packSize) {
         debugMsg << name << "# " << "pack data value " << eventSet[eventPtrW][tmpIdx];
         stMsg->stateOut(debugMsg);
         tmpIdx++;
-        if(tmpIdx == 4) {
+        if(tmpIdx == 2) {
             debugMsg << name << "# " << "pack event";
             stMsg->stateOut(debugMsg);
             // copy to idx set
