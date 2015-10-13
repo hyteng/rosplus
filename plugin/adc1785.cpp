@@ -491,9 +491,9 @@ int adc1785::packData(unsigned int &packSize) {
             eventIdx->push(tmpIdx);
             //dataPool->netWrite(tmp, tmpIdx*4);
             tranSize += tmpIdx*4;
-            debugMsg << name << "# " << "pack data: " << endl;
-            for(int i=0; i<tmpIdx; i++) {
-                debugMsg << std::hex << eventSet[eventPtrW][i] << " ";
+            debugMsg << name << "# " << "pack data " << i << ": write ptr " << eventPtrW << endl;
+            for(int k=0; k<tmpIdx; k++) {
+                debugMsg << std::hex << eventSet[eventPtrW][k] << " ";
             }
             stMsg->stateOut(debugMsg);
             tmpIdx=0;
@@ -552,7 +552,7 @@ int adc1785::packDataTest(unsigned int& packSize) {
         if(eventPtrW == -1)
             return 0;
         eventSet[eventPtrW][tmpIdx] = value;
-        debugMsg << name << "# " << "pack data value " << eventSet[eventPtrW][tmpIdx];
+        debugMsg << name << "# " << "pack data write ptr " << eventPtrW << ", value " << eventSet[eventPtrW][tmpIdx];
         stMsg->stateOut(debugMsg);
         tmpIdx++;
         if(tmpIdx == 2) {
@@ -563,8 +563,8 @@ int adc1785::packDataTest(unsigned int& packSize) {
             //dataPool->netWrite(tmp, tmpIdx*4);
             tranSize += tmpIdx*4;
             debugMsg << name << "# " << "pack data: " << endl;
-            for(int i=0; i<tmpIdx; i++) {
-                debugMsg << std::hex << eventSet[eventPtrW][i] << " ";
+            for(int k=0; k<tmpIdx; k++) {
+                debugMsg << std::hex << eventSet[eventPtrW][k] << " ";
             }
             stMsg->stateOut(debugMsg);
             tmpIdx=0;
@@ -594,6 +594,8 @@ int adc1785::fillEvent(unsigned int& packSize) {
         packSize = 0;
         return 0;
     }
+    debugMsg << name << "# " << "event read ptr " << eventPtrR << ", eventIdx " << eventIdx->front();
+    stMsg->stateOut(debugMsg);
     packSize = eventIdx->front() * wordSize;
     dataPool->netWrite(&eventSet[eventPtrR][0], packSize);
     if(sendData == true)

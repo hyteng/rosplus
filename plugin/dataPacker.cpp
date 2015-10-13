@@ -251,7 +251,7 @@ int dataPacker::packData(unsigned int& packSize) {
         pSize = (void*)&tmpSize;
         for(int j=0; j<listSize; j++) {
             packList[j]->queryInterface("fillEvent", &pSize, (void*)&ret);
-            debugMsg << name << "# " << "dev: " << devList[i] << " fill " << *(unsigned int*)pSize << "bytes data to a event";
+            debugMsg << name << "# " << "dev: " << devList[j] << " fill " << *(unsigned int*)pSize << "bytes data to a event";
             stMsg->stateOut(debugMsg);
             tranSize += *(unsigned int*)pSize;
         }
