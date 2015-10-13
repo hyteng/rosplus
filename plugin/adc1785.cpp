@@ -276,7 +276,7 @@ int adc1785::queryInterface(const string& funcName, void* para[], void* ret) {
         return 1;
     }
     if(funcName == "packData") {
-        return packDataTest(*(unsigned int*)para[0]);
+        return packData(*(unsigned int*)para[0]);
     }
     if(funcName == "fillEvent") {
         return fillEvent(*(unsigned int*)para[0]);
@@ -302,7 +302,7 @@ int adc1785::LoadedCONF(void* argv[]) {
     //if(!configAdc())
         //return -1;
     // for test
-    confValue[eventTh] = 2;
+    confValue[eventTh] = 4;
     return 3;
 }
 
@@ -555,7 +555,7 @@ int adc1785::packDataTest(unsigned int& packSize) {
         debugMsg << name << "# " << "pack data value " << eventSet[eventPtrW][tmpIdx];
         stMsg->stateOut(debugMsg);
         tmpIdx++;
-        if(tmpIdx == 2) {
+        if(tmpIdx == 4) {
             debugMsg << name << "# " << "pack event";
             stMsg->stateOut(debugMsg);
             // copy to idx set

@@ -173,8 +173,7 @@ class msgSwitch(threading.Thread):
             print "%s"%(msg)
             name = msg[:msg.find('#')]
             frame = -1
-            print name
-            print self.nameList
+            #print name
             if self.nameList.count(name)==1 : 
                 i = self.nameList.index(name)
                 print "message from %s in devList %dth"%(name,i)

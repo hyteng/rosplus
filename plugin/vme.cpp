@@ -247,7 +247,8 @@ void vme::runVme() {
     //totalVmeSize = 0;
     unsigned int genSize = 0;
     unsigned int sndSize = 0;
-    char *tmp = "ABCDEFGHabcdefgh";
+    //uint32_t tmp[24] = {0xfa00400, 0xf8004010, 0xf8104050, 0xf8024110, 0xf8124550, 0xfc000001, 0xfa0000400, 0xf8004010, 0xf8104050, 0xf8024110, 0xf8124550, 0xfc000002, 0xfa0000400, 0xf8004010, 0xf8104050, 0xf8024110, 0xf8124550, 0xfc000003, 0xfa0000400, 0xf8004010, 0xf8104050, 0xf8024110, 0xf8124550, 0xfc000004};
+    uint32_t tmp[24] = {0x000400fa, 0x104000f8, 0x504010f8, 0x104102f8, 0x504512f8, 0x010000fc, 0x000400fa, 0x104000f8, 0x504010f8, 0x104102f8, 0x504512f8, 0x020000fc, 0x000400fa, 0x104000f8, 0x504010f8, 0x104102f8, 0x504512f8, 0x030000fc, 0x000400fa, 0x104000f8, 0x504010f8, 0x104102f8, 0x504512f8, 0x040000fc};
     while(1) {
 
         if(runVmeCtrl == TASK_STOP) {
@@ -266,7 +267,7 @@ void vme::runVme() {
         
         // test 2
         sleep(1);
-        unsigned int tranSize = dataPool->devWrite(tmp, 16);
+        unsigned int tranSize = dataPool->devWrite(&tmp[0], 24*4);
         /*
         pvme->execCmdPktList(listNumber);
         unsigned int tranSize = 0;
