@@ -170,17 +170,17 @@ class msgSwitch(threading.Thread):
             else :
                 msg = line[:idx]
                 line = line[idx+1:]
-            print "%s"%(msg)
-            name = msg[:msg.find('#')]
-            frame = -1
-            #print name
-            if self.nameList.count(name)==1 : 
-                i = self.nameList.index(name)
-                print "message from %s in devList %dth"%(name,i)
-                frame = self.frameList[i]
-                if (frame!=-1) and (frame!=None) :
-                    txt = frame.output0
-                    wx.CallAfter(txt.AppendText, msg)
+                #print "%s"%(msg)
+                name = msg[:msg.find('#')]
+                frame = -1
+                #print name
+                if self.nameList.count(name)==1 : 
+                    i = self.nameList.index(name)
+                    #print "message from %s in devList %dth"%(name,i)
+                    frame = self.frameList[i]
+                    if (frame!=-1) and (frame!=None) :
+                        txt = frame.output0
+                        wx.CallAfter(txt.AppendText, msg)
         print "msgSwitch is finished."
 
 class dataSwitch(threading.Thread):
@@ -199,22 +199,23 @@ class dataSwitch(threading.Thread):
         buf=''
         while True :
             data = self.socket.recv(4)
+            print "data: %s"%(data)
             if data=='' :
                 break
             buf += data
-            idx = buf.find('$')
+            idx = buf.find('end$')
             if idx<0 :
                 continue
             else :
                 event = buf[:idx]
-                buf = buf[idx+1:]
-                switchEvent(event)
-                print "%s"%(event)
-            print "%s"%(data)
+                buf = buf[idx+4:]
+                print "event before: %s"%(event)
+                self.switchEvent(event)
+                print "event after: %s"%(event)
         print "dataSwitch is finished."
 
     def switchEvent(self, event):
-        idx = buf.find('#')
+        idx = event.find('#')
         if idx<0 :
             print "not valid spacer '#' in event record"
         else :
@@ -222,7 +223,7 @@ class dataSwitch(threading.Thread):
             data = event[idx+1:]
             if self.nameList.count(name)==1 : 
                 i = self.nameList.index(name)
-                print "message from %s in devList %dth"%(name,i)
+                print "message from %s in devList %dth, %s"%(name,i,data)
                 dev = self.devList[i]
                 dev.fillEvent(data)
 
@@ -290,7 +291,7 @@ class timeDamon(threading.Thread):
         print "timeDamon is running"
         while True : 
             time.sleep(self.runTime)
-            print "time step %f" %(self.runTime)
+            #print "time step %f" %(self.runTime)
             self.dev.timerHandler()
         print "timeDamon is finished"
 

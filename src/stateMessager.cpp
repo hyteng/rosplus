@@ -21,7 +21,7 @@ using std::endl;
 using std::thread;
 
 //typedef int callFunc(const string&);
-static string endSymbol = "$";
+static string endSymbol = "end$";
 
 stateMessager::stateMessager() {
 }
@@ -231,7 +231,7 @@ int stateMessager::sendData(const string& h0, void* p0, const unsigned int &nByt
     if(clientData==-1)
         return 0;
     // send the header for device specification
-    send(clientData, (char*)&h0, h0.length(), 0);
+    send(clientData, h0.c_str(), h0.length(), 0);
     unsigned int tranSize=0, headSize=h0.length()+1, dataSize=nBytes, totalSize=headSize+dataSize;
     int result;
     char* p1 = (char*)&h0;
@@ -257,8 +257,8 @@ int stateMessager::sendData(const string& h0, void* p0, const unsigned int &nByt
         }
     }
     // end of event
-    send(clientData, (char*)&endSymbol, 1, 0);
-    //cout << "stateMessager: sendData " << nBytes << ", transfer " << tranSize << " bytes." << endl;
+    send(clientData, endSymbol.c_str(), 4, 0);
+    cout << "stateMessager: sendData " << nBytes << ", transfer " << tranSize << " bytes." << endl;
     return tranSize;
 }
 

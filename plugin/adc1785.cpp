@@ -303,6 +303,7 @@ int adc1785::LoadedCONF(void* argv[]) {
         //return -1;
     // for test
     confValue[eventTh] = 4;
+    sendData = true;
     return 3;
 }
 

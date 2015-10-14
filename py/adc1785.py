@@ -346,21 +346,19 @@ class devFrame(wx.Frame):
         b = event.GetEventObject()
         st = b.GetValue()
         if st==0 :
-            plt.figure(n)
-            plt.close()
-            #if self.C[n] != -1 :
-                #self.C[n].Close()
-                #self.C[n] = -1
+            #plt.figure(n).show()
+            if self.C[n] != -1 :
+                self.C[n].Close()
+                self.C[n] = -1
         else :
-            plt.figure(n)
-            plt.draw()
-            plt.show()
-            #self.C[n] = ROOT.TCanvas("ch"+str(n), "ch"+str(n), 800, 600)
-            #self.C[n].cd()
-            #if self.dev!=-1 :
-                #self.dev.hist[idx0][idx1].Draw()
-                #self.C[n].Modified()
-                #self.C[n].Update()
+            #plt.figure(n)
+            #plt.show()
+            self.C[n] = ROOT.TCanvas("ch"+str(n), "ch"+str(n), 800, 600)
+            self.C[n].cd()
+            if self.dev!=-1 :
+                self.dev.hist[idx0][idx1].Draw()
+                self.C[n].Modified()
+                self.C[n].Update()
 
 
         event.Skip()
@@ -368,9 +366,10 @@ class devFrame(wx.Frame):
     def setDev(self, d):
         self.dev = d
         self.SetTitle(_(d.name))
-        for i in range(16) :
-            self.C[i] = plt.figure(i)
-            self.C[i].add_subplot(111).plot()
+        #for i in range(16) :
+            #self.C[i] = plt.figure(i)
+            #self.C[i].add_subplot(111).plot()
+            #plt.close()
             #hist(self.dev.hist[idx0][idx1], bins=4098, range=(-1.5, 4096.5), normed=False, weights=None, cumulative=False, bottom=None, histtype='step', align='mid', orientation='vertical', rwidth=None, log=False, color=None, label=None, stacked=False, hold=None)
 
 # end of class devFrame
@@ -389,8 +388,8 @@ class devApp:
         self.hist = [[0 for i in range(8)] for j in range(2)]
         for idx0 in (0,1) :
             for idx1 in (0,1,2,3,4,5,6,7) :
-                #self.hist[idx0][idx1] = ROOT.TH1F(str(idx0*8+idx1), str(idx0*8+idx1), 4098, -1.5, 4096.5)
-                self.hist[idx0][idx1] = []
+                self.hist[idx0][idx1] = ROOT.TH1F(str(idx0*8+idx1), str(idx0*8+idx1), 4098, -1.5, 4096.5)
+                #self.hist[idx0][idx1] = []
         
         #dev0.Show()
     
@@ -398,52 +397,56 @@ class devApp:
         self.frame = f
 
     def fillEvent(self, event):
-        print "filling event\n"
-        num = event.length()/4
+        print "filling event size %d, %s"%(len(event),event)
+        num = len(event)/4
         for idx in range(num) :
             data = event[idx*4:(idx+1)*4]
-            if (idx>0) and (idx<num-1) :
+            print "data word: %s"%(data)
+            #if (idx>0) and (idx<num-1) :
+            if idx>=0 :
                 value = struct.unpack(">I", data)
-                ch = (value&0x001C0000)>>18
-                rg = (value&0x00020000)>>17
-                un = (value&0x00002000)>>13
-                ov = (value&0x00001000)>>12
-                adc = (value&0x00000FFF)
+                print "value: %x"%(value[0])
+                ch = (value[0]&0x001C0000)>>18
+                rg = (value[0]&0x00020000)>>17
+                un = (value[0]&0x00002000)>>13
+                ov = (value[0]&0x00001000)>>12
+                adc = (value[0]&0x00000FFF)
                 n = (1-rg)*8+ch
-                print "channel %d: %d\n"%(n, adc)
-                fillCh(n, adc)
+                print "channel %d: %d"%(n, adc)
+                self.fillCh(n, adc)
                 continue
-            if idx==0 :
-                continue
-            if idx==num-1 :
-                continue
-        print "filling event done\n"
+            #if idx==0 :
+                #continue
+            #if idx==num-1 :
+                #continue
+        print "filling event done"
         
     def fillCh(self, n, v):
         idx0 = n/8
         idx1 = n%8
-        #self.hist[idx0][idx1].Fill(v)
-        self.hist[idx0][idx1].append(v)
+        self.hist[idx0][idx1].Fill(v)
+        #self.hist[idx0][idx1].append(v)
         if self.frame!=-1 :
             if (self.frame.C[n]!=-1) and (self.frame.C[n]!=None) :
-                print "fill and update hist%d\n"%(n)
-                #self.frame.C[n].Modified()
-                #self.frame.C[n].Update()
-                self.frame.C[n].draw()
-                plt.plot("hist", self.hist[idx0][idx1])
+                print "fill and update hist%d"%(n)
+                self.frame.C[n].Modified()
+                self.frame.C[n].Update()
+                #plt.plot("hist", self.hist[idx0][idx1])
+                #self.frame.C[n].show()
+
 
     def clearCh(self, n, v):
         idx0 = n/8
         idx1 = n%8
-        #self.hist[idx0][idx1].Clear()
-        self.hist[idx0][idx1].clear()
+        self.hist[idx0][idx1].Clear()
+        #self.hist[idx0][idx1].clear()
         if self.frame!=-1 :
             if (self.frame.C[n]!=-1) and (self.frame.C[n]!=None) :
                 print "fill and update hist%d\n"%(n)
-                #self.frame.C[n].Modified()
-                #self.frame.C[n].Update()
-                self.frame.C[n].draw()
-                plt.plot("hist", self.hist[idx0][idx1])
+                self.frame.C[n].Modified()
+                self.frame.C[n].Update()
+                #self.frame.C[n].draw()
+                #plt.plot("hist", self.hist[idx0][idx1])
 
     def ctrlHandler(self, control, ret):
         if control=="ctrl" :
@@ -460,7 +463,8 @@ class devApp:
                 print "control acknowledge from %s with value %s" %(ctrlName, value)
 
     def timerHandler(self):
-        print "timerHandler for adc1785"
+        print ""
+        #print "timerHandler for adc1785"
 
 
 # end of class devApp
