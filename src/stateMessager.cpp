@@ -211,10 +211,10 @@ int stateMessager::sendMsg(const string& msg) {
         return 0;
     unsigned int tranSize = 0;
     int result;
-    char* p1 = (char*)msg.c_str();
+    const char* p1 = msg.c_str();
     unsigned int nBytes = msg.length()+1;//strlen(msg.c_str())+1;
     while(tranSize < nBytes) {
-        result = send(clientMsg, (char*)p1, nBytes, 0);
+        result = send(clientMsg, p1, nBytes, 0);
         if(result <= 0)
             return tranSize;
         else {
@@ -226,16 +226,15 @@ int stateMessager::sendMsg(const string& msg) {
     return tranSize;
 }
 
-int stateMessager::sendData(const string& h0, void* p0, const unsigned int &nBytes) {
+int stateMessager::sendData(const string& h0, const void* p0, const unsigned int &nBytes) {
     std::unique_lock<std::mutex> lock(dataMutex);
     if(clientData==-1)
         return 0;
     // send the header for device specification
-    send(clientData, h0.c_str(), h0.length(), 0);
-    unsigned int tranSize=0, headSize=h0.length()+1, dataSize=nBytes, totalSize=headSize+dataSize;
+    unsigned int tranSize=0, headSize=h0.length(), dataSize=nBytes, endSize=endSymbol.length(), totalSize=headSize+dataSize+endSymbol.length();
     int result;
-    char* p1 = (char*)&h0;
-    while(tranSize < headSize) {
+    char* p1 = (char*)h0.c_str();
+    while(headSize > 0) {
         result = send(clientData, p1, headSize, 0);
         if(result <= 0)
             return tranSize;
@@ -246,7 +245,7 @@ int stateMessager::sendData(const string& h0, void* p0, const unsigned int &nByt
         }
     }
     p1 = (char*)p0;
-    while(tranSize < totalSize) {
+    while(dataSize > 0) {
         result = send(clientData, p1, dataSize, 0);
         if(result <= 0)
             return tranSize;
@@ -257,9 +256,9 @@ int stateMessager::sendData(const string& h0, void* p0, const unsigned int &nByt
         }
     }
     // end of event
-    send(clientData, endSymbol.c_str(), 4, 0);
+    send(clientData, endSymbol.c_str(), endSize, 0);
     cout << "stateMessager: sendData " << nBytes << ", transfer " << tranSize << " bytes." << endl;
-    return tranSize;
+    return totalSize;
 }
 
 int stateMessager::sendCtrl(const string& msg) {

@@ -209,7 +209,7 @@ class dataSwitch(threading.Thread):
             else :
                 event = buf[:idx]
                 buf = buf[idx+4:]
-                print "event before: %s"%(event)
+                print "event before: %s, size %d"%(event,len(event))
                 self.switchEvent(event)
                 print "event after: %s"%(event)
         print "dataSwitch is finished."
@@ -223,7 +223,7 @@ class dataSwitch(threading.Thread):
             data = event[idx+1:]
             if self.nameList.count(name)==1 : 
                 i = self.nameList.index(name)
-                print "message from %s in devList %dth, %s"%(name,i,data)
+                print "message from %s in devList %dth, %s, size %d"%(name,i,data,len(data))
                 dev = self.devList[i]
                 dev.fillEvent(data)
 
