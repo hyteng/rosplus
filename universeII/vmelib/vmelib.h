@@ -79,8 +79,9 @@ class VMEBridge
     int vmemap(int, unsigned int, unsigned int, unsigned int, int);
 
   public:
-     VMEBridge();
-     virtual ~ VMEBridge();
+    typedef uint32_t vmeAddr;
+    VMEBridge();
+    virtual ~ VMEBridge();
 
 // image related function
 

@@ -259,10 +259,6 @@ adc1785::~adc1785() {
 }
 
 int adc1785::queryInterface(const string& funcName, void* para[], void* ret) {
-    if(funcName == "run") {
-        run();
-        return 1;
-    }
     if(funcName == "getBuffAddr") {
         *(uintptr_t*)ret = getBuffAddr();
         return 1;
@@ -275,11 +271,25 @@ int adc1785::queryInterface(const string& funcName, void* para[], void* ret) {
         *(uint32_t*)ret = getTranSize();
         return 1;
     }
+    if(funcName == "waitTrigger") {
+        *(int*)ret = waitTrigger();
+        return 1;
+    }
+    if(funcName == "afterTransfer") {
+        *(int*)ret = afterTransfer();
+        return 1;
+    }
+    if(funcName == "ackTrigger") {
+        *(int*)ret = ackTrigger();
+        return 1;
+    }
     if(funcName == "packData") {
-        return packData(*(unsigned int*)para[0]);
+        *(int*)ret = packData(*(unsigned int*)para[0]);
+        return 1;
     }
     if(funcName == "fillEvent") {
-        return fillEvent(*(unsigned int*)para[0]);
+        *(int*)ret = fillEvent(*(unsigned int*)para[0]);
+        return 1;
     }
     return 0;
 }
@@ -419,13 +429,6 @@ int adc1785::unmaskRegData(regData& data, regData& mask) {
     return 1;
 }
 
-int adc1785::run() {
-    //pvme->waitIrq(confValue[irqLevel], confValue[irqVector]);
-    debugMsg << name << "# " << "triggered";
-    stMsg->stateOut(debugMsg);
-    return 1;
-}
-
 uintptr_t adc1785::getBuffAddr() {
     return base;
 }
@@ -436,6 +439,23 @@ uint32_t adc1785::getEventTh() {
 
 uint32_t adc1785::getTranSize() {
     return confValue[eventTh];
+}
+
+int adc1785::waitTrigger() {
+    //pvme->waitIrq(confValue[irqLevel], confValue[irqVector]);
+    debugMsg << name << "# " << "triggered";
+    stMsg->stateOut(debugMsg);
+    return 1;
+}
+
+int adc1785::afterTransfer() {
+    return 1;
+}
+
+int adc1785::ackTrigger() {
+    debugMsg << name << "# " << "acknowledge trigger";
+    stMsg->stateOut(debugMsg);
+    return 1;
 }
 
 int adc1785::packData(unsigned int &packSize) {
@@ -928,5 +948,3 @@ extern "C" smBase* create(const string& n) {
 extern "C" void destroy(smBase* pModule) {
     delete pModule;
 }
-
-

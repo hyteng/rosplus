@@ -47,10 +47,12 @@ class mqdc32 :public smBase {
         virtual int unmaskRegData(regData& data, regData& mask);
 
     private:
-        int run();
         uintptr_t getBuffAddr();
         uint32_t getEventTh();
         uint32_t getTranSize();
+        int waitTrigger();
+        int afterTransfer();
+        int ackTrigger();
         int packData(unsigned int &packSize);
         int fillEvent(unsigned int &packSize);
 

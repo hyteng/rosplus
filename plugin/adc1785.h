@@ -50,14 +50,15 @@ class adc1785 :public smBase {
         virtual int unmaskRegData(regData& data, regData& mask);
 
     private:
-        int run();
         uintptr_t getBuffAddr();
         uint32_t getEventTh();
         uint32_t getTranSize();
+        int waitTrigger();
+        int afterTransfer();
+        int ackTrigger();
         int packData(unsigned int &packSize);
         int packDataTest(unsigned int& packSize);
         int fillEvent(unsigned int &packSize);
-        int sendEevent();
 
         int configAdc();
         int releaseAdc();
@@ -68,6 +69,7 @@ class adc1785 :public smBase {
         int enableAdc();
         int disableAdc();
         int accessRegNormal(const regAddrType addr, const int rw, regType* data);
+
         VMEBridge *pvme;
 
         int image;

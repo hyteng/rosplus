@@ -7,7 +7,7 @@
 
 class vme :public smBase {
     public:
-        #define VMEADDRPTR uint32_t
+        typedef VMEBridge::vmeAddr vmeAddr;
         vme(const std::string& n);
         ~vme();
         virtual int queryInterface(const std::string& funcName, void* para[], void* ret);
@@ -27,11 +27,6 @@ class vme :public smBase {
         virtual int OTFCONF(void* argv[]=NULL);
 
     private:
-        VMEBridge* getVME() {return pvme;};
-        int getImgCtrl(int i, uint32_t& addr);
-        std::vector<std::string>& getDevList();
-        int devStringSplit(const string& dList);
-
         int configVme();
         int releaseVme();
         int prepVme();
@@ -39,6 +34,11 @@ class vme :public smBase {
         int startVme();
         int stopVme();
         void runVme();
+        
+        VMEBridge* getVME() {return pvme;};
+        int getImgCtrl(int i, uint32_t& addr);
+        std::vector<std::string>& getNameList();
+        unsigned int devStringSplit(const string& dList);
 
     private:
         int runVmeCtrl;
@@ -51,17 +51,18 @@ class vme :public smBase {
 
         VMEBridge *pvme;
         smBase *triDev;
-        int listNumber, listSize, eventTh;
-        std::vector<uintptr_t> offsetList;
-        std::vector<std::string> devList;
-        std::vector<VMEADDRPTR> buffList;
+        unsigned int listNumber, listSize, eventTh;
+        std::vector<std::string> nameList;
+        std::vector<smBase*> devList;
+        std::vector<vmeAddr> buffList;
         std::vector<uint32_t> sizeList; // since the vme has a limit of 256 words on blt
         std::vector<uint32_t> awList;
         std::vector<uint32_t> dwList;
+        std::vector<uintptr_t> offsetList;
 
         
         unsigned int dmaNumber;
-        uint32_t dmaSize;
+        unsigned int dmaSize, tranSize;
         uintptr_t dmaBase;
 };
 #endif

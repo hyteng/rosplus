@@ -316,10 +316,6 @@ mqdc32::~mqdc32() {
 }
 
 int mqdc32::queryInterface(const std::string& funcName, void* para[], void* ret) {
-    if(funcName == "run") {
-        run();
-        return 1;
-    }
     if(funcName == "getBuffAddr") {
         *(uintptr_t*)ret = getBuffAddr();
         return 1;
@@ -332,11 +328,25 @@ int mqdc32::queryInterface(const std::string& funcName, void* para[], void* ret)
         *(uint32_t*)ret = getTranSize();
         return 1;
     }
+    if(funcName == "waitTrigger") {
+        *(int*)ret = waitTrigger();
+        return 1;
+    }
+    if(funcName == "afterTransfer") {
+        *(int*)ret = afterTransfer();
+        return 1;
+    }
+    if(funcName == "ackTrigger") {
+        *(int*)ret = ackTrigger();
+        return 1;
+    }
     if(funcName == "packData") {
-        return packData(*(unsigned int*)para[0]);
+        *(int*)ret = packData(*(unsigned int*)para[0]);
+        return 1;
     }
     if(funcName == "fillEvent") {
-        return fillEvent(*(unsigned int*)para[0]);
+        *(int*)ret = fillEvent(*(unsigned int*)para[0]);
+        return 1;
     }
     return 0;
 }
@@ -472,11 +482,6 @@ int mqdc32::unmaskRegData(regData& data, regData& mask) {
     return 1;
 }
 
-int mqdc32::run() {
-    //pvme->waitIrq(confValue[irqLevel], confValue[irqVector]);
-    return 1;
-}
-
 uintptr_t mqdc32::getBuffAddr() {
     return base;
 }
@@ -487,6 +492,19 @@ uint32_t mqdc32::getEventTh() {
 
 uint32_t mqdc32::getTranSize() {
     return confValue[maxTransfer];
+}
+
+int mqdc32::waitTrigger() {
+    //pvme->waitIrq(confValue[irqLevel], confValue[irqVector]);
+    return 1;
+}
+
+int mqdc32::afterTransfer() {
+    return 1;
+}
+
+int mqdc32::ackTrigger() {
+    return 1;
 }
 
 int mqdc32::packData(unsigned int &packSize) {
@@ -561,7 +579,6 @@ int mqdc32::packData(unsigned int &packSize) {
             }
             continue;
         }
-        // reserved data
     }
 
     unsigned int popSize = dataPool->devPopSnap(packSize);

@@ -78,7 +78,7 @@ int dataPacker::prepPacker() {
             if(iter->first == vmeDevice) {
                 vmeDev = iter->second;
                 vmeList.clear();
-                if(!vmeDev->queryInterface("getDevList", NULL, (void*)&vmeList))
+                if(!vmeDev->queryInterface("getNameList", NULL, (void*)&vmeList))
                     return 0;
                 vmeSize = vmeList.size();
                 debugMsg << name << "# " << "helper get " << vmeDevice << " and get " << vmeSize << " from its devList.";
@@ -186,7 +186,8 @@ void dataPacker::runPack() {
         packMsg.size = 0;
         int stopSend = msgsnd(netMsgQue, &packMsg, sizeof(packMsg)-sizeof(long), 0);
         if(stopSend < 0) {
-            std::cout << "pack msg fail"  << std::endl;
+            debugMsg << name << "# " << "pack msg fail";
+            stMsg->stateOut(debugMsg);
             packStatus = TASK_ERROR;
         }
 

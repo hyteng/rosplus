@@ -39,8 +39,8 @@ int vme::queryInterface(const std::string& funcName, void* para[], void* ret) {
         if(getImgCtrl(*(int*)para[0], *(uint32_t*)ret) == 1)
             return 1;
     }
-    if(funcName == "getDevList") {
-        *(std::vector<std::string>*)ret = getDevList();
+    if(funcName == "getNameList") {
+        *(std::vector<std::string>*)ret = getNameList();
         return 1;
     }
     return 0;
@@ -49,14 +49,14 @@ int vme::queryInterface(const std::string& funcName, void* para[], void* ret) {
 int vme::InitializedLOAD(void* argv[]) {
     debugMsg << name << "# " << "InitializedLOAD";
     stMsg->stateOut(debugMsg); 
-    pvme = new VMEBridge;
+    //pvme = new VMEBridge;
     return 2;
 }
 
 int vme::LoadedUNLD(void* argv[]) {
     debugMsg << name << "# " << "LoadedUNLD";
     stMsg->stateOut(debugMsg);
-    delete pvme;
+    //delete pvme;
     return 1;
 }
 
@@ -150,13 +150,14 @@ int vme::configVme() {
     }
     dmaBase = pvme->requestDMA(dmaNumber);
     pvme->setOption(DMA, BLT_ON);
-
-    // dmaSize is used for adc1785 single board transfer and will be kick out soon
+    /*
+    // dmaSize is used for single board transfer and will be obsolete soon
     if((res=cfgInfo->infoGetUint("config."+name+".dmaSize", dmaSize)) != 1) {
         debugMsg << name << "# " << "config."+name+".dmaSize not found.";
         stMsg->stateOut(debugMsg);
         dmaSize = DMASIZE;
     }
+    */
     return 1;
 }
 
@@ -187,11 +188,14 @@ int vme::prepVme() {
     if((res=cfgInfo->infoGetString("config."+name+".linkList", linkList)) == 1) {
         devStringSplit(linkList);
         buffList.clear();
+        devList.clear();
         buffList.resize(listSize);
-        for(int i=0; i<listSize; i++) {
+        devList.reserve(listSize);
+        for(unsigned int i=0; i<listSize; i++) {
             for(iter=helpList->begin(); iter!=helpList->end(); iter++) {
-                if(iter->first == devList[i]) {
+                if(iter->first == nameList[i]) {
                     smBase* pDev = iter->second;
+                    devList.push_back(pDev);
                     if(!pDev->queryInterface("getBuffAddr", NULL, (void*)&buffList[i]))
                         return 0;
                     if(!pDev->queryInterface("getTranSize", NULL, (void*)&sizeList[i])) // if the dev change transfer size, sizeList will be updated
@@ -213,7 +217,7 @@ int vme::prepVme() {
     else {
         offsetList.clear();
         offsetList.resize(listSize, 0);
-        for(int i=0; i<listSize;i++) {
+        for(unsigned int i=0; i<listSize;i++) {
             offsetList[i] = pvme->addCmdPkt(listNumber, 0, buffList[i], sizeList[i], awList[i], dwList[i]);
         }
     }
@@ -234,7 +238,9 @@ int vme::startVme() {
 }
 
 int vme::stopVme() {
+    triDev->queryInterface("flushData", NULL, NULL);
     runVmeCtrl = TASK_STOP;
+    //triDev->queryInterface("flushData", NULL, NULL);
     //t0->join();
     t0->detach();
     return 1;
@@ -242,41 +248,45 @@ int vme::stopVme() {
 
 void vme::runVme() {
     vmeStatus = TASK_RUN;
-
-    //vmeCount = 0;
-    //totalVmeSize = 0;
-    unsigned int genSize = 0;
-    unsigned int sndSize = 0;
     //uint32_t tmp[24] = {0xfa00400, 0xf8004010, 0xf8104050, 0xf8024110, 0xf8124550, 0xfc000001, 0xfa0000400, 0xf8004010, 0xf8104050, 0xf8024110, 0xf8124550, 0xfc000002, 0xfa0000400, 0xf8004010, 0xf8104050, 0xf8024110, 0xf8124550, 0xfc000003, 0xfa0000400, 0xf8004010, 0xf8104050, 0xf8024110, 0xf8124550, 0xfc000004};
     uint32_t tmp[24] = {0x000400fa, 0x104000f8, 0x504010f8, 0x104102f8, 0x504512f8, 0x010000fc, 0x000400fa, 0x104000f8, 0x504010f8, 0x104102f8, 0x504512f8, 0x020000fc, 0x000400fa, 0x104000f8, 0x504010f8, 0x104102f8, 0x504512f8, 0x030000fc, 0x000400fa, 0x104000f8, 0x504010f8, 0x104102f8, 0x504512f8, 0x040000fc};
-    while(1) {
 
-        if(runVmeCtrl == TASK_STOP) {
+    unsigned long genSize = 0;
+    unsigned long sndSize = 0;
+    while(runVmeCtrl == TASK_START) {
+        int res;
+        // wait for trigger device
+        triDev->queryInterface("waitTrigger", NULL, &res);
+        /*
+        // for single board transfer, will be obsolete soon
+        uintptr_t offset = pvme->DMAread(buffList[0], dmaSize, A32, D32);
+        if(offset < 0) {
+            vmeStatus = TASK_ERROR;
             break;
         }
-        // wait for trigger device
-        triDev->queryInterface("run", NULL, NULL);
-        
-        // test adc1785 single board
-        //uintptr_t offset = pvme->DMAread(buff, dmaSize, A32, D32);
-        //if(offset < 0) {
-            //vmeStatus = TASK_ERROR;
-            //break;
-        //}
-        //unsigned int tranSize = dataPool->devWrite((void*)(dmaBase+offset), dmaSize);
-        
-        // test 2
+        unsigned int tranSize = dataPool->devWrite((void*)(dmaBase+offset), dmaSize);
+        */
+        // test 
         sleep(1);
-        unsigned int tranSize = dataPool->devWrite(&tmp[0], 24*4);
+        dmaSize = 24*sizeof(uint32_t);
+        unsigned int tranSize = dataPool->devWrite(&tmp[0], dmaSize, 1);
         /*
         pvme->execCmdPktList(listNumber);
-        unsigned int tranSize = 0;
+        tranSize = 0;
         dmaSize = 0;
-        for(int i=0; i< listSize; i++) {
+        for(unsigned int i=0; i< listSize; i++) {
             tranSize += dataPool->devWrite((void*)(dmaBase+offsetList[i]), sizeList[i]);
             dmaSize += sizeList[i];
+            devList[i]->queryInterface("afterTransfer", NULL, &res);
         }
         */
+        triDev->queryInterface("ackTrigger", NULL, &res);
+
+        genSize += dmaSize;
+        sndSize += tranSize;
+        debugMsg << name << "# " << "vme generate " << dmaSize << " bytes data, pool write " << tranSize << " bytes. total gen " << genSize << ", total send " << sndSize << " bytes";
+        stMsg->stateOut(debugMsg);
+
         vmeMsg.signal = 2;
         vmeMsg.size = eventTh;
         int eventSend = msgsnd(devMsgQue, &vmeMsg, sizeof(vmeMsg), 0);
@@ -284,30 +294,19 @@ void vme::runVme() {
             vmeStatus = TASK_ERROR;
             break;
         }
-
-        genSize += dmaSize;
-        sndSize += tranSize;
-
-        //vmeCount++;
-        //totalVmeSize += dmaSize;
-        debugMsg << name << "# " << "vme generate " << dmaSize << " bytes data, pool write " << tranSize << " bytes. total gen " << genSize << ", total send " << sndSize << " bytes";
-        stMsg->stateOut(debugMsg);
     }
 
-    if(runVmeCtrl == TASK_STOP || vmeStatus == TASK_ERROR) {
-        vmeMsg.signal = 3;
-        vmeMsg.size = 0;
-        int stopSend = msgsnd(devMsgQue, &vmeMsg, sizeof(vmeMsg), 0);
-        if(stopSend < 0) {
-            vmeStatus = TASK_ERROR;
-        }
+    vmeMsg.signal = 3;
+    vmeMsg.size = 0;
+    int stopSend = msgsnd(devMsgQue, &vmeMsg, sizeof(vmeMsg), 0);
+    if(stopSend < 0)
+        vmeStatus = TASK_ERROR;
+        
+    debugMsg << name << "# " << "vme send stop to devMsg and return " << stopSend << endl;
+    stMsg->stateOut(debugMsg);
 
-        debugMsg << name << "# " << "vme send stop to devMsg and return " << stopSend << endl;
-        stMsg->stateOut(debugMsg);
-
-        if(vmeStatus == TASK_RUN)
-            vmeStatus = TASK_EXIT;
-    }
+    if(vmeStatus == TASK_RUN)
+        vmeStatus = TASK_EXIT;
 
     debugMsg << name << "# " << "vme stop thread" << vmeStatus << endl;
     stMsg->stateOut(debugMsg);
@@ -322,17 +321,17 @@ int vme::getImgCtrl(int i, uint32_t& addr) {
     return 1;
 }
 
-std::vector<std::string>& vme::getDevList() {
-    return devList;
+std::vector<std::string>& vme::getNameList() {
+    return nameList;
 }
 
-int vme::devStringSplit(const string& dList) {
+unsigned int vme::devStringSplit(const string& dList) {
     stringstream sList(dList);
     string idx, dev, addr, size, aw, dw;
     uint32_t tSize, tAW, tDW;
     debugMsg << name << "# " << "vme take device list" << dList << endl;
     stMsg->stateOut(debugMsg);
-    devList.clear();
+    nameList.clear();
     sizeList.clear();
     awList.clear();
     dwList.clear();
@@ -376,7 +375,7 @@ int vme::devStringSplit(const string& dList) {
         debugMsg << name << "# " << "dev link: " << dev << ", " << tSize << ", " << tAW << ", " << tDW <<endl;
         stMsg->stateOut(debugMsg);
         
-        devList.push_back(dev);
+        nameList.push_back(dev);
         sizeList.push_back(tSize);
         awList.push_back(tAW);
         awList.push_back(tAW);
