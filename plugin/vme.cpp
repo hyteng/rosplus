@@ -49,28 +49,28 @@ int vme::queryInterface(const std::string& funcName, void* para[], void* ret) {
 int vme::InitializedLOAD(void* argv[]) {
     debugMsg << name << "# " << "InitializedLOAD";
     stMsg->stateOut(debugMsg); 
-    //pvme = new VMEBridge;
+    pvme = new VMEBridge;
     return 2;
 }
 
 int vme::LoadedUNLD(void* argv[]) {
     debugMsg << name << "# " << "LoadedUNLD";
     stMsg->stateOut(debugMsg);
-    //delete pvme;
+    delete pvme;
     return 1;
 }
 
 int vme::LoadedCONF(void* argv[]) {
     debugMsg << name << "# " << "LoadedCONF";
     stMsg->stateOut(debugMsg);
-    //configVme();
+    configVme();
     return 3;
 }
 
 int vme::ConfiguredUNCF(void* argv[]) {
     debugMsg << name << "# " << "ConfiguredUNCF";
     stMsg->stateOut(debugMsg);
-    //releaseVme();
+    releaseVme();
     return 2;
 }
 
@@ -210,7 +210,7 @@ int vme::prepVme() {
         stMsg->stateOut(debugMsg);
         return 0;
     }
-    /*
+    
     listNumber = pvme->newCmdPktList();
     if(listNumber < 0 || listNumber > 255)
         return 0;
@@ -221,13 +221,13 @@ int vme::prepVme() {
             offsetList[i] = pvme->addCmdPkt(listNumber, 0, buffList[i], sizeList[i], awList[i], dwList[i]);
         }
     }
-    */
+    
     devMsgQue = dataPool->getDevMsgQue();
     return 1;
 }
 
 int vme::finishVme() {
-    //pvme->delCmdPktList(listNumber);
+    pvme->delCmdPktList(listNumber);
     return 1;
 }
 
@@ -267,10 +267,10 @@ void vme::runVme() {
         unsigned int tranSize = dataPool->devWrite((void*)(dmaBase+offset), dmaSize);
         */
         // test 
-        sleep(1);
-        dmaSize = 24*sizeof(uint32_t);
-        unsigned int tranSize = dataPool->devWrite(&tmp[0], dmaSize, 1);
-        /*
+        //sleep(1);
+        //dmaSize = 24*sizeof(uint32_t);
+        //unsigned int tranSize = dataPool->devWrite(&tmp[0], dmaSize, 1);
+        
         pvme->execCmdPktList(listNumber);
         tranSize = 0;
         dmaSize = 0;
@@ -279,7 +279,7 @@ void vme::runVme() {
             dmaSize += sizeList[i];
             devList[i]->queryInterface("afterTransfer", NULL, &res);
         }
-        */
+        
         triDev->queryInterface("ackTrigger", NULL, &res);
 
         genSize += dmaSize;
