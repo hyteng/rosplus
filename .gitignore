@@ -25,6 +25,7 @@ cscope.*
 .*
 *.pyc
 *.d
+*.orig
 bin/
 lib/
 
