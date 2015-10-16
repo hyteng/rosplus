@@ -23,7 +23,6 @@ dataStream::dataStream() {
 void dataStream::init() {
     devRing = new ringBuffer();
     devRingSize = RINGSIZE;
-    devCount = 0;
     totalDevSize = 0;
 
     if(devRing->isVaild())
@@ -44,7 +43,6 @@ void dataStream::init() {
 
     netRing = new ringBuffer();
     netRingSize = RINGSIZE;
-    netCount = 0;
     totalNetSize = 0;
 
     if(netRing->isVaild())
@@ -79,33 +77,34 @@ int dataStream::getNetMsgQue() {
     return netMsgQue;
 }
 
-unsigned int dataStream::devWrite(const void* addr, const unsigned int& nBytes) {
+unsigned int dataStream::devWrite(const void* addr, const unsigned int& nBytes, int sendMsg) {
     std::unique_lock<std::mutex> lock(devMutex);
 
     unsigned int sendSize = devRing->dmaWrite(addr, nBytes);
     if(sendSize == 0)
         return 0;
 
-    //devCount++;
-    //totalDevSize += sendSize;
-    //if(devCount >= 5) {
+    totalDevSize += sendSize;
+    if(sendMsg == 1) {
         devMsg.signal = 1;
-        devMsg.size = sendSize;//totalDevSize;
-        devMsg.count = 1;//devCount;
+        devMsg.size = sendSize;
+        devMsg.count = 1;
         int res;
         if((res=msgsnd(devMsgQue, &devMsg, sizeof(devMsg), 0)) < 0) {
             std::cout << "error " << errno << ", " << EACCES << ", " << EAGAIN << ", " << EFAULT << ", " << EIDRM << ", " << EINTR << ", " << EINVAL << ", " << ENOMEM << std::endl;
             return 0;
         }
-        //devCount = 0;
-        //totalDevSize = 0;
-    //}
+    }
     return sendSize;
 }
 
 int dataStream::devSetSnap() {
     //std::unique_lock<std::mutex> lock(devMutex);
     return devRing->setSnapStatus();
+}
+
+unsigned int dataStream::devGetSnapSize() {
+    return devRing->getSnapSize();
 }
 
 int dataStream::devAddSnapRead() {
@@ -116,39 +115,43 @@ int dataStream::devRmSnapRead() {
     return devRing->rmSnapRead();
 }
 
-void* dataStream::devGetSnapPtr(const unsigned int& nBias, const unsigned int& nBytes) {
+void* dataStream::devGetSnapPtr(const unsigned int& nBias, unsigned int& nBytes) {
     return devRing->getSnapPtr(nBias, nBytes);
 }
 
 unsigned int dataStream::devPopSnap(const unsigned int& nBytes) {
-    return devRing->popSnapRead(nBytes);
+    unsigned int readSize = devRing->popSnap(nBytes);
+    totalDevSize -= readSize;
+    return readSize;
 }
 
-unsigned int dataStream::netWrite(const void* addr, const unsigned int& nBytes) {
+unsigned int dataStream::netWrite(const void* addr, const unsigned int& nBytes, int sendMsg) {
     std::unique_lock<std::mutex> lock(netMutex);
 
     unsigned int sendSize = netRing->dmaWrite(addr, nBytes);
     if(sendSize == 0)
         return 0;
 
-    //netCount++;
-    //totalNetSize += sendSize;
-    //if(netCount >= 5) {
+    totalNetSize += sendSize;
+    if(sendMsg == 1) {
         netMsg.signal = 1;
-        netMsg.size = sendSize;//totalNetSize;
-        netMsg.count = 1;//netCount;
+        netMsg.size = sendSize;
+        netMsg.count = 1;
         if((msgsnd(netMsgQue, &netMsg, sizeof(netMsg), 0)) < 0) {
             return 0;
         }
-        //netCount = 0;
         //totalNetSize = 0;
-    //}
+    }
     return sendSize;
 }
 
 int dataStream::netSetSnap() {
     //std::unique_lock<std::mutex> lock(netMutex);
     return netRing->setSnapStatus();
+}
+
+unsigned int dataStream::netGetSnapSize() {
+    return netRing->getSnapSize();
 }
 
 int dataStream::netAddSnapRead() {
@@ -159,10 +162,12 @@ int dataStream::netRmSnapRead() {
     return netRing->rmSnapRead();
 }
 
-void* dataStream::netGetSnapPtr(const unsigned int& nBias, const unsigned int& nBytes) {
+void* dataStream::netGetSnapPtr(const unsigned int& nBias, unsigned int& nBytes) {
     return netRing->getSnapPtr(nBias, nBytes);
 }
 
 unsigned int dataStream::netPopSnap(const unsigned int& nBytes) {
-    return netRing->popSnapRead(nBytes);
+    unsigned int readSize = netRing->popSnap(nBytes);
+    totalNetSize -= readSize;
+    return readSize;
 }

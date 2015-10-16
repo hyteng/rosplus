@@ -12,7 +12,7 @@
 #define DATAPORT 4001
 #define CTRLPORT 4002
 #define BACKLOG 10
-#define MAXMSG 200
+#define MAXMSG 256
 
 using std::string;
 using std::stringstream;
@@ -21,6 +21,7 @@ using std::endl;
 using std::thread;
 
 //typedef int callFunc(const string&);
+static string endSymbol = "end$";
 
 stateMessager::stateMessager() {
 }
@@ -164,7 +165,7 @@ int stateMessager::setCtrlSocket() {
             tc->join();
         }
         clientCtrl = remoteCtrl;
-        tc = new thread(&stateMessager::contrlMsg, this, clientCtrl);
+        tc = new thread(&stateMessager::controlRun, this, clientCtrl);
         lock.unlock();
         lock.release();
     }
@@ -173,7 +174,7 @@ int stateMessager::setCtrlSocket() {
     return 1;
 }
 
-int stateMessager::contrlMsg(int socketMsg) {
+int stateMessager::controlRun(int socketMsg) {
     std::unique_lock<std::mutex> lock(ctrlMutex);
     int rval, res;
     char msg[MAXMSG];
@@ -190,11 +191,13 @@ int stateMessager::contrlMsg(int socketMsg) {
         }
         ctrlMsg = string(msg);
         cout << "ctrlMsg: " << ctrlMsg << endl;
-        if(ctrlMsg == "cmd#ctrl#quitMsgThread")
+        if(ctrlMsg == "cmd#all#quitMsgThread#")
             return 1;
-        res = pMachine->dispatch2(msg);
+        res = pMachine->dispatch2(ctrlMsg);
         if(res == 0)
             break;
+
+        sendCtrl(ctrlMsg);
 
         //lock.unlock();
         //lock.release();
@@ -208,10 +211,10 @@ int stateMessager::sendMsg(const string& msg) {
         return 0;
     unsigned int tranSize = 0;
     int result;
-    char* p1 = (char*)msg.c_str();
+    const char* p1 = msg.c_str();
     unsigned int nBytes = msg.length()+1;//strlen(msg.c_str())+1;
     while(tranSize < nBytes) {
-        result = send(clientMsg, (char*)p1, nBytes, 0);
+        result = send(clientMsg, p1, nBytes, 0);
         if(result <= 0)
             return tranSize;
         else {
@@ -223,24 +226,59 @@ int stateMessager::sendMsg(const string& msg) {
     return tranSize;
 }
 
-int stateMessager::sendData(void* p0, const unsigned int &nBytes) {
+int stateMessager::sendData(const string& h0, const void* p0, const unsigned int &nBytes) {
     std::unique_lock<std::mutex> lock(dataMutex);
     if(clientData==-1)
         return 0;
-    unsigned int tranSize=0, totalSize=nBytes;
+    // send the header for device specification
+    unsigned int tranSize=0, headSize=h0.length(), dataSize=nBytes, endSize=endSymbol.length(), totalSize=headSize+dataSize+endSymbol.length();
     int result;
-    char* p1 = (char*)p0;
-    while(tranSize < totalSize) {
-        result = send(clientData, p1, totalSize, 0);
+    char* p1 = (char*)h0.c_str();
+    while(headSize > 0) {
+        result = send(clientData, p1, headSize, 0);
         if(result <= 0)
             return tranSize;
         else {
             p1 += result;
-            totalSize -= result;
+            headSize -= result;
             tranSize += result;
         }
     }
-    //cout << "stateMessager: sendData " << nBytes << ", transfer " << tranSize << " bytes." << endl;
+    p1 = (char*)p0;
+    while(dataSize > 0) {
+        result = send(clientData, p1, dataSize, 0);
+        if(result <= 0)
+            return tranSize;
+        else {
+            p1 += result;
+            dataSize -= result;
+            tranSize += result;
+        }
+    }
+    // end of event
+    send(clientData, endSymbol.c_str(), endSize, 0);
+    cout << "stateMessager: sendData " << nBytes << ", transfer " << tranSize << " bytes." << endl;
+    return totalSize;
+}
+
+int stateMessager::sendCtrl(const string& msg) {
+    std::unique_lock<std::mutex> lock(msgMutex);
+    if(clientMsg==-1)
+        return 0;
+    unsigned int tranSize = 0;
+    int result;
+    char* p1 = (char*)msg.c_str();
+    unsigned int nBytes = msg.length()+1;//strlen(msg.c_str())+1;
+    while(tranSize < nBytes) {
+        result = send(clientCtrl, (char*)p1, nBytes, 0);
+        if(result <= 0)
+            return tranSize;
+        else {
+            p1 += result;
+            nBytes -= result;
+            tranSize += result;
+        }
+    }
     return tranSize;
 }
 

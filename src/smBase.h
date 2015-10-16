@@ -32,10 +32,23 @@
 #include "dataStream.h"
 #include <string>
 #include <vector>
+#include <map>
 #include <sstream>
+#include <stdint.h>
+
+class regData {
+    public:
+        //regData() {};
+        //virtual ~regData() {};
+        virtual void setValueS(std::stringstream& ss) = 0;
+        virtual void setValueP(const void* p) = 0;
+        virtual void* getValueP() = 0;
+        virtual std::string getValueS() = 0;
+        virtual regData& ptr(const void* p) = 0;
+};
 
 class smBase;
-typedef int(smBase::*pFunc)(int para);
+typedef int(smBase::*pFunc)(void* argv[]);
 typedef smBase* pBase;
 
 class smBase {
@@ -46,7 +59,7 @@ class smBase {
 
     public:
         typedef enum {
-            CMID_UNKNCM=-1, CMID_LOAD, CMID_UNLD, CMID_CONF, CMID_UNCF, CMID_PREP, CMID_SATR, CMID_SPTR, CMID_STOP, CMID_PAUS, CMID_RESU, CMID_EXIT, CMID_NONE_TRANS, MAX_CMD_AMOUNT
+            CMID_UNKNCM=-1, CMID_LOAD, CMID_UNLD, CMID_CONF, CMID_UNCF, CMID_PREP, CMID_STOP, CMID_SATR, CMID_SPTR, CMID_PAUS, CMID_RESU, CMID_STAT, CMID_CTRL, CMID_EXIT, MAX_CMD_AMOUNT
         } command;
         typedef enum {
             STID_Invaild=-1, STID_Waiting, STID_Initialized, STID_Loaded, STID_Configured, STID_Ready, STID_Running, STID_Paused, MAX_STATES_AMOUNT
@@ -54,25 +67,36 @@ class smBase {
         //static int result[MAX_CMD_AMOUNT][MAX_STATES_AMOUNT];
 
         void init(stateMessager* msg, configSet* cfg, dataStream* data, const std::vector< std::pair<std::string, smBase*> > *other);
-        virtual int doAction(command cmId);
-        virtual void* getHelp() {return NULL;};
+        virtual int doAction(command cmId, void* para[]=NULL);
+        virtual int queryInterface(const std::string& funcName, void* para[], void* ret) {return false;};
 
     protected:
-        virtual int InitializedLOAD(int para) {return 2;};
-        virtual int LoadedUNLD(int para) {return 1;};
-        virtual int LoadedCONF(int para) {return 3;};
-        virtual int ConfiguredUNCF(int para) {return 2;};
-        virtual int ConfiguredPREP(int para) {return 4;};
-        virtual int ReadySATR(int para) {return 5;};
-        virtual int RunningSPTR(int para) {return 4;};
-        virtual int ReadySTOP(int para) {return 3;};
-        virtual int RunningPAUS(int para) {return 6;};
-        virtual int PausedSPTR(int para) {return 4;};
-        virtual int PausedRESU(int para) {return stId;};
-        virtual int PausedSATR(int para) {return 5;};
-        virtual int SelfTrans(int para) {return stId;};
-        virtual int AnyIMPO(int para) {return stId;};
-        virtual int AnyEXIT(int para) {return 0;};
+        virtual int InitializedLOAD(void* argv[]=NULL) {return 2;};
+        virtual int LoadedUNLD(void* argv[]=NULL) {return 1;};
+        virtual int LoadedCONF(void* argv[]=NULL) {return 3;};
+        virtual int ConfiguredUNCF(void* argv[]=NULL) {return 2;};
+        virtual int ConfiguredPREP(void* argv[]=NULL) {return 4;};
+        virtual int ReadySATR(void* argv[]=NULL) {return 5;};
+        virtual int ReadySTOP(void* argv[]=NULL) {return 3;};
+        virtual int RunningSPTR(void* argv[]=NULL) {return 4;};
+        virtual int RunningPAUS(void* argv[]=NULL) {return 6;};
+        virtual int PausedSPTR(void* argv[]=NULL) {return 4;};
+        virtual int PausedRESU(void* argv[]=NULL) {return 5;};
+        //virtual int PausedSATR(void* argv[]=NULL) {return 5;};
+        virtual int SelfTrans(void* argv[]=NULL) {return (int)stId;};
+        virtual int AnyIMPO(void* argv[]=NULL) {return (int)stId;};
+        virtual int AnyEXIT(void* argv[]=NULL) {return 1;};
+        virtual int OTFSTAT(void* argv[]=NULL) {return stId;};
+        virtual int RunningSTAT(void* argv[]=NULL) {return OTFSTAT(argv);};
+        virtual int PausedSTAT(void* argv[]=NULL) {return OTFSTAT(argv);};
+        virtual int ReadySTAT(void* argv[]=NULL) {return OTFSTAT(argv);};
+        virtual int OTFCTRL(void* argv[]=NULL); //{return stId;};
+        virtual int RunningCTRL(void* argv[]=NULL) {return OTFCTRL(argv);};
+        virtual int PausedCTRL(void* argv[]=NULL) {return OTFCTRL(argv);};
+        virtual int ReadyCTRL(void* argv[]=NULL) {return OTFCTRL(argv);};
+        virtual int accessReg(const int idx, const int rw, regData& data) {return 1;};
+        virtual int maskRegData(regData& data, regData& mask) {return 1;};
+        virtual int unmaskRegData(regData& data, regData& mask) {return 1;};
 
         pFunc actions[MAX_CMD_AMOUNT][MAX_STATES_AMOUNT];
 
@@ -84,6 +108,16 @@ class smBase {
         status stId;
         std::string name;
         std::stringstream debugMsg;
+
+        std::string otfMsg;
+        std::map<std::string, std::vector<std::string> > *ctrl2conf;
+        std::map<std::string, int> *conf2reg;
+        std::map<std::string, uintptr_t> *conf2mask;
+        std::vector<uintptr_t> *regAddr;
+        std::vector<int> *regRWIdx;
+        std::vector<int> regSet, confSet;
+
+        regData *vd, *vm;
 };
 
 typedef pBase (*pCreate)(const std::string& name);

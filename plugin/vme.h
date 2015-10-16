@@ -1,27 +1,30 @@
 #ifndef vme_h
 #define vme_h
 
-#include <thread>
 #include <stdint.h>
 #include "../src/smBase.h"
 #include "vmelib.h"
 
 class vme :public smBase {
     public:
+        typedef VMEBridge::vmeAddr vmeAddr;
         vme(const std::string& n);
         ~vme();
-        virtual void* getHelp() {return (void*)pvme;};
+        virtual int queryInterface(const std::string& funcName, void* para[], void* ret);
 
     protected:
-        virtual int InitializedLOAD(int para);
-        virtual int LoadedUNLD(int para);
-        virtual int LoadedCONF(int para);
-        virtual int ConfiguredUNCF(int para);
-        virtual int ConfiguredPREP(int para);
-        virtual int ReadySATR(int para);
-        virtual int RunningSPTR(int para);
-        virtual int ReadySTOP(int para);
-        virtual int PausedSPTR(int para);
+        virtual int InitializedLOAD(void* argv[]=NULL);
+        virtual int LoadedUNLD(void* argv[]=NULL);
+        virtual int LoadedCONF(void* argv[]=NULL);
+        virtual int ConfiguredUNCF(void* argv[]=NULL);
+        virtual int ConfiguredPREP(void* argv[]=NULL);
+        virtual int ReadySTOP(void* argv[]=NULL);
+        virtual int ReadySATR(void* argv[]=NULL);
+        virtual int RunningSPTR(void* argv[]=NULL);
+        virtual int RunningPAUS(void* argv[]=NULL);
+        virtual int PausedSPTR(void* argv[]=NULL);
+        virtual int PausedRESU(void* argv[]=NULL);
+        virtual int OTFCONF(void* argv[]=NULL);
 
     private:
         int configVme();
@@ -31,6 +34,11 @@ class vme :public smBase {
         int startVme();
         int stopVme();
         void runVme();
+        
+        VMEBridge* getVME() {return pvme;};
+        int getImgCtrl(int i, uint32_t& addr);
+        std::vector<std::string>& getNameList();
+        unsigned int devStringSplit(const string& dList);
 
     private:
         int runVmeCtrl;
@@ -42,8 +50,19 @@ class vme :public smBase {
         std::thread *t0;
 
         VMEBridge *pvme;
+        smBase *triDev;
+        unsigned int listNumber, listSize, eventTh;
+        std::vector<std::string> nameList;
+        std::vector<smBase*> devList;
+        std::vector<vmeAddr> buffList;
+        std::vector<uint32_t> sizeList; // since the vme has a limit of 256 words on blt
+        std::vector<uint32_t> awList;
+        std::vector<uint32_t> dwList;
+        std::vector<uintptr_t> offsetList;
+
+        
         unsigned int dmaNumber;
-        uint32_t dmaSize, adc0Base;
+        unsigned int dmaSize, tranSize;
         uintptr_t dmaBase;
 };
 #endif

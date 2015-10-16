@@ -14,11 +14,11 @@ class frameEngine :public smBase {
         void setMachine(stateMachine* m);
 
     protected:
-        virtual int InitializedLOAD(int para);
-        virtual int LoadedUNLD(int para);
+        virtual int InitializedLOAD(void* argv[]=NULL);
+        virtual int LoadedUNLD(void* argv[]=NULL);
+        virtual int OTFCTRL(void* argv[]=NULL) {return stId;};
         
     private:
-        //int readConfig();
         int moduleStringSplit(const std::string& modeList);
         int loadSharedModule(const std::string& modeName, const std::string& devName, const std::string& dir);
         int unloadSharedModule(const std::string& devName);

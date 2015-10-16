@@ -25,10 +25,11 @@ DATAPORT=4001
 CTRLPORT=4002
 
 class ctrlFrame(wx.Frame):
-    def __init__(self, dCount, dName, *args, **kwds):
+    def __init__(self, cSocket, dCount, dName, *args, **kwds):
         # begin wxGlade: ctrlFrame.__init__
         wx.Frame.__init__(self, *args, **kwds)
 
+        self.ctrl = cSocket
         self.dCount = dCount
         self.dName = dName
         self.dev_button = []
@@ -50,7 +51,6 @@ class ctrlFrame(wx.Frame):
         self.button_End = wx.Button(self, wx.ID_ANY, _("End"))
         self.button_Stop = wx.Button(self, wx.ID_ANY, _("Stop"))
         self.button_Resu = wx.Button(self, wx.ID_ANY, _("Resu"))
-        self.socket = -1
 
         self.__set_properties()
         self.__do_layout()
@@ -59,12 +59,12 @@ class ctrlFrame(wx.Frame):
         self.Bind(wx.EVT_BUTTON, lambda evt, cmdId=0: self.sendCmd(evt, cmdId), self.button_Load)
         self.Bind(wx.EVT_BUTTON, lambda evt, cmdId=2: self.sendCmd(evt, cmdId), self.button_Conf)
         self.Bind(wx.EVT_BUTTON, lambda evt, cmdId=4: self.sendCmd(evt, cmdId), self.button_Prep)
-        self.Bind(wx.EVT_BUTTON, lambda evt, cmdId=5: self.sendCmd(evt, cmdId), self.button_Star)
-        self.Bind(wx.EVT_BUTTON, lambda evt, cmdId=6: self.sendCmd(evt, cmdId), self.button_Paus)
+        self.Bind(wx.EVT_BUTTON, lambda evt, cmdId=6: self.sendCmd(evt, cmdId), self.button_Star)
+        self.Bind(wx.EVT_BUTTON, lambda evt, cmdId=8: self.sendCmd(evt, cmdId), self.button_Paus)
         self.Bind(wx.EVT_BUTTON, lambda evt, cmdId=1: self.sendCmd(evt, cmdId), self.button_unLoad)
         self.Bind(wx.EVT_BUTTON, lambda evt, cmdId=3: self.sendCmd(evt, cmdId), self.button_unConf)
-        self.Bind(wx.EVT_BUTTON, lambda evt, cmdId=7: self.sendCmd(evt, cmdId), self.button_End)
-        self.Bind(wx.EVT_BUTTON, lambda evt, cmdId=10: self.sendCmd(evt, cmdId), self.button_Stop)
+        self.Bind(wx.EVT_BUTTON, lambda evt, cmdId=5: self.sendCmd(evt, cmdId), self.button_End)
+        self.Bind(wx.EVT_BUTTON, lambda evt, cmdId=7: self.sendCmd(evt, cmdId), self.button_Stop)
         self.Bind(wx.EVT_BUTTON, lambda evt, cmdId=9: self.sendCmd(evt, cmdId), self.button_Resu)
         for i in range(self.dCount) :
             self.Bind(wx.EVT_BUTTON, lambda evt, devId=i: self.showDev(evt, devId), self.dev_button[i])
@@ -109,10 +109,10 @@ class ctrlFrame(wx.Frame):
         print "Event handler 'sendMsg'"
         txt = event.GetEventObject()
         n = txt.GetNumberOfLines()
-        if (n>=1) and (self.socket!=-1) :
+        if (n>=1) and (self.ctrl!=-1) :
             msg = txt.GetLineText(n)
-            print "send msg %s to socket"%(msg)
-            self.socket.send(msg.encode('utf8'))
+            print "send msg %s to ctrl"%(msg)
+            self.ctrl.sendCtrl(msg.encode('utf8'))
 
         event.Skip()
 
@@ -122,12 +122,9 @@ class ctrlFrame(wx.Frame):
             #b = event.GetEventObject()
             #st = b.GetValue()
             #cmdId += st
-        msg = "cmd#all#"+str(cmdId)
-        self.socket.send(msg.encode('utf8'))
+        msg = "cmd#all#"+str(cmdId)+"#"
+        self.ctrl.sendCtrl(msg.encode('utf8'))
         event.Skip()
-
-    def setSocket(self, s):
-        self.socket = s
 
     def setApp(self, a):
         self.app = a
@@ -148,11 +145,14 @@ class ctrlFrame(wx.Frame):
 
 # end of class ctrlFrame
 
-
 class msgSwitch(threading.Thread):
-    def __init__(self, s, fl, nl):
+    def __init__(self, s):
         super(msgSwitch, self).__init__()
         self.socket = s
+        self.frameList = []
+        self.nameList = []
+
+    def setList(self, fl, nl):
         self.frameList = fl
         self.nameList = nl
 
@@ -170,24 +170,27 @@ class msgSwitch(threading.Thread):
             else :
                 msg = line[:idx]
                 line = line[idx+1:]
-            #print "%s"%(msg)
-            name = msg[:msg.find('#')]
-            frame = -1
-            #print name
-            #print self.nameList
-            if self.nameList.count(name)==1 : 
-                i = self.nameList.index(name)
-                #print "message from %s in devList %dth"%(name,i)
-                frame = self.frameList[i]
-                if (frame!=-1) and (frame!=None) :
-                    txt = frame.output0
-                    wx.CallAfter(txt.AppendText, msg)
+                #print "%s"%(msg)
+                name = msg[:msg.find('#')]
+                frame = -1
+                #print name
+                if self.nameList.count(name)==1 : 
+                    i = self.nameList.index(name)
+                    #print "message from %s in devList %dth"%(name,i)
+                    frame = self.frameList[i]
+                    if (frame!=-1) and (frame!=None) :
+                        txt = frame.output0
+                        wx.CallAfter(txt.AppendText, msg)
         print "msgSwitch is finished."
 
 class dataSwitch(threading.Thread):
-    def __init__(self, s, dl, nl):
+    def __init__(self, s):
         super(dataSwitch, self).__init__()
         self.socket = s
+        self.devList = []
+        self.nameList = []
+
+    def setList(self, dl, nl):
         self.devList = dl
         self.nameList = nl
 
@@ -196,23 +199,123 @@ class dataSwitch(threading.Thread):
         buf=''
         while True :
             data = self.socket.recv(4)
+            print "data: %s"%(data)
             if data=='' :
                 break
             buf += data
-            idx = buf.find('\0\0\0\0')
+            idx = buf.find('end$')
             if idx<0 :
-                continue;
+                continue
             else :
                 event = buf[:idx]
                 buf = buf[idx+4:]
-            
-            #print "%s"%(data)
+                print "event before: %s, size %d"%(event,len(event))
+                self.switchEvent(event)
+                print "event after: %s"%(event)
         print "dataSwitch is finished."
+
+    def switchEvent(self, event):
+        idx = event.find('#')
+        if idx<0 :
+            print "not valid spacer '#' in event record"
+        else :
+            name = event[:idx]
+            data = event[idx+1:]
+            if self.nameList.count(name)==1 : 
+                i = self.nameList.index(name)
+                print "message from %s in devList %dth, %s, size %d"%(name,i,data,len(data))
+                dev = self.devList[i]
+                dev.fillEvent(data)
+
+
+class ctrlSwitch(threading.Thread):
+    def __init__(self, s):
+        super(ctrlSwitch, self).__init__()
+        self.socket = s
+        self.devList = []
+        self.nameList = []
+        self.mutex = threading.Lock()
+    
+    def setList(self, dl, nl):
+        self.devList = dl
+        self.nameList = nl
+
+    def sendCtrl(self, cs):
+        if self.mutex.acquire(1) :
+            self.socket.send(cs.encode('utf8'))
+            print "ctrlSwitch is finished."
+            self.mutex.release()
+        else :
+            print "ctrlSwitch is busy."
+
+    def run(self):
+        print "ctrlSwitch is running"
+        line = ""
+        while True :
+            data = self.socket.recv(4)
+            if data=='' :
+                break
+            line += data
+            idx = line.find('\0')
+            if idx<0 :
+                continue
+            else :
+                msg = line[:idx]
+                line = line[idx+1:]
+            #print "%s"%(msg)
+            idx = msg.find('#')
+            control = msg[:idx]
+            idx = msg.find('#', idx+1)
+            name = msg[len(control)+1:idx]
+            ret = msg[idx+1:-1]
+            dev = -1
+            #print self.nameList
+            if self.nameList.count(name)==1 : 
+                i = self.nameList.index(name)
+                #print "message from %s in devList %dth"%(name,i)
+                dev = self.devList[i]
+                print "%s" %(dev.name)
+                if (dev!=-1) and (dev!=None) :
+                    print "%s, %s" %(control, ret)
+                    dev.ctrlHandler(control, ret)
+                    #wx.CallAfter(dev.ctrlHandler, msg)
+        print "ctrlSwitch is finished."
+
+class timeDamon(threading.Thread):
+    def __init__(self, d, t):
+        super(timeDamon, self).__init__()
+        self.dev = d
+        self.runTime = t
+
+    def run(self):
+        print "timeDamon is running"
+        while True : 
+            time.sleep(self.runTime)
+            #print "time step %f" %(self.runTime)
+            self.dev.timerHandler()
+        print "timeDamon is finished"
+
 
 class ctrlApp(wx.App):
     def OnInit(self):
         wx.InitAllImageHandlers()
     
+        self.addrMsg = (HOST, MSGPORT)
+        self.socketMsg = socket(AF_INET, SOCK_STREAM)
+        self.addrData = (HOST, DATAPORT)
+        self.socketData = socket(AF_INET, SOCK_STREAM)
+        self.addrCtrl = (HOST, CTRLPORT)
+        self.socketCtrl = socket(AF_INET, SOCK_STREAM)
+
+        self.thpool = []
+        self.thpool.append(msgSwitch(self.socketMsg))
+        self.thpool.append(dataSwitch(self.socketData))
+        self.thpool.append(ctrlSwitch(self.socketCtrl))
+        self.thpool.append(timeDamon(self, 1))
+        self.msg = self.thpool[0]
+        self.data = self.thpool[1]
+        self.ctrl = self.thpool[2]
+
         self.isCfg=os.path.exists("./mlist.conf")
         self.cfgFile = None
         self.modLines = []
@@ -224,12 +327,12 @@ class ctrlApp(wx.App):
             self.modLines = self.cfgFile.readlines()
             for idx in self.modLines :
                 m = idx[:idx.find(' ')]
-                n = idx[idx.find(' ')+1:]
+                n = idx[idx.find(' ')+1:idx.find('\n')]
                 self.modList.append(__import__(m))
                 self.modName.append(n)
                 self.modCount += 1 
 
-        frame0 = ctrlFrame(self.modCount, self.modName, None, wx.ID_ANY, "")
+        frame0 = ctrlFrame(self.ctrl, self.modCount, self.modName, None, wx.ID_ANY, "")
         frame0.setApp(self)
         self.frames = []
         self.devs = []
@@ -238,35 +341,25 @@ class ctrlApp(wx.App):
         self.devs.append(self)
         self.names.append("ctrl")
         for idx in range(self.modCount) :
-            self.frames.append(self.modList[idx].devFrame(None, wx.ID_ANY, ""))
+            self.frames.append(self.modList[idx].devFrame(self.ctrl, None, wx.ID_ANY, ""))
             self.devs.append(self.modList[idx].devApp(self.modName[idx]))
             self.names.append(self.modName[idx])
             self.frames[-1].setDev(self.devs[-1])
             self.devs[-1].setFrame(self.frames[-1])
 
-        #self.frames.append(adc1785.devFrame(None, wx.ID_ANY, ""))
-        #self.devs.append(adc1785.devApp("vme1-adc1785-0"))
-        #self.names.append("vme1-adc1785-0")
-        #self.frames[-1].setDev(self.devs[-1])
-        #self.devs[-1].setFrame(self.frames[-1])
+        self.msg.setList(self.frames, self.names)
+        self.data.setList(self.devs, self.names)
+        self.ctrl.setList(self.devs, self.names)
 
-        self.addrMsg = (HOST, MSGPORT)
-        self.socketMsg = socket(AF_INET, SOCK_STREAM)
-        self.addrData = (HOST, DATAPORT)
-        self.socketData = socket(AF_INET, SOCK_STREAM)
-        self.addrCtrl = (HOST, CTRLPORT)
-        self.socketCtrl = socket(AF_INET, SOCK_STREAM)
-
-        self.thpool = []
-        self.thpool.append(msgSwitch(self.socketMsg, self.frames, self.names))
-        #self.thpool.append(dataSwitch(self.socketData, self.devs, self.names))
-
-        frame0.setSocket(self.socketCtrl)
         self.SetTopWindow(frame0)
         frame0.Show()
-        #self.frames[1].Show()
 
         return 1
+
+    def timerHandler(self):
+        for dev in self.devs :
+            if dev!=self :
+                dev.timerHandler()
 
     def start(self):
         self.socketMsg.connect(self.addrMsg)
@@ -290,8 +383,6 @@ class ctrlApp(wx.App):
         self.stop()
         if frame0!=None :
             frame0.Destroy()
-        if self.frame1!=None :
-            self.frame1.Destroy()
 
         return 1
 
@@ -303,5 +394,4 @@ if __name__ == "__main__":
 
     ctrl0 = ctrlApp(0)
     ctrl0.start()
-    #ctrl0.devs[1].fillCh(0, 1000)
     ctrl0.MainLoop()

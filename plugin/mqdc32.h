@@ -1,5 +1,5 @@
-#ifndef adc1785_h
-#define adc1785_h
+#ifndef mqdc32_h
+#define mqdc32_h
 
 #include "../src/smBase.h"
 #include <stdint.h>
@@ -18,19 +18,16 @@ class regUint16 :public regData {
         uint16_t v;
 };
 
-//class adc1785;
-//typedef uint32_t (adc1785::* adc1785Func)();
-#define ADC1785EVENTUINTSIZE 18
-
-class adc1785 :public smBase {
+#define MQDC32EVENTUINTSIZE 34
+class mqdc32 :public smBase {
     public:
         typedef uint32_t regAddrType;
         typedef uint16_t regType;
-        typedef uint32_t (*adc1785Event)[ADC1785EVENTUINTSIZE];
+        typedef uint32_t (*mqdc32Event)[MQDC32EVENTUINTSIZE];
 
-        adc1785(const std::string& n);
-        ~adc1785();
-        virtual int queryInterface(const string& funcName, void* para[], void* ret);
+        mqdc32(const std::string& n);
+        ~mqdc32();
+        virtual int queryInterface(const std::string& funcName, void* para[], void* ret);
 
     protected:
         virtual int InitializedLOAD(void* argv[]=NULL);
@@ -57,7 +54,6 @@ class adc1785 :public smBase {
         int afterTransfer();
         int ackTrigger();
         int packData(unsigned int &packSize);
-        int packDataTest(unsigned int& packSize);
         int fillEvent(unsigned int &packSize);
 
         int configAdc();
@@ -68,18 +64,23 @@ class adc1785 :public smBase {
         int stopAdc();
         int enableAdc();
         int disableAdc();
+        int setDWAdc(int dw);
+        int runAdc();
         int accessRegNormal(const regAddrType addr, const int rw, regType* data);
 
         VMEBridge *pvme;
+        smBase *vmeCtrl;
 
         int image;
-        uint32_t base, length; // 32bit VME address
-        unsigned int regValue[80], confValue[100]; //reg is 16bit, use uint32 and cut later
-        adc1785Event eventSet;
+        uint32_t base, length, imgCtrlAddr;
+        uint32_t confValue[200], regValue[200]; //reg is 16bit, use uint32 and cut later
+
+        std::mutex semMutex;
+
+        mqdc32Event eventSet;
         int eventPtrR, eventPtrW;
         std::queue<unsigned int> *eventIdx;
         char v[4];
-        bool sendData;
 };
 
 #endif

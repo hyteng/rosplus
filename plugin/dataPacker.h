@@ -1,7 +1,6 @@
 #ifndef dataPacker_h
 #define dataPacker_h 
 
-#include <thread>
 #include "../src/smBase.h"
 
 class dataPacker :public smBase {
@@ -11,18 +10,23 @@ class dataPacker :public smBase {
         ~dataPacker();
 
     protected:
-        virtual int ConfiguredPREP(int para);
-        virtual int ReadySATR(int para);
-        virtual int RunningSPTR(int para);
-        virtual int PausedSPTR(int para);
+        virtual int ConfiguredPREP(void* argv[]=NULL);
+        virtual int ReadySATR(void* argv[]=NULL);
+        virtual int RunningSPTR(void* argv[]=NULL);
+        virtual int RunningPAUS(void* argv[]=NULL);
+        virtual int PausedSPTR(void* argv[]=NULL);
+        virtual int PausedRESU(void* argv[]=NULL);
+        virtual int OTFCONF(void* argv[]=NULL);
 
     private:
         int prepPacker();
         int startPacker();
         int stopPacker();
         void runPack();
+        int packStringSplit(const std::string& pList);
         int packData(unsigned int& packSize);
-        int packDataTest(unsigned int& packSize);
+        int packDataTest(unsigned int& packSize); // test is just for adc1785 single board
+        int fillEvent(unsigned int& packSize);
 
     private:
         int runPackCtrl;
@@ -32,5 +36,12 @@ class dataPacker :public smBase {
         unsigned int totalPackSize;
         streamMsg packMsg;
         std::thread *t0;
+
+        smBase *vmeDev;
+        int vmeSize, listSize, eventTh;
+        std::vector<std::string> vmeList;
+        std::vector<std::string> devList;
+        std::vector<smBase*> packList;
+        std::vector<unsigned int> dataSize;
 };
 #endif

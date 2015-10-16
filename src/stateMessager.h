@@ -32,9 +32,11 @@ class stateMessager {
         int setMsgSocket();
         int setDataSocket();
         int setCtrlSocket();
-        int contrlMsg(int socketMsg);
+        int controlRun(int socketMsg);
         int sendMsg(const std::string& msg);
-        int sendData(void *p0, const unsigned int &nBytes);
+        int sendData(const std::string& h0, const void* p0, const unsigned int &nBytes);
+        int sendCtrl(const std::string& msg);
+
     private:
         stateMachine* pMachine;
         //callFunc dispatch;

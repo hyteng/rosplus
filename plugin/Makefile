@@ -12,10 +12,10 @@
 #
 #
 EXECUTABLE := 	# 可执行文件名
-LIBDIR := ../universeII/vmelib	# 静态库目录
-LIBS :=        	# 静态库文件名
-INCLUDES := ../universeII/vmelib    # 头文件目录
-SRCDIR:=        # 除了当前目录外，其他的源代码文件目录
+LIBDIR :=	../universeII/vmelib # 静态库目录
+LIBS := # 静态库文件名
+INCLUDES :=  ../universeII/vmelib ../src # 头文件目录
+SRCDIR:=  # 除了当前目录外，其他的源代码文件目录
 #
 # # Now alter any implicit rules' variables if you like, e.g.:
 
@@ -81,6 +81,10 @@ vme.so: vme.o
 adc1785.so: adc1785.o
 	$(CC)  $(LINKOPT) -shared -o $@ $< $(addprefix -L,$(LIBDIR)) $(addprefix -l,$(LIBS)) -Wl,-rpath=../universeII/vmelib -lvmelib
 	mv adc1785.so ../lib/
+
+mqdc32.so: mqdc32.o
+	$(CC)  $(LINKOPT) -shared -o $@ $< $(addprefix -L,$(LIBDIR)) $(addprefix -l,$(LIBS)) -Wl,-rpath=../universeII/vmelib -lvmelib
+	mv mqdc32.so ../lib/
 
 #$(EXECUTABLE) : $(OBJS)
 #	$(CC)  $(LINKOPT) -shared -o $(EXECUTABLE) $(OBJS) $(addprefix -L,$(LIBDIR)) $(addprefix -l,$(LIBS))

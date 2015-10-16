@@ -1,6 +1,6 @@
 #include "ringBuffer.h"
 #include <stdlib.h>
-#include <string.h>
+#include <string.h> //for memcpy
 #include <stdint.h>
 
 using std::string;
@@ -98,9 +98,9 @@ bool ringBuffer::isEmpty() {
         return false;
 }
 
-uint32_t ringBuffer::nBytesUsed() {
+unsigned int ringBuffer::nBytesUsed() {
 
-    std::unique_lock<std::mutex> lock(semMutex);
+    //std::unique_lock<std::mutex> lock(semMutex);
 
     if(pWrite == NULL)
         return (bufEnd-bufStart);
@@ -190,9 +190,11 @@ unsigned int ringBuffer::dmaWrite(const void* addr, const unsigned int& nBytes) 
 unsigned int ringBuffer::dmaRead(void* addr, const unsigned int& nBytes) {
     
     std::unique_lock<std::mutex> lock(semMutex);
+    //std::unique_lock<std::mutex> lock1(snapMutex);
 
     if(snapSignal == 1)
         return 0;
+    snapSize = 0;
 
     unsigned int readSize = nBytes;
     void *p = checkRead(readSize);
@@ -223,8 +225,12 @@ int ringBuffer::setSnapStatus() {
     snapLastWrite = pLastWrite;
     snapRead = pRead;
     snapSignal = 1;
-
+    snapSize = nBytesUsed();
     return 1;
+}
+
+unsigned int ringBuffer::getSnapSize() {
+    return snapSize;
 }
 
 int ringBuffer::addSnapRead() {
@@ -251,7 +257,7 @@ int ringBuffer::rmSnapRead() {
     return 1;
 }
 
-void* ringBuffer::getSnapPtr(const unsigned int& nBias, const unsigned int& nLength) {
+void* ringBuffer::getSnapPtr(const unsigned int& nBias, unsigned int& nLength) {
 
     if(snapSignal != 1)
         return NULL;
@@ -269,12 +275,14 @@ void* ringBuffer::getSnapPtr(const unsigned int& nBias, const unsigned int& nLen
     else {
         p1 = checkSnapRead(virtualSize0);
         if(virtualSize0 < nBias)
-            return (void*)(bufStart+nBias-(snapLastWrite-(char*)p0));
+            return (void*)(bufStart+nBias-(snapLastWrite-(char*)p1));
         else {
-            if((nBias-(snapLastWrite-(char*)p0)) == 0)
+            if((snapLastWrite-((char*)p1+nBias)) == 0)
                 return (void*)(bufStart);
-            else
-                return NULL;
+            else {
+                nLength = (snapLastWrite-(char*)p0)-nBias;
+                return (void*)((char*)p0+nBias);
+            }
         }
     }
 }
@@ -411,7 +419,6 @@ unsigned int ringBuffer::afterRead(const unsigned int& nBytes) {
 
     if(nBytes == 0)
         return 0;
-
     unsigned int readSize = 0;
 
     if(pWrite == NULL) {
@@ -449,10 +456,11 @@ unsigned int ringBuffer::afterRead(const unsigned int& nBytes) {
             }
             else {
                 if((long)(pLastWrite-pRead+pWrite-bufStart) >= (long)nBytes) {
-                    int size1 = (int)(pLastWrite-pRead);
+                    unsigned int size1 = pLastWrite-pRead;
                     pLastWrite = bufEnd;
                     pRead = bufStart;
                     pRead += (nBytes-size1);
+                    readSize = nBytes;
                     if(pRead == pWrite)
                         pRead = NULL;
                 }
@@ -500,7 +508,7 @@ void* ringBuffer::checkSnapRead(unsigned int& nBytes) {
     return p;
 }
 
-unsigned int ringBuffer::popSnapRead(const unsigned int& nBytes) {
+unsigned int ringBuffer::popSnap(const unsigned int& nBytes) {
 
     std::unique_lock<std::mutex> lock0(semMutex);
     std::unique_lock<std::mutex> lock1(snapMutex);
@@ -509,5 +517,7 @@ unsigned int ringBuffer::popSnapRead(const unsigned int& nBytes) {
         return 0;
 
     snapSignal = 0;
-    return afterRead(nBytes);
+    unsigned int readSize = afterRead(nBytes);
+    snapSize -= readSize;
+    return readSize;
 }

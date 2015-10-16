@@ -23,46 +23,58 @@ daq::daq(const string& n): smBase(n) {
 daq::~daq() {
 }
 
-int daq::LoadedCONF(int para) {
+int daq::LoadedCONF(void* argv[]) {
     debugMsg << name << "# " << "LoadedCONF";
     stMsg->stateOut(debugMsg);
     configDaq();
     return 3;
 }
 
-int daq::ConfiguredPREP(int para) {
+int daq::ConfiguredPREP(void* argv[]) {
     debugMsg << name << "# " << "ConfiguredPREP";
     stMsg->stateOut(debugMsg);
     prepDaq();
     return 4;
 }
 
-int daq::ReadySATR(int para) {
-    debugMsg << name << "# " << "ReadySATR";
-    stMsg->stateOut(debugMsg);
-    startDaq();
-    return 5;
-}
-
-int daq::RunningSPTR(int para) {
-    debugMsg << name << "# " << "RunningSPTR";
-    stMsg->stateOut(debugMsg);
-    stopDaq();
-    return 4;
-}
-
-int daq::ReadySTOP(int para) {
+int daq::ReadySTOP(void* argv[]) {
     debugMsg << name << "# " << "ReadySTOP";
     stMsg->stateOut(debugMsg);
     finishDaq();
     return 3;
 }
 
-int daq::PausedSPTR(int para) {
+int daq::ReadySATR(void* argv[]) {
+    debugMsg << name << "# " << "ReadySATR";
+    stMsg->stateOut(debugMsg);
+    startDaq();
+    return 5;
+}
+
+int daq::RunningSPTR(void* argv[]) {
+    debugMsg << name << "# " << "RunningSPTR";
+    stMsg->stateOut(debugMsg);
+    stopDaq();
+    return 4;
+}
+
+int daq::RunningPAUS(void* argv[]) {
+    return 6;
+}
+
+int daq::PausedSPTR(void* argv[]) {
     debugMsg << name << "# " << "PausedSPTR";
     stMsg->stateOut(debugMsg);
     stopDaq();
     return 4;
+}
+
+int daq::PausedRESU(void* argv[]) {
+    return 5;
+}
+
+int daq::OTFCONF(void* argv[]) {
+    return stId;
 }
 
 int daq::configDaq() {
@@ -100,8 +112,9 @@ int daq::stopDaq() {
 void daq::runDaq() {
     daqStatus = TASK_RUN;
 
-    daqCount = 0;
+    //daqCount = 0;
     totalDaqSize = 0;
+    unsigned int readSize, restSize;
     unsigned int recSize = 0;
     void* netPtr = NULL;
     while(1) {
@@ -113,14 +126,23 @@ void daq::runDaq() {
         //debugMsg << name << "# " << "fetch netMsg " << daqMsg.size << daqMsg.signal;
         //stMsg->stateOut(debugMsg);
 
-        daqCount++;
-        totalDaqSize += daqMsg.size;
-        if(daqCount >= 5 || daqMsg.signal == 2) {
+        //daqCount++;
+        //totalDaqSize += daqMsg.size;
+        if(daqMsg.signal == 2) {
             dataPool->netSetSnap();
-            netPtr = dataPool->netGetSnapPtr(0, totalDaqSize);
+            totalDaqSize = dataPool->netGetSnapSize();
+            readSize = totalDaqSize;
+            netPtr = dataPool->netGetSnapPtr(0, readSize);
             if(netPtr != NULL) {
-                outFile.write((const char*)netPtr, totalDaqSize);
-                sendData(netPtr, totalDaqSize);
+                if(readSize == totalDaqSize) {
+                    outFile.write((const char*)netPtr, totalDaqSize);
+                }
+                else {
+                    outFile.write((const char*)netPtr, readSize);
+                    restSize = totalDaqSize - readSize;
+                    netPtr = dataPool->netGetSnapPtr(readSize, restSize);
+                    outFile.write((const char*)netPtr, restSize);
+                }
                 recSize += totalDaqSize;
                 debugMsg << name << "# " << "save " << recSize << "data";
                 stMsg->stateOut(debugMsg);
@@ -131,12 +153,15 @@ void daq::runDaq() {
             }
             dataPool->netPopSnap(totalDaqSize);
 
-            daqCount = 0;
-            totalDaqSize = 0;
+            //daqCount = 0;
+            //totalDaqSize = 0;
+
+            continue;
         }
 
-        if(daqMsg.signal == 2)
+        if(daqMsg.signal == 3) {
             break;
+        }
     }
     //if(runDaqCtrl == TASK_STOP || daqStatus == TASK_ERROR) {
         if(daqStatus == TASK_RUN)
@@ -145,11 +170,6 @@ void daq::runDaq() {
 
     debugMsg << name << "# " << "stop thread" << daqStatus;
     stMsg->stateOut(debugMsg);
-}
-
-int daq::sendData(void* p0, const unsigned int& nBytes) {
-    int sndSize = stMsg->sendData(p0, nBytes);
-    return sndSize;
 }
 
 extern "C" smBase* create(const string& n) {

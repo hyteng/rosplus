@@ -24,7 +24,7 @@ CFLAGS := -g -Wall -O3 -std=c++11 -pthread
 CPPFLAGS := $(CFLAGS)
 CPPFLAGS += $(addprefix -I,$(INCLUDES))
 CPPFLAGS += -MMD
-LINKOPT:= -lstdc++ -Wall -pthread -rdynamic -ldl
+LINKOPT:= -lstdc++ -Wall -pthread -rdynamic -ldl #-Wl,--export-dynamic
 #
 # # The next bit checks to see whether rm is in your djgpp bin
 # # directory; if not it uses del instead, but this can cause (harmless)
