@@ -163,7 +163,7 @@ int smBase::OTFCTRL(void* argv[]) {
                     stMsg->stateOut(debugMsg);
                 }
                 else {
-                    debugMsg << name << "# " << cfgIdx << " not set. ";
+                    debugMsg << name << "# " << cfgIdx << " not set.";
                     stMsg->stateOut(debugMsg);
                     return -1;
                 }
