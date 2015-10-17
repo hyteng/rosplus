@@ -1,6 +1,7 @@
 #include "adc1785.h"
 #include <algorithm>
 #include <string.h>
+#include <unistd.h>
 
 using std::string;
 using std::stringstream;
@@ -638,6 +639,7 @@ int adc1785::flushData() {
     debugMsg << name << "# " << "flush " << confValue[eventTh] << " events in the buffer.";
     stMsg->stateOut(debugMsg); 
     for(int i=0; i<confValue[eventTh]; i++) {
+        usleep(1000);
         pvme->ww(image, base+ADC1785_SWComm_Offset, pvme->swap16(0x0001));
     }
     return 1;

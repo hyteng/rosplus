@@ -123,6 +123,7 @@ int dataPacker::startPacker() {
 int dataPacker::stopPacker() {
     runPackCtrl = TASK_STOP;
     //t0->join();
+    t0->detach();
     return 1;
 }
 

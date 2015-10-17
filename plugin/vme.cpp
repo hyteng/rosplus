@@ -249,11 +249,12 @@ int vme::startVme() {
 }
 
 int vme::stopVme() {
-    triDev->queryInterface("flushData", NULL, NULL);
     runVmeCtrl = TASK_STOP;
+    int res;
+    triDev->queryInterface("flushData", NULL, &res);
     //triDev->queryInterface("flushData", NULL, NULL);
     //t0->join();
-    t0->detach();
+    //t0->detach();
     return 1;
 }
 
@@ -268,7 +269,7 @@ void vme::runVme() {
         int res;
         // wait for trigger device
         triDev->queryInterface("waitTrigger", NULL, &res);
-        
+        /*
         // for single board transfer, will be obsolete soon
         dmaSize = sizeList[0];
         uintptr_t offset = pvme->DMAread(buffList[0], dmaSize, A32, D32);
@@ -277,12 +278,12 @@ void vme::runVme() {
             break;
         }
         tranSize = dataPool->devWrite((void*)(dmaBase+offset), dmaSize);
-        
+        */
         // test 
         //sleep(1);
         //dmaSize = 24*sizeof(uint32_t);
         //tranSize = dataPool->devWrite(&tmp[0], dmaSize, 1);
-        /*
+        
         pvme->execCmdPktList(listNumber);
         tranSize = 0;
         dmaSize = 0;
@@ -291,7 +292,7 @@ void vme::runVme() {
             dmaSize += sizeList[i];
             devList[i]->queryInterface("afterTransfer", NULL, &res);
         }
-        */
+        
         triDev->queryInterface("ackTrigger", NULL, &res);
 
         genSize += dmaSize;
