@@ -106,6 +106,7 @@ int daq::startDaq() {
 int daq::stopDaq() {
     runDaqCtrl = TASK_STOP;
     //t0->join();
+    t0->detach();
     return 1;
 }
 
