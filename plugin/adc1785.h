@@ -59,6 +59,7 @@ class adc1785 :public smBase {
         int packData(unsigned int &packSize);
         int packDataTest(unsigned int& packSize);
         int fillEvent(unsigned int &packSize);
+        int flushData();
 
         int configAdc();
         int releaseAdc();

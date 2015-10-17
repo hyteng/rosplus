@@ -49,28 +49,28 @@ int vme::queryInterface(const std::string& funcName, void* para[], void* ret) {
 int vme::InitializedLOAD(void* argv[]) {
     debugMsg << name << "# " << "InitializedLOAD";
     stMsg->stateOut(debugMsg); 
-    //pvme = new VMEBridge;
+    pvme = new VMEBridge;
     return 2;
 }
 
 int vme::LoadedUNLD(void* argv[]) {
     debugMsg << name << "# " << "LoadedUNLD";
     stMsg->stateOut(debugMsg);
-    //delete pvme;
+    delete pvme;
     return 1;
 }
 
 int vme::LoadedCONF(void* argv[]) {
     debugMsg << name << "# " << "LoadedCONF";
     stMsg->stateOut(debugMsg);
-    //configVme();
+    configVme();
     return 3;
 }
 
 int vme::ConfiguredUNCF(void* argv[]) {
     debugMsg << name << "# " << "ConfiguredUNCF";
     stMsg->stateOut(debugMsg);
-    //releaseVme();
+    releaseVme();
     return 2;
 }
 
@@ -125,13 +125,13 @@ int vme::OTFCONF(void* argv[]) {
 int vme::configVme() {
     pvme->resetDriver();
     int res;
- 
+    debugMsg << std::hex;
     uint32_t PCI_CSR, MISC_CTL, MAST_CTL, LSI0_CTL;
     PCI_CSR = pvme->readUniReg(0x004);
     MISC_CTL = pvme->readUniReg(0x404);
     MAST_CTL = pvme->readUniReg(0x400);
     LSI0_CTL = pvme->readUniReg(0x100);
-    debugMsg << name << "# " << std::hex << "PCI_CSR: " << PCI_CSR << ", MISC_CTL: " << MISC_CTL << ", MAST_CTL: " << MAST_CTL << ", LSI0_CTL: " << LSI0_CTL;
+    debugMsg << name << "# " << "PCI_CSR: " << PCI_CSR << ", MISC_CTL: " << MISC_CTL << ", MAST_CTL: " << MAST_CTL << ", LSI0_CTL: " << LSI0_CTL;
     stMsg->stateOut(debugMsg);
     if(PCI_CSR&0xF9000000)
         pvme->writeUniReg(0x004, 0xF9000007);
@@ -140,7 +140,7 @@ int vme::configVme() {
     MAST_CTL = pvme->readUniReg(0x400);
     LSI0_CTL = pvme->readUniReg(0x100);
     debugMsg << name << "# " << "UniverseII Register after writing 0xF9000007 to register 0x004:" << endl;
-    debugMsg << name << "# " << std::hex << "PCI_CSR: " << PCI_CSR << ", MISC_CTL: " << MISC_CTL << ", MAST_CTL: " << MAST_CTL << ", LSI0_CTL: " << LSI0_CTL;
+    debugMsg << name << "# " << "PCI_CSR: " << PCI_CSR << ", MISC_CTL: " << MISC_CTL << ", MAST_CTL: " << MAST_CTL << ", LSI0_CTL: " << LSI0_CTL;
     stMsg->stateOut(debugMsg);
 
     if((res=cfgInfo->infoGetUint("config."+name+".dmaNumber", dmaNumber)) != 1) {
@@ -158,6 +158,7 @@ int vme::configVme() {
         dmaSize = DMASIZE;
     }
     */
+    debugMsg << std::dec;
     return 1;
 }
 
@@ -171,6 +172,8 @@ int vme::prepVme() {
     string triggerDevice, linkList;
     int res;
     std::vector< std::pair<std::string, smBase*> >::const_iterator iter;
+
+    debugMsg << std::hex;
 
     triDev = NULL;
     if((res=cfgInfo->infoGetString("config."+name+".triggerDevice", triggerDevice)) == 1) {
@@ -210,24 +213,32 @@ int vme::prepVme() {
         stMsg->stateOut(debugMsg);
         return 0;
     }
-    /*
+    
     listNumber = pvme->newCmdPktList();
+    debugMsg << name << "# " << "add cmd packet list number " << listNumber;
+    stMsg->stateOut(debugMsg);
     if(listNumber < 0 || listNumber > 255)
         return 0;
     else {
         offsetList.clear();
         offsetList.resize(listSize, 0);
         for(unsigned int i=0; i<listSize;i++) {
+            debugMsg << name << "# " << "add cmd packet list, idx " << i << ", buff addr " << buffList[i] << ", tranSize " << sizeList[i] << ", aw " << awList[i] << ", dw " << dwList[i];
+            stMsg->stateOut(debugMsg);
             offsetList[i] = pvme->addCmdPkt(listNumber, 0, buffList[i], sizeList[i], awList[i], dwList[i]);
+            debugMsg << name << "# " << "add cmd packet list, idx " << i << ", buff addr " << buffList[i] << ", tranSize " << sizeList[i] << ", aw " << awList[i] << ", dw " << dwList[i];
+            stMsg->stateOut(debugMsg);
         }
     }
-    */
+    
+    debugMsg << std::dec;
+
     devMsgQue = dataPool->getDevMsgQue();
     return 1;
 }
 
 int vme::finishVme() {
-    //pvme->delCmdPktList(listNumber);
+    pvme->delCmdPktList(listNumber);
     return 1;
 }
 
@@ -257,19 +268,20 @@ void vme::runVme() {
         int res;
         // wait for trigger device
         triDev->queryInterface("waitTrigger", NULL, &res);
-        /*
+        
         // for single board transfer, will be obsolete soon
+        dmaSize = sizeList[0];
         uintptr_t offset = pvme->DMAread(buffList[0], dmaSize, A32, D32);
         if(offset < 0) {
             vmeStatus = TASK_ERROR;
             break;
         }
-        unsigned int tranSize = dataPool->devWrite((void*)(dmaBase+offset), dmaSize);
-        */
+        tranSize = dataPool->devWrite((void*)(dmaBase+offset), dmaSize);
+        
         // test 
-        sleep(1);
-        dmaSize = 24*sizeof(uint32_t);
-        unsigned int tranSize = dataPool->devWrite(&tmp[0], dmaSize, 1);
+        //sleep(1);
+        //dmaSize = 24*sizeof(uint32_t);
+        //tranSize = dataPool->devWrite(&tmp[0], dmaSize, 1);
         /*
         pvme->execCmdPktList(listNumber);
         tranSize = 0;
@@ -378,7 +390,7 @@ unsigned int vme::devStringSplit(const string& dList) {
         nameList.push_back(dev);
         sizeList.push_back(tSize);
         awList.push_back(tAW);
-        awList.push_back(tAW);
+        dwList.push_back(tDW);
     }
     return listSize;
 }

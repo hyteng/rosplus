@@ -158,9 +158,9 @@ unsigned int ctrlDefault[]={0,0xAA,7,0,0x00CC0000,8,0,0,0,0,1,1,1,1,1,1,1,1,1,1,
 #define confStatus1 8
 #define confStatus2 6
 
-string confName1785[confSize] = {"geoAddr", "cbltAddr", "irqLevel", "irqVector", "addrHigh", "addrLow", "eventTh", "loadTest", "fclrw", "crateSel", "slideConst", "threshold0H", "threshold0L", "threshold1H", "threshold1L", "threshold2H", "threshold2L", "threshold3H", "threshold3L", "threshold4H", "threshold4L", "threshold5H", "threshold5L", "threshold6H", "threshold6L", "threshold7H", "threshold7L", "ssReset", "cbltCtrl", "incEvent", "incOffset", "wTestAddr", "memTestHigh", "memTestLow", "testEventW", "countReset", "rTestAddr", "swComm", /*BitSet1*/"berrFlag", "selAddr", "softReset", /*BitClear1*/"berrFlag~", "selAddr~", "softReset~", /*Ctrl1*/"blkend", "progResetMod", "busError", "align64", /*BitSet2*/"mode", "offline", "clearData", "overRange", "lowTh", "testACQ", "slideScale", "stepTh", "autoInc", "emptyProg", "slideSub", "allTrigger", /*BitClear2*/"mode~", "offline~", "clearData~", "overRange~", "lowTh~", "testACQ~", "slideScale~", "stepTh~", "autoInc~", "emptyProg~", "slideSub~", "allTrigger~", /*RO*/"firmware", /*Status1*/"DRDY", "gDRDY", "busy", "gbusy", "purged", "termOn", "termOff", "EVRDY", /*Status2*/"buffEmpty", "buffFull", "DSel0", "DSel1", "CSel0", "CSel1", "eventCountLow", "eventCountHigh", "aad", "bad"};
+string confName1785[confSize] = {"geoAddr", "cbltAddr", "irqLevel", "irqVector", "addrHigh", "addrLow", "eventTh", "loadTest", "fclrw", "crateSel", "slideConst", "threshold0H", "threshold0L", "threshold1H", "threshold1L", "threshold2H", "threshold2L", "threshold3H", "threshold3L", "threshold4H", "threshold4L", "threshold5H", "threshold5L", "threshold6H", "threshold6L", "threshold7H", "threshold7L", "ssReset", "cbltCtrl", "incEvent", "incOffset", "wTestAddr", "memTestHigh", "memTestLow", "testEventW", "countReset", "rTestAddr", "swComm", /*BitSet1*/"berrFlag", "selAddr", "softReset", /*Ctrl1*/"blkend", "progResetMod", "busError", "align64", /*BitSet2*/"mode", "offline", "clearData", "overRange", "lowTh", "testACQ", "slideScale", "stepTh", "autoInc", "emptyProg", "slideSub", "allTrigger", /*BitClear1*/"berrFlag~", "selAddr~", "softReset~", /*BitClear2*/"mode~", "offline~", "clearData~", "overRange~", "lowTh~", "testACQ~", "slideScale~", "stepTh~", "autoInc~", "emptyProg~", "slideSub~", "allTrigger~", /*RO*/"firmware", /*Status1*/"DRDY", "gDRDY", "busy", "gbusy", "purged", "termOn", "termOff", "EVRDY", /*Status2*/"buffEmpty", "buffFull", "DSel0", "DSel1", "CSel0", "CSel1", "eventCountLow", "eventCountHigh", "aad", "bad"};
 
-uint16_t confMask1785[confSize] = {0x001F, 0x00FF, 0x0007, 0x00FF, 0x00FF, 0x00FF, 0x001F, 0xFFFF, 0x03FF, 0x00FF, 0x00FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0xFFFF, 0x0003, 0xFFFF, 0xFFFF, 0x07FF, 0xFFFF, 0xFFFF, 0x1FFF, 0xFFFF, 0x07FF, 0xFFFF, /*BitSet1*/0x0008, 0x0010, 0x0080, /*BitClear1*/0x0008, 0x0010, 0x0080, /*Ctrl1*/0x0004, 0x0010, 0x0020, 0x0040, /*BitSet2*/0x0001, 0x0002, 0x0004, 0x0008, 0x0010, 0x0040, 0x0080, 0x0100, 0x0800, 0x1000, 0x2000, 0x4000, /*BitClear2*/0x0001, 0x0002, 0x0004, 0x0008, 0x0010, 0x0040, 0x0080, 0x0100, 0x0800, 0x1000, 0x2000, 0x4000, /*RO*/0xFFFF, /*Status1*/0x0001, 0x0002, 0x0004, 0x0008, 0x0020, 0x0040, 0x0080, 0x0100, /*Status2*/0x0002, 0x0004, 0x0010, 0x0020, 0x0040, 0x0080, 0xFFFF, 0x00FF, 0x0FFF, 0x0FFF};
+uint16_t confMask1785[confSize] = {0x001F, 0x00FF, 0x0007, 0x00FF, 0x00FF, 0x00FF, 0x001F, 0xFFFF, 0x03FF, 0x00FF, 0x00FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0xFFFF, 0x0003, 0xFFFF, 0xFFFF, 0x07FF, 0xFFFF, 0xFFFF, 0x1FFF, 0xFFFF, 0x07FF, 0xFFFF, /*BitSet1*/0x0008, 0x0010, 0x0080, /*Ctrl1*/0x0004, 0x0010, 0x0020, 0x0040, /*BitSet2*/0x0001, 0x0002, 0x0004, 0x0008, 0x0010, 0x0040, 0x0080, 0x0100, 0x0800, 0x1000, 0x2000, 0x4000, /*BitClear1*/0x0008, 0x0010, 0x0080, /*BitClear2*/0x0001, 0x0002, 0x0004, 0x0008, 0x0010, 0x0040, 0x0080, 0x0100, 0x0800, 0x1000, 0x2000, 0x4000, /*RO*/0xFFFF, /*Status1*/0x0001, 0x0002, 0x0004, 0x0008, 0x0020, 0x0040, 0x0080, 0x0100, /*Status2*/0x0002, 0x0004, 0x0010, 0x0020, 0x0040, 0x0080, 0xFFFF, 0x00FF, 0x0FFF, 0x0FFF};
 
 unsigned int confDefault1785[]={0,0xAA,7,0,0x00CC,0x0000,8,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,8,0,0,4,0,0,0,/*BitSet1*/0,0,0,/*Ctrl1*/0,0,0,0,/*BitSet2*/0,0,0,1,1,0,1,1,1,0,0,1};
 
@@ -291,6 +291,10 @@ int adc1785::queryInterface(const string& funcName, void* para[], void* ret) {
         *(int*)ret = fillEvent(*(unsigned int*)para[0]);
         return 1;
     }
+    if(funcName == "flushData") {
+        *(int*)ret = flushData();
+        return 1;
+    }
     return 0;
 }
 
@@ -309,10 +313,10 @@ int adc1785::LoadedUNLD(void* argv[]) {
 int adc1785::LoadedCONF(void* argv[]) {
     debugMsg << name << "# " << "LoadedCONF";
     stMsg->stateOut(debugMsg);
-    //if(!configAdc())
-        //return -1;
+    if(!configAdc())
+        return -1;
     // for test
-    confValue[eventTh] = 4;
+    //confValue[eventTh] = 4;
     sendData = true;
     return 3;
 }
@@ -320,7 +324,7 @@ int adc1785::LoadedCONF(void* argv[]) {
 int adc1785::ConfiguredUNCF(void* argv[]) {
     debugMsg << name << "# " << "ConfiguredUNCF";
     stMsg->stateOut(debugMsg);
-    //releaseAdc();
+    releaseAdc();
     return 2;
 }
 
@@ -341,47 +345,42 @@ int adc1785::ReadySTOP(void* argv[]) {
 int adc1785::ReadySATR(void* argv[]) {
     debugMsg << name << "# " << "ReadySATR";
     stMsg->stateOut(debugMsg);
-    //stopAdc();
-    //startAdc();
+    stopAdc();
+    startAdc();
     return 5;
 }
 
 int adc1785::RunningSPTR(void* argv[]) {
     debugMsg << name << "# " << "RunningSPTR";
     stMsg->stateOut(debugMsg);
-    //stopAdc();
+    stopAdc();
     return 4;
 }
 
 int adc1785::RunningPAUS(void* argv[]) {
     debugMsg << name << "# " << "RunningPAUS";
     stMsg->stateOut(debugMsg);
-    //disableAdc();
+    disableAdc();
     return 6;
 }
 
 int adc1785::PausedSPTR(void* argv[]) {
     debugMsg << name << "# " << "PausedSPTR";
     stMsg->stateOut(debugMsg);
-    //stopAdc();
+    stopAdc();
     return 4;
 }
 
 int adc1785::PausedRESU(void* argv[]) {
     debugMsg << name << "# " << "PausedRESU";
     stMsg->stateOut(debugMsg);
-    //enableAdc();
+    enableAdc();
     return 5;
 }
 
 int adc1785::OTFCTRL(void* argv[]) {
-    // D32 to D16
-    //finishAdc();
     // call smBase::OTFCTRL
     smBase::OTFCTRL(argv);
-    // D16 to D32
-    //prepAdc();
-
     return (int)stId;
 }
 
@@ -438,11 +437,11 @@ uint32_t adc1785::getEventTh() {
 }
 
 uint32_t adc1785::getTranSize() {
-    return confValue[eventTh];
+    return confValue[eventTh]*EVENTSIZE;
 }
 
 int adc1785::waitTrigger() {
-    //pvme->waitIrq(confValue[irqLevel], confValue[irqVector]);
+    pvme->waitIrq(confValue[irqLevel], confValue[irqVector]);
     debugMsg << name << "# " << "triggered";
     stMsg->stateOut(debugMsg);
     return 1;
@@ -635,6 +634,15 @@ int adc1785::fillEvent(unsigned int& packSize) {
     return 1;
 }
 
+int adc1785::flushData() {
+    debugMsg << name << "# " << "flush " << confValue[eventTh] << " events in the buffer.";
+    stMsg->stateOut(debugMsg); 
+    for(int i=0; i<confValue[eventTh]; i++) {
+        pvme->ww(image, base+ADC1785_SWComm_Offset, pvme->swap16(0x0001));
+    }
+    return 1;
+}
+
 int adc1785::configAdc() {
     int res;
 
@@ -667,9 +675,9 @@ int adc1785::configAdc() {
         //return 0;
     }
 
-    int i;
-    for(i=0; i<ConfSize-ConfRO; i++)
-        confValue[i]=confDefault1785[i];
+    //int i;
+    //for(i=0; i<ConfSize-ConfRO; i++)
+        //confValue[i]=confDefault1785[i];
     
     debugMsg << name << "# " << "base: " << hex << base << ", length: " << hex << length;
     stMsg->stateOut(debugMsg);
@@ -692,7 +700,8 @@ int adc1785::configAdc() {
     stMsg->stateOut(debugMsg);
 
     unsigned int adcReg;
-    for(i=0; i<ConfSize-ConfRO; i++) {
+    for(int i=0; i<ConfSize-ConfRO; i++) {
+        adcReg = confDefault1785[i];
         if((res=cfgInfo->infoGetUint("config."+name+"."+confName1785[i], adcReg)) != 1) {
             debugMsg << name << "# " << "config."+name+"."+confName1785[i] << " not found.";
             stMsg->stateOut(debugMsg);
@@ -701,14 +710,14 @@ int adc1785::configAdc() {
         else
             confValue[i] = adcReg;
 
+        // merge to register
+        if(i<RegSize-RegRO-RegBitSet)
+            regValue[i] = confValue[i];
+
         debugMsg << name << "# " << "" << confName1785[i] << ": " << confValue[i];
         stMsg->stateOut(debugMsg);
     }
 
-    // merge to register
-    for(i=0; i<RegSize-RegRO-RegBitSet; i++) {
-        regValue[i] = confValue[i];
-    }
     // BitSet1
     regValue[BitSet1] = ((confValue[berrFlag]&0x0001)<<3)+((confValue[selAddr]&0x0001)<<4)+((confValue[softReset]&0x0001)<<7);
     // Ctrl1
@@ -718,7 +727,7 @@ int adc1785::configAdc() {
     debugMsg << name << "# " << "regValue# " << hex << "BitSet1: " << regValue[BitSet1] << ", Ctrl1: " << regValue[Ctrl1] << ", BitSet2: " << regValue[BitSet2];
     stMsg->stateOut(debugMsg);
 
-    debugMsg << name << "# " << hex << "IrqLevel: " << regValue[IrqLevel] << ", IrqVector: " << regValue[IrqVector];
+    debugMsg << name << "# " << "IrqLevel: " << regValue[IrqLevel] << ", IrqVector: " << regValue[IrqVector];
     stMsg->stateOut(debugMsg);
     // set normal register value
     pvme->ww(image, base+ADC1785_IrqLevel_Offset, pvme->swap16(regValue[IrqLevel]&ADC1785_IrqLevel_Mask));
@@ -887,7 +896,6 @@ int adc1785::startAdc() {
     // clear data
     pvme->ww(image, base+ADC1785_BitSet2_Offset, pvme->swap16((uint16_t)0x0004));
     pvme->ww(image, base+ADC1785_BitClear2_Offset, pvme->swap16((uint16_t)0x0004));
-
     // enable adc
     enableAdc();
 
@@ -895,12 +903,6 @@ int adc1785::startAdc() {
 }
 
 int adc1785::stopAdc() {
-    debugMsg << name << "# " << "flush " << confValue[eventTh] << " events in the buffer.";
-    stMsg->stateOut(debugMsg); 
-    for(int i=0; i<confValue[eventTh]; i++) {
-        pvme->ww(image, base+ADC1785_SWComm_Offset, pvme->swap16(0x0001));
-    }
-    
     // disable adc
     disableAdc();
 
