@@ -55,6 +55,7 @@ class mqdc32 :public smBase {
         int ackTrigger();
         int packData(unsigned int &packSize);
         int fillEvent(unsigned int &packSize);
+        int flushData();
 
         int configAdc();
         int releaseAdc();

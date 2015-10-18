@@ -10,6 +10,8 @@ using std::string;
 using std::thread;
 using std::cout;
 using std::endl;
+using std::hex;
+using std::dec;
 
 #define TASK_START 1
 #define TASK_STOP 0
@@ -21,7 +23,6 @@ using std::endl;
 
 //uint32_t tmp[24] = {0xfa00400, 0xf8004010, 0xf8104050, 0xf8024110, 0xf8124550, 0xfc000001, 0xfa0000400, 0xf8004010, 0xf8104050, 0xf8024110, 0xf8124550, 0xfc000002, 0xfa0000400, 0xf8004010, 0xf8104050, 0xf8024110, 0xf8124550, 0xfc000003, 0xfa0000400, 0xf8004010, 0xf8104050, 0xf8024110, 0xf8124550, 0xfc000004};
 static uint32_t tmp[24] = {0x000400fa, 0x104000f8, 0x504010f8, 0x104102f8, 0x504512f8, 0x010000fc, 0x000400fa, 0x104000f8, 0x504010f8, 0x104102f8, 0x504512f8, 0x020000fc, 0x000400fa, 0x104000f8, 0x504010f8, 0x104102f8, 0x504512f8, 0x030000fc, 0x000400fa, 0x104000f8, 0x504010f8, 0x104102f8, 0x504512f8, 0x040000fc};
-
 
 static uint32_t imgCtrlAddr[18] = {0x100, 0x114, 0x128, 0x13C, 0x1A0, 0x1B4, 0x1C8, 0x1DC, 0x400, 0x200, 0xF00, 0xF14, 0xF28, 0xF3C, 0xF90, 0xFA4, 0xFB8, 0xFCC};
 
@@ -53,28 +54,28 @@ int vme::queryInterface(const std::string& funcName, void* para[], void* ret) {
 int vme::InitializedLOAD(void* argv[]) {
     debugMsg << name << "# " << "InitializedLOAD";
     stMsg->stateOut(debugMsg); 
-    //pvme = new VMEBridge;
+    pvme = new VMEBridge;
     return 2;
 }
 
 int vme::LoadedUNLD(void* argv[]) {
     debugMsg << name << "# " << "LoadedUNLD";
     stMsg->stateOut(debugMsg);
-    //delete pvme;
+    delete pvme;
     return 1;
 }
 
 int vme::LoadedCONF(void* argv[]) {
     debugMsg << name << "# " << "LoadedCONF";
     stMsg->stateOut(debugMsg);
-    //configVme();
+    configVme();
     return 3;
 }
 
 int vme::ConfiguredUNCF(void* argv[]) {
     debugMsg << name << "# " << "ConfiguredUNCF";
     stMsg->stateOut(debugMsg);
-    //releaseVme();
+    releaseVme();
     return 2;
 }
 
@@ -127,9 +128,10 @@ int vme::OTFCONF(void* argv[]) {
 }
 
 int vme::configVme() {
+    debugMsg << hex;
+
     pvme->resetDriver();
     int res;
-    debugMsg << std::hex;
     uint32_t PCI_CSR, MISC_CTL, MAST_CTL, LSI0_CTL;
     PCI_CSR = pvme->readUniReg(0x004);
     MISC_CTL = pvme->readUniReg(0x404);
@@ -162,7 +164,7 @@ int vme::configVme() {
         dmaSize = DMASIZE;
     }
     */
-    debugMsg << std::dec;
+    debugMsg << dec;
     return 1;
 }
 
@@ -172,12 +174,11 @@ int vme::releaseVme() {
 }
 
 int vme::prepVme() {
+    debugMsg << hex;
 
     string triggerDevice, linkList;
     int res;
     std::vector< std::pair<std::string, smBase*> >::const_iterator iter;
-
-    debugMsg << std::hex;
 
     triDev = NULL;
     if((res=cfgInfo->infoGetString("config."+name+".triggerDevice", triggerDevice)) == 1) {
@@ -217,7 +218,7 @@ int vme::prepVme() {
         stMsg->stateOut(debugMsg);
         return 0;
     }
-    /*
+    
     listNumber = pvme->newCmdPktList();
     debugMsg << name << "# " << "add cmd packet list number " << listNumber;
     stMsg->stateOut(debugMsg);
@@ -234,15 +235,15 @@ int vme::prepVme() {
             stMsg->stateOut(debugMsg);
         }
     }
-    */
-    debugMsg << std::dec;
+
+    debugMsg << dec;
 
     devMsgQue = dataPool->getDevMsgQue();
     return 1;
 }
 
 int vme::finishVme() {
-    //pvme->delCmdPktList(listNumber);
+    pvme->delCmdPktList(listNumber);
     return 1;
 }
 
@@ -282,10 +283,10 @@ void vme::runVme() {
         tranSize = dataPool->devWrite((void*)(dmaBase+offset), dmaSize);
         */
         // test 
-        usleep(1000);
-        dmaSize = 24*sizeof(uint32_t);
-        tranSize = dataPool->devWrite((void*)&tmp[0], dmaSize, 1);
-        /*
+        //usleep(1000);
+        //dmaSize = 24*sizeof(uint32_t);
+        //tranSize = dataPool->devWrite((void*)&tmp[0], dmaSize, 1);
+        
         pvme->execCmdPktList(listNumber);
         tranSize = 0;
         dmaSize = 0;
@@ -294,7 +295,7 @@ void vme::runVme() {
             dmaSize += sizeList[i];
             devList[i]->queryInterface("afterTransfer", NULL, &res);
         }
-        */
+        
         triDev->queryInterface("ackTrigger", NULL, &res);
         
         genSize += dmaSize;
@@ -317,9 +318,6 @@ void vme::runVme() {
     if(stopSend < 0)
         vmeStatus = TASK_ERROR;
         
-    debugMsg << name << "# " << "vme send stop to devMsg and return " << stopSend << endl;
-    stMsg->stateOut(debugMsg);
-
     if(vmeStatus == TASK_RUN)
         vmeStatus = TASK_EXIT;
 
@@ -332,9 +330,8 @@ void vme::runVme() {
 int vme::getImgCtrl(int i, uint32_t& addr) {
     if(i < 0 || i >= 18)
         return 0;
-    else {
+    else
         addr = imgCtrlAddr[i];
-    }
     return 1;
 }
 

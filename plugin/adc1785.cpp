@@ -9,6 +9,8 @@ using std::map;
 using std::vector;
 using std::cout;
 using std::endl;
+using std::hex;
+using std::dec;
 
 #define MIN_IMAGE 0
 #define MAX_IMAGE 7
@@ -314,10 +316,10 @@ int adc1785::LoadedUNLD(void* argv[]) {
 int adc1785::LoadedCONF(void* argv[]) {
     debugMsg << name << "# " << "LoadedCONF";
     stMsg->stateOut(debugMsg);
-    //if(!configAdc())
-        //return -1;
+    if(!configAdc())
+        return -1;
     // for test
-    confValue[eventTh] = 4;
+    //confValue[eventTh] = 4;
     sendData = true;
     return 3;
 }
@@ -325,7 +327,7 @@ int adc1785::LoadedCONF(void* argv[]) {
 int adc1785::ConfiguredUNCF(void* argv[]) {
     debugMsg << name << "# " << "ConfiguredUNCF";
     stMsg->stateOut(debugMsg);
-    //releaseAdc();
+    releaseAdc();
     return 2;
 }
 
@@ -346,36 +348,36 @@ int adc1785::ReadySTOP(void* argv[]) {
 int adc1785::ReadySATR(void* argv[]) {
     debugMsg << name << "# " << "ReadySATR";
     stMsg->stateOut(debugMsg);
-    //stopAdc();
-    //startAdc();
+    stopAdc();
+    startAdc();
     return 5;
 }
 
 int adc1785::RunningSPTR(void* argv[]) {
     debugMsg << name << "# " << "RunningSPTR";
     stMsg->stateOut(debugMsg);
-    //stopAdc();
+    stopAdc();
     return 4;
 }
 
 int adc1785::RunningPAUS(void* argv[]) {
     debugMsg << name << "# " << "RunningPAUS";
     stMsg->stateOut(debugMsg);
-    //disableAdc();
+    disableAdc();
     return 6;
 }
 
 int adc1785::PausedSPTR(void* argv[]) {
     debugMsg << name << "# " << "PausedSPTR";
     stMsg->stateOut(debugMsg);
-    //stopAdc();
+    stopAdc();
     return 4;
 }
 
 int adc1785::PausedRESU(void* argv[]) {
     debugMsg << name << "# " << "PausedRESU";
     stMsg->stateOut(debugMsg);
-    //enableAdc();
+    enableAdc();
     return 5;
 }
 
@@ -442,7 +444,7 @@ uint32_t adc1785::getTranSize() {
 }
 
 int adc1785::waitTrigger() {
-    //pvme->waitIrq(confValue[irqLevel], confValue[irqVector]);
+    pvme->waitIrq(confValue[irqLevel], confValue[irqVector]);
     debugMsg << name << "# " << "triggered";
     stMsg->stateOut(debugMsg);
     return 1;
@@ -459,6 +461,7 @@ int adc1785::ackTrigger() {
 }
 
 int adc1785::packData(unsigned int &packSize) {
+    debugMsg << hex;
     unsigned int tmpIdx;
     dataPool->devSetSnap();
     unsigned int bias = 0;
@@ -510,11 +513,10 @@ int adc1785::packData(unsigned int &packSize) {
             tmpIdx++;
             // copy to idx set
             eventIdx->push(tmpIdx);
-            //dataPool->netWrite(tmp, tmpIdx*4);
             tranSize += tmpIdx*4;
             debugMsg << name << "# " << "pack data " << i << ": write ptr " << eventPtrW << endl;
-            for(int k=0; k<tmpIdx; k++) {
-                debugMsg << std::hex << eventSet[eventPtrW][k] << " ";
+            for(unsigned int k=0; k<tmpIdx; k++) {
+                debugMsg << eventSet[eventPtrW][k] << " ";
             }
             stMsg->stateOut(debugMsg);
             tmpIdx=0;
@@ -530,12 +532,13 @@ int adc1785::packData(unsigned int &packSize) {
             }
             continue;
         }
-        // reserved data
     }
 
     unsigned int popSize = dataPool->devPopSnap(packSize);
     if(popSize != packSize)
         return 0;
+
+    debugMsg << dec;
 
     packSize = tranSize;
     return 1;
@@ -543,6 +546,8 @@ int adc1785::packData(unsigned int &packSize) {
 
 
 int adc1785::packDataTest(unsigned int& packSize) {
+    debugMsg << hex;
+
     unsigned int tmpIdx = 0;
     dataPool->devSetSnap();
     unsigned int bias = 0;
@@ -584,8 +589,8 @@ int adc1785::packDataTest(unsigned int& packSize) {
             //dataPool->netWrite(tmp, tmpIdx*4);
             tranSize += tmpIdx*4;
             debugMsg << name << "# " << "pack data: " << endl;
-            for(int k=0; k<tmpIdx; k++) {
-                debugMsg << std::hex << eventSet[eventPtrW][k] << " ";
+            for(unsigned int k=0; k<tmpIdx; k++) {
+                debugMsg << eventSet[eventPtrW][k] << " ";
             }
             stMsg->stateOut(debugMsg);
             tmpIdx=0;
@@ -605,6 +610,8 @@ int adc1785::packDataTest(unsigned int& packSize) {
     unsigned int popSize = dataPool->devPopSnap(packSize);
     if(popSize != packSize)
         return 0;
+
+    debugMsg << dec;
 
     packSize = tranSize;
     return 1;
@@ -636,20 +643,19 @@ int adc1785::fillEvent(unsigned int& packSize) {
 }
 
 int adc1785::flushData() {
-    debugMsg << name << "# " << "flush " << confValue[eventTh] << " events in the buffer.";
-    stMsg->stateOut(debugMsg); 
-    for(int i=0; i<confValue[eventTh]; i++) {
+    for(unsigned int i=0; i<confValue[eventTh]; i++) {
         usleep(1000);
         debugMsg << name << "# " << "flush " << i << "th";
         stMsg->stateOut(debugMsg);
-        //pvme->ww(image, base+ADC1785_SWComm_Offset, pvme->swap16(0x0001));
+        pvme->ww(image, base+ADC1785_SWComm_Offset, pvme->swap16(0x0001));
     }
     return 1;
 }
 
 int adc1785::configAdc() {
-    int res;
+    debugMsg << hex;
 
+    int res;
     pvme = NULL;
     string vmeModeName;
     if((res=cfgInfo->infoGetString("config."+name+".vmeModeName", vmeModeName)) == 1) {
@@ -678,12 +684,7 @@ int adc1785::configAdc() {
         stMsg->stateOut(debugMsg);
         //return 0;
     }
-
-    //int i;
-    //for(i=0; i<ConfSize-ConfRO; i++)
-        //confValue[i]=confDefault1785[i];
-    
-    debugMsg << name << "# " << "base: " << hex << base << ", length: " << hex << length;
+    debugMsg << name << "# " << "base: " << base << ", length: " << length;
     stMsg->stateOut(debugMsg);
     image = pvme->getImage(base, length, A32, D16, MASTER);
     if(image < MIN_IMAGE || image > MAX_IMAGE)
@@ -700,7 +701,7 @@ int adc1785::configAdc() {
     regCtrl1 = pvme->swap16(regCtrl1);
     regStatus1 = pvme->swap16(regStatus1);
     regStatus2 = pvme->swap16(regStatus2);
-    debugMsg << name << "# " << hex << "BitSet1: " << regBitSet1 << ", BitSet2: " << regBitSet2 << ", Ctrl1: " << regCtrl1 << ", Status1: " << regStatus1 << ", Status2: " << regStatus2;
+    debugMsg << name << "# " << "BitSet1: " << regBitSet1 << ", BitSet2: " << regBitSet2 << ", Ctrl1: " << regCtrl1 << ", Status1: " << regStatus1 << ", Status2: " << regStatus2;
     stMsg->stateOut(debugMsg);
 
     unsigned int adcReg;
@@ -728,7 +729,7 @@ int adc1785::configAdc() {
     regValue[Ctrl1] = ((confValue[blkend]&0x0001)<<2)+((confValue[progResetMod]&0x0001)<<4)+((confValue[busError]&0x0001)<<5)+((confValue[align64]&0x0001)<<6);
     // BitSet2
     regValue[BitSet2] = ((confValue[mode]&0x0001)<<0)+((confValue[offline]&0x0001)<<1)+((confValue[clearData]&0x0001)<<2)+((confValue[overRange]&0x0001)<<3)+((confValue[lowTh]&0x0001)<<4)+((confValue[testACQ]&0x0001)<<6)+((confValue[slideScale]&0x0001)<<7)+((confValue[stepTh]&0x0001)<<8)+((confValue[autoInc]&0x0001)<<11)+((confValue[emptyProg]&0x0001)<<12)+((confValue[slideSub]&0x0001)<<13)+((confValue[allTrigger]&0x0001)<<14);
-    debugMsg << name << "# " << "regValue# " << hex << "BitSet1: " << regValue[BitSet1] << ", Ctrl1: " << regValue[Ctrl1] << ", BitSet2: " << regValue[BitSet2];
+    debugMsg << name << "# " << "regValue# " << "BitSet1: " << regValue[BitSet1] << ", Ctrl1: " << regValue[Ctrl1] << ", BitSet2: " << regValue[BitSet2];
     stMsg->stateOut(debugMsg);
 
     debugMsg << name << "# " << "IrqLevel: " << regValue[IrqLevel] << ", IrqVector: " << regValue[IrqVector];
@@ -785,7 +786,7 @@ int adc1785::configAdc() {
     regStatus1 = pvme->swap16(regStatus1);
     regStatus2 = pvme->swap16(regStatus2);
 
-    debugMsg << name << "# " << hex << "BitSet1: " << regBitSet1 << ", BitSet2: " << regBitSet2 << ", Ctrl1: " << regCtrl1 << ", Status1: " << regStatus1 << ", Status2: " << regStatus2;
+    debugMsg << name << "# " << "BitSet1: " << regBitSet1 << ", BitSet2: " << regBitSet2 << ", Ctrl1: " << regCtrl1 << ", Status1: " << regStatus1 << ", Status2: " << regStatus2;
     stMsg->stateOut(debugMsg);
 
     // mode 
@@ -865,6 +866,8 @@ int adc1785::configAdc() {
         pvme->ww(image, base+ADC1785_RTestAddr_Offset, pvme->swap16(regValue[RTestAddr]&ADC1785_RTestAddr_Mask));
     }
 
+    debugMsg << dec;
+
     return 1;
 }
 
@@ -914,25 +917,33 @@ int adc1785::stopAdc() {
 }
 
 int adc1785::enableAdc() {
+    debugMsg << hex;
+
     uint16_t regBitSet2;
     pvme->rw(image, base+ADC1785_BitSet2_Offset, &regBitSet2);
     regBitSet2 = pvme->swap16(regBitSet2);
-    debugMsg << name << "# " << "regBitSet2 before enable adc: " << hex << regBitSet2;
+    debugMsg << name << "# " << "regBitSet2 before enable adc: " << regBitSet2;
     stMsg->stateOut(debugMsg);
 
     regBitSet2 &= 0x0002;
     pvme->ww(image, base+ADC1785_BitClear2_Offset, pvme->swap16(regBitSet2));
 
+    debugMsg << dec;
+
     return 1;
 }
 
 int adc1785::disableAdc() {
+    debugMsg << hex;
+
     uint16_t regBitSet2;
     pvme->rw(image, base+ADC1785_BitSet2_Offset, &regBitSet2);
     regBitSet2 = pvme->swap16(regBitSet2);
-    debugMsg << name << "# " << "regBitSet2 before disable adc: " << hex << regBitSet2;
+    debugMsg << name << "# " << "regBitSet2 before disable adc: " << regBitSet2;
     stMsg->stateOut(debugMsg);
     pvme->ww(image, base+ADC1785_BitClear2_Offset, pvme->swap16(0x0002));
+
+    debugMsg << dec;
 
     return 1;
 }

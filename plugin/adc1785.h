@@ -75,7 +75,7 @@ class adc1785 :public smBase {
 
         int image;
         uint32_t base, length; // 32bit VME address
-        unsigned int regValue[80], confValue[100]; //reg is 16bit, use uint32 and cut later
+        uint32_t regValue[80], confValue[100]; //reg is 16bit, use uint32 and cut later
         adc1785Event eventSet;
         int eventPtrR, eventPtrW;
         std::queue<unsigned int> *eventIdx;

@@ -122,11 +122,9 @@ void daq::runDaq() {
             daqStatus = TASK_ERROR;
             break;
         }
-        
         //debugMsg << name << "# " << "fetch netMsg " << daqMsg.size << daqMsg.signal;
         //stMsg->stateOut(debugMsg);
 
-        //daqSize += daqMsg.size;
         if(daqMsg.signal == 2) {
             dataPool->netSetSnap();
             daqSize = dataPool->netGetSnapSize();

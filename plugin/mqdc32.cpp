@@ -8,6 +8,8 @@ using std::map;
 using std::vector;
 using std::cout;
 using std::endl;
+using std::hex;
+using std::dec;
 
 #define MIN_IMAGE 0
 #define MAX_IMAGE 7
@@ -348,6 +350,10 @@ int mqdc32::queryInterface(const std::string& funcName, void* para[], void* ret)
         *(int*)ret = fillEvent(*(unsigned int*)para[0]);
         return 1;
     }
+    if(funcName == "flushData") {
+        *(int*)ret = flushData();
+        return 1;
+    }
     return 0;
 }
 
@@ -366,15 +372,15 @@ int mqdc32::LoadedUNLD(void* argv[]) {
 int mqdc32::LoadedCONF(void* argv[]) {
     debugMsg << name << "# " << "LoadedCONF";
     stMsg->stateOut(debugMsg);
-    //if(!configAdc())
-        //return -1;
+    if(!configAdc())
+        return -1;
     return 3;
 }
 
 int mqdc32::ConfiguredUNCF(void* argv[]) {
     debugMsg << name << "# " << "ConfiguredUNCF";
     stMsg->stateOut(debugMsg);
-    //releaseAdc();
+    releaseAdc();
     return 2;
 }
 
@@ -395,46 +401,41 @@ int mqdc32::ReadySTOP(void* argv[]) {
 int mqdc32::ReadySATR(void* argv[]) {
     debugMsg << name << "# " << "ReadySATR";
     stMsg->stateOut(debugMsg);
-    //startAdc();
+    startAdc();
     return 5;
 }
 
 int mqdc32::RunningSPTR(void* argv[]) {
     debugMsg << name << "# " << "RunningSPTR";
     stMsg->stateOut(debugMsg);
-    //stopAdc();
+    stopAdc();
     return 4;
 }
 
 int mqdc32::RunningPAUS(void* argv[]) {
     debugMsg << name << "# " << "RunningPAUS";
     stMsg->stateOut(debugMsg);
-    //disableAdc();
+    disableAdc();
     return 6;
 }
 
 int mqdc32::PausedSPTR(void* argv[]) {
     debugMsg << name << "# " << "PausedSPTR";
     stMsg->stateOut(debugMsg);
-    //stopAdc();
+    stopAdc();
     return 4;
 }
 
 int mqdc32::PausedRESU(void* argv[]) {
     debugMsg << name << "# " << "PausedRESU";
     stMsg->stateOut(debugMsg);
-    //enableAdc();
+    enableAdc();
     return 5;
 }
 
 int mqdc32::OTFCTRL(void* argv[]) {
-    // D32 to D16
-    //setDWAdc(0);
     // call smBase::OTFCTRL
-    //smBase::OTFCTRL(argv);
-    // D16 to D32
-    //setDWAdc(1);
-
+    smBase::OTFCTRL(argv);
     return (int)stId;
 }
 
@@ -491,11 +492,11 @@ uint32_t mqdc32::getEventTh() {
 }
 
 uint32_t mqdc32::getTranSize() {
-    return confValue[maxTransfer];
+    return confValue[maxTransfer]*EVENTSIZE;
 }
 
 int mqdc32::waitTrigger() {
-    //pvme->waitIrq(confValue[irqLevel], confValue[irqVector]);
+    pvme->waitIrq(confValue[irqLevel], confValue[irqVector]);
     return 1;
 }
 
@@ -508,6 +509,8 @@ int mqdc32::ackTrigger() {
 }
 
 int mqdc32::packData(unsigned int &packSize) {
+    debugMsg << hex;
+
     unsigned int tmpIdx;
     dataPool->devSetSnap();
     unsigned int bias = 0;
@@ -559,11 +562,10 @@ int mqdc32::packData(unsigned int &packSize) {
             tmpIdx++;
             // copy to idx set
             eventIdx->push(tmpIdx);
-            //dataPool->netWrite(tmp, tmpIdx*4);
             tranSize += tmpIdx*4;
             debugMsg << name << "# " << "pack data: " << endl;
-            for(int i=0; i<tmpIdx; i++) {
-                debugMsg << std::hex << eventSet[eventPtrW][i] << " ";
+            for(unsigned int i=0; i<tmpIdx; i++) {
+                debugMsg << eventSet[eventPtrW][i] << " ";
             }
             stMsg->stateOut(debugMsg);
             tmpIdx=0;
@@ -584,6 +586,8 @@ int mqdc32::packData(unsigned int &packSize) {
     unsigned int popSize = dataPool->devPopSnap(packSize);
     if(popSize != packSize)
         return 0;
+
+    debugMsg << dec;
 
     packSize = tranSize;
     return 1;
@@ -607,6 +611,10 @@ int mqdc32::fillEvent(unsigned int &packSize) {
         stMsg->stateOut(debugMsg);
         eventPtrR = -1;
     }
+    return 1;
+}
+
+int mqdc32::flushData() {
     return 1;
 }
 
@@ -665,15 +673,15 @@ int mqdc32::configAdc() {
         data.setValueP(&confValue[confIdx]);
         mask.setValueP(&confMaskMQDC32[confIdx]);
         maskRegData(data, mask);
-        regValue[regIdx] = regValue[regIdx] & (~(*(uint16_t*)confMaskMQDC32[confIdx])) | (*(uint16_t*)data.getValueP());
+        regValue[regIdx] = regValue[regIdx] & (~((uint32_t)(*(uint16_t*)confMaskMQDC32[confIdx]))) | ((uint32_t)(*(uint16_t*)data.getValueP()));
         if(find(regSet.begin(), regSet.end(), regIdx) == regSet.end())
             regSet.push_back(regIdx);
     }
 
     int rw = 1;
-    for(int i=0; i<regSet.size(); i++) {
+    for(unsigned int i=0; i<regSet.size(); i++) {
         data.setValueP(&regValue[regSet[i]]);
-        if(res=accessReg(regSet[i], rw, data) != 0) {
+        if((res=accessReg(regSet[i], rw, data)) != 0) {
             debugMsg << name << "# " << "config."+name+".register" << regSet[i] << " set with accident !";
             stMsg->stateOut(debugMsg);
         }
@@ -724,10 +732,6 @@ int mqdc32::startAdc() {
 }
 
 int mqdc32::stopAdc() {
-    // flush the rest data
-    debugMsg << name << "# flush rest events in the buffer.";
-    stMsg->stateOut(debugMsg);
-
     // disable adc
     disableAdc();
     return 1;
@@ -736,18 +740,12 @@ int mqdc32::stopAdc() {
 int mqdc32::enableAdc() {
     // set startAcq
     pvme->ww(image, base+MQDC32_StartAcq_Offset, pvme->swap16((uint16_t)0x0001));
-    // D16 to D32
-    setDWAdc(1);
-
     return 1;
 }
 
 int mqdc32::disableAdc() {
-    // D32 to D16
-    setDWAdc(0);
     // unset startAcq
     pvme->ww(image, base+MQDC32_StartAcq_Offset, pvme->swap16((uint16_t)0x0000));
-
     return 1;
 }
 /*

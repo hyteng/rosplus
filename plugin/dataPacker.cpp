@@ -10,6 +10,8 @@ using std::string;
 using std::thread;
 using std::cout;
 using std::endl;
+using std::hex;
+using std::dec;
 
 #define TASK_START 1
 #define TASK_STOP 0
@@ -261,14 +263,9 @@ int dataPacker::packData(unsigned int& packSize) {
 }
 
 int dataPacker::packDataTest(unsigned int& packSize) {
-
-    uint32_t tmp[18];
-    unsigned int tmpIdx;
-
     dataPool->devSetSnap();
     unsigned int bias = 0;
     void* p;
-    unsigned int value;
     unsigned int tranSize = 0;
     unsigned int wordSize=4, readSize, restSize;
     for(unsigned int i=0; i<packSize/wordSize; i++,bias+=wordSize) {
