@@ -19,6 +19,10 @@ using std::endl;
 
 #define DMASIZE 72
 
+//uint32_t tmp[24] = {0xfa00400, 0xf8004010, 0xf8104050, 0xf8024110, 0xf8124550, 0xfc000001, 0xfa0000400, 0xf8004010, 0xf8104050, 0xf8024110, 0xf8124550, 0xfc000002, 0xfa0000400, 0xf8004010, 0xf8104050, 0xf8024110, 0xf8124550, 0xfc000003, 0xfa0000400, 0xf8004010, 0xf8104050, 0xf8024110, 0xf8124550, 0xfc000004};
+static uint32_t tmp[24] = {0x000400fa, 0x104000f8, 0x504010f8, 0x104102f8, 0x504512f8, 0x010000fc, 0x000400fa, 0x104000f8, 0x504010f8, 0x104102f8, 0x504512f8, 0x020000fc, 0x000400fa, 0x104000f8, 0x504010f8, 0x104102f8, 0x504512f8, 0x030000fc, 0x000400fa, 0x104000f8, 0x504010f8, 0x104102f8, 0x504512f8, 0x040000fc};
+
+
 static uint32_t imgCtrlAddr[18] = {0x100, 0x114, 0x128, 0x13C, 0x1A0, 0x1B4, 0x1C8, 0x1DC, 0x400, 0x200, 0xF00, 0xF14, 0xF28, 0xF3C, 0xF90, 0xFA4, 0xFB8, 0xFCC};
 
 static uint32_t awValue[3] = {A16, A24, A32}; // A64 is not supported by universeII
@@ -49,28 +53,28 @@ int vme::queryInterface(const std::string& funcName, void* para[], void* ret) {
 int vme::InitializedLOAD(void* argv[]) {
     debugMsg << name << "# " << "InitializedLOAD";
     stMsg->stateOut(debugMsg); 
-    pvme = new VMEBridge;
+    //pvme = new VMEBridge;
     return 2;
 }
 
 int vme::LoadedUNLD(void* argv[]) {
     debugMsg << name << "# " << "LoadedUNLD";
     stMsg->stateOut(debugMsg);
-    delete pvme;
+    //delete pvme;
     return 1;
 }
 
 int vme::LoadedCONF(void* argv[]) {
     debugMsg << name << "# " << "LoadedCONF";
     stMsg->stateOut(debugMsg);
-    configVme();
+    //configVme();
     return 3;
 }
 
 int vme::ConfiguredUNCF(void* argv[]) {
     debugMsg << name << "# " << "ConfiguredUNCF";
     stMsg->stateOut(debugMsg);
-    releaseVme();
+    //releaseVme();
     return 2;
 }
 
@@ -213,7 +217,7 @@ int vme::prepVme() {
         stMsg->stateOut(debugMsg);
         return 0;
     }
-    
+    /*
     listNumber = pvme->newCmdPktList();
     debugMsg << name << "# " << "add cmd packet list number " << listNumber;
     stMsg->stateOut(debugMsg);
@@ -230,7 +234,7 @@ int vme::prepVme() {
             stMsg->stateOut(debugMsg);
         }
     }
-    
+    */
     debugMsg << std::dec;
 
     devMsgQue = dataPool->getDevMsgQue();
@@ -238,7 +242,7 @@ int vme::prepVme() {
 }
 
 int vme::finishVme() {
-    pvme->delCmdPktList(listNumber);
+    //pvme->delCmdPktList(listNumber);
     return 1;
 }
 
@@ -249,20 +253,18 @@ int vme::startVme() {
 }
 
 int vme::stopVme() {
+    t0->detach();
+    sleep(1);
     runVmeCtrl = TASK_STOP;
     int res;
     triDev->queryInterface("flushData", NULL, &res);
-    //triDev->queryInterface("flushData", NULL, NULL);
     //t0->join();
-    //t0->detach();
     return 1;
 }
 
 void vme::runVme() {
     vmeStatus = TASK_RUN;
-    //uint32_t tmp[24] = {0xfa00400, 0xf8004010, 0xf8104050, 0xf8024110, 0xf8124550, 0xfc000001, 0xfa0000400, 0xf8004010, 0xf8104050, 0xf8024110, 0xf8124550, 0xfc000002, 0xfa0000400, 0xf8004010, 0xf8104050, 0xf8024110, 0xf8124550, 0xfc000003, 0xfa0000400, 0xf8004010, 0xf8104050, 0xf8024110, 0xf8124550, 0xfc000004};
-    uint32_t tmp[24] = {0x000400fa, 0x104000f8, 0x504010f8, 0x104102f8, 0x504512f8, 0x010000fc, 0x000400fa, 0x104000f8, 0x504010f8, 0x104102f8, 0x504512f8, 0x020000fc, 0x000400fa, 0x104000f8, 0x504010f8, 0x104102f8, 0x504512f8, 0x030000fc, 0x000400fa, 0x104000f8, 0x504010f8, 0x104102f8, 0x504512f8, 0x040000fc};
-
+    
     unsigned long genSize = 0;
     unsigned long sndSize = 0;
     while(runVmeCtrl == TASK_START) {
@@ -280,10 +282,10 @@ void vme::runVme() {
         tranSize = dataPool->devWrite((void*)(dmaBase+offset), dmaSize);
         */
         // test 
-        //sleep(1);
-        //dmaSize = 24*sizeof(uint32_t);
-        //tranSize = dataPool->devWrite(&tmp[0], dmaSize, 1);
-        
+        usleep(1000);
+        dmaSize = 24*sizeof(uint32_t);
+        tranSize = dataPool->devWrite((void*)&tmp[0], dmaSize, 1);
+        /*
         pvme->execCmdPktList(listNumber);
         tranSize = 0;
         dmaSize = 0;
@@ -292,26 +294,26 @@ void vme::runVme() {
             dmaSize += sizeList[i];
             devList[i]->queryInterface("afterTransfer", NULL, &res);
         }
-        
+        */
         triDev->queryInterface("ackTrigger", NULL, &res);
-
+        
         genSize += dmaSize;
         sndSize += tranSize;
         debugMsg << name << "# " << "vme generate " << dmaSize << " bytes data, pool write " << tranSize << " bytes. total gen " << genSize << ", total send " << sndSize << " bytes";
         stMsg->stateOut(debugMsg);
-
+        
         vmeMsg.signal = 2;
         vmeMsg.size = eventTh;
-        int eventSend = msgsnd(devMsgQue, &vmeMsg, sizeof(vmeMsg), 0);
+        int eventSend = msgsnd(devMsgQue, &vmeMsg, sizeof(vmeMsg)-sizeof(long), 0);
         if(eventSend < 0) {
             vmeStatus = TASK_ERROR;
             break;
         }
     }
-
+    
     vmeMsg.signal = 3;
     vmeMsg.size = 0;
-    int stopSend = msgsnd(devMsgQue, &vmeMsg, sizeof(vmeMsg), 0);
+    int stopSend = msgsnd(devMsgQue, &vmeMsg, sizeof(vmeMsg)-sizeof(long), 0);
     if(stopSend < 0)
         vmeStatus = TASK_ERROR;
         
@@ -323,6 +325,8 @@ void vme::runVme() {
 
     debugMsg << name << "# " << "vme stop thread" << vmeStatus << endl;
     stMsg->stateOut(debugMsg);
+    
+    return;
 }
 
 int vme::getImgCtrl(int i, uint32_t& addr) {

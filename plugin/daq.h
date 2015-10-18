@@ -35,8 +35,7 @@ class daq :public smBase {
         int runDaqCtrl;
         int daqStatus;
         int netMsgQue;
-        unsigned int daqCount;
-        unsigned int totalDaqSize;
+        unsigned int daqSize;
         streamMsg daqMsg;
         std::thread *t0, *ts;
 

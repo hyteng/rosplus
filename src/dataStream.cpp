@@ -89,9 +89,8 @@ unsigned int dataStream::devWrite(const void* addr, const unsigned int& nBytes, 
         devMsg.signal = 1;
         devMsg.size = sendSize;
         devMsg.count = 1;
-        int res;
-        if((res=msgsnd(devMsgQue, &devMsg, sizeof(devMsg), 0)) < 0) {
-            std::cout << "error " << errno << ", " << EACCES << ", " << EAGAIN << ", " << EFAULT << ", " << EIDRM << ", " << EINTR << ", " << EINVAL << ", " << ENOMEM << std::endl;
+        if(msgsnd(devMsgQue, &devMsg, sizeof(devMsg)-sizeof(long), 0) < 0) {
+            //std::cout << "error " << errno << ", " << EACCES << ", " << EAGAIN << ", " << EFAULT << ", " << EIDRM << ", " << EINTR << ", " << EINVAL << ", " << ENOMEM << std::endl;
             return 0;
         }
     }
@@ -137,7 +136,8 @@ unsigned int dataStream::netWrite(const void* addr, const unsigned int& nBytes, 
         netMsg.signal = 1;
         netMsg.size = sendSize;
         netMsg.count = 1;
-        if((msgsnd(netMsgQue, &netMsg, sizeof(netMsg), 0)) < 0) {
+        if((msgsnd(netMsgQue, &netMsg, sizeof(netMsg)-sizeof(long), 0)) < 0) {
+            //std::cout << "error " << errno << ", " << EACCES << ", " << EAGAIN << ", " << EFAULT << ", " << EIDRM << ", " << EINTR << ", " << EINVAL << ", " << ENOMEM << std::endl;
             return 0;
         }
         //totalNetSize = 0;

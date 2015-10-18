@@ -32,7 +32,6 @@ class dataPacker :public smBase {
         int runPackCtrl;
         int packStatus;
         int devMsgQue, netMsgQue;
-        unsigned int packCount;
         unsigned int totalPackSize;
         streamMsg packMsg;
         std::thread *t0;

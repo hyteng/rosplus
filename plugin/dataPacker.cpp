@@ -17,6 +17,9 @@ using std::endl;
 #define TASK_EXIT 0
 #define TASK_ERROR 2
 
+static string eventHead = "event Head";
+static const void* pHead = eventHead.c_str();
+static unsigned int eventHeadSize = eventHead.length();
 
 dataPacker::dataPacker(const string& n): smBase(n) {
 }
@@ -131,11 +134,10 @@ void dataPacker::runPack() {
 
     packStatus = TASK_RUN;
 
-    packCount = 0;
     totalPackSize = 0;
     dataSize.clear();
-    unsigned int recSize = 0;
-    unsigned int sndSize = 0;
+    unsigned long recSize = 0;
+    unsigned long sndSize = 0;
     while(1) {
         if((msgrcv(devMsgQue, &packMsg, sizeof(packMsg), 0, 0)) < 0) {
             packStatus = TASK_ERROR;
@@ -145,7 +147,6 @@ void dataPacker::runPack() {
         debugMsg << name << "# " << "fetch devMsg " << packMsg.size;
         stMsg->stateOut(debugMsg);
         if(packMsg.signal == 1) {
-            packCount += packMsg.count;
             totalPackSize += packMsg.size;
             dataSize.push_back(packMsg.size);
             continue;
@@ -164,13 +165,12 @@ void dataPacker::runPack() {
                 packStatus = TASK_ERROR;
                 break;
             }
-    
+
             recSize += totalPackSize;
             sndSize += packTranSize;
             debugMsg << name << "# " << "read" << recSize << "data and send " << sndSize << endl;
             stMsg->stateOut(debugMsg);
 
-            packCount = 0;
             totalPackSize = 0;
             dataSize.clear();
 
@@ -182,22 +182,20 @@ void dataPacker::runPack() {
         }
     }
 
-    //if(runPackCtrl == TASK_STOP || packStatus == TASK_ERROR) {
-        packMsg.signal = 3;
-        packMsg.size = 0;
-        int stopSend = msgsnd(netMsgQue, &packMsg, sizeof(packMsg)-sizeof(long), 0);
-        if(stopSend < 0) {
-            debugMsg << name << "# " << "pack msg fail";
-            stMsg->stateOut(debugMsg);
-            packStatus = TASK_ERROR;
-        }
-
-        debugMsg << name << "# " << "send stop to netMsg and return " << stopSend;
+    packMsg.signal = 3;
+    packMsg.size = 0;
+    int stopSend = msgsnd(netMsgQue, &packMsg, sizeof(packMsg)-sizeof(long), 0);
+    if(stopSend < 0) {
+        debugMsg << name << "# " << "pack msg fail";
         stMsg->stateOut(debugMsg);
+        packStatus = TASK_ERROR;
+    }
 
-        if(packStatus == TASK_RUN)
-            packStatus = TASK_EXIT;
-    //}
+    debugMsg << name << "# " << "send stop to netMsg and return " << stopSend;
+    stMsg->stateOut(debugMsg);
+
+    if(packStatus == TASK_RUN)
+        packStatus = TASK_EXIT;
 
     debugMsg << name << "# " << "stop thread" << packStatus;
     stMsg->stateOut(debugMsg);
@@ -299,7 +297,8 @@ int dataPacker::packDataTest(unsigned int& packSize) {
 }
 
 int dataPacker::fillEvent(unsigned int& packSize) {
-    packSize = 0;
+    packSize = eventHeadSize;
+    dataPool->netWrite(pHead, packSize);
     return 1;
 }
 

@@ -314,10 +314,10 @@ int adc1785::LoadedUNLD(void* argv[]) {
 int adc1785::LoadedCONF(void* argv[]) {
     debugMsg << name << "# " << "LoadedCONF";
     stMsg->stateOut(debugMsg);
-    if(!configAdc())
-        return -1;
+    //if(!configAdc())
+        //return -1;
     // for test
-    //confValue[eventTh] = 4;
+    confValue[eventTh] = 4;
     sendData = true;
     return 3;
 }
@@ -325,7 +325,7 @@ int adc1785::LoadedCONF(void* argv[]) {
 int adc1785::ConfiguredUNCF(void* argv[]) {
     debugMsg << name << "# " << "ConfiguredUNCF";
     stMsg->stateOut(debugMsg);
-    releaseAdc();
+    //releaseAdc();
     return 2;
 }
 
@@ -346,36 +346,36 @@ int adc1785::ReadySTOP(void* argv[]) {
 int adc1785::ReadySATR(void* argv[]) {
     debugMsg << name << "# " << "ReadySATR";
     stMsg->stateOut(debugMsg);
-    stopAdc();
-    startAdc();
+    //stopAdc();
+    //startAdc();
     return 5;
 }
 
 int adc1785::RunningSPTR(void* argv[]) {
     debugMsg << name << "# " << "RunningSPTR";
     stMsg->stateOut(debugMsg);
-    stopAdc();
+    //stopAdc();
     return 4;
 }
 
 int adc1785::RunningPAUS(void* argv[]) {
     debugMsg << name << "# " << "RunningPAUS";
     stMsg->stateOut(debugMsg);
-    disableAdc();
+    //disableAdc();
     return 6;
 }
 
 int adc1785::PausedSPTR(void* argv[]) {
     debugMsg << name << "# " << "PausedSPTR";
     stMsg->stateOut(debugMsg);
-    stopAdc();
+    //stopAdc();
     return 4;
 }
 
 int adc1785::PausedRESU(void* argv[]) {
     debugMsg << name << "# " << "PausedRESU";
     stMsg->stateOut(debugMsg);
-    enableAdc();
+    //enableAdc();
     return 5;
 }
 
@@ -442,7 +442,7 @@ uint32_t adc1785::getTranSize() {
 }
 
 int adc1785::waitTrigger() {
-    pvme->waitIrq(confValue[irqLevel], confValue[irqVector]);
+    //pvme->waitIrq(confValue[irqLevel], confValue[irqVector]);
     debugMsg << name << "# " << "triggered";
     stMsg->stateOut(debugMsg);
     return 1;
@@ -640,7 +640,9 @@ int adc1785::flushData() {
     stMsg->stateOut(debugMsg); 
     for(int i=0; i<confValue[eventTh]; i++) {
         usleep(1000);
-        pvme->ww(image, base+ADC1785_SWComm_Offset, pvme->swap16(0x0001));
+        debugMsg << name << "# " << "flush " << i << "th";
+        stMsg->stateOut(debugMsg);
+        //pvme->ww(image, base+ADC1785_SWComm_Offset, pvme->swap16(0x0001));
     }
     return 1;
 }

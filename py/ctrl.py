@@ -19,7 +19,8 @@ import gettext
 # begin wxGlade: extracode
 # end wxGlade
 
-HOST='127.0.0.1'
+#HOST='127.0.0.1'
+HOST='192.168.1.14'
 MSGPORT=4000
 DATAPORT=4001
 CTRLPORT=4002

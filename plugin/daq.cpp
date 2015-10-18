@@ -113,10 +113,9 @@ int daq::stopDaq() {
 void daq::runDaq() {
     daqStatus = TASK_RUN;
 
-    //daqCount = 0;
-    totalDaqSize = 0;
+    daqSize = 0;
     unsigned int readSize, restSize;
-    unsigned int recSize = 0;
+    unsigned long recSize = 0;
     void* netPtr = NULL;
     while(1) {
         if((msgrcv(netMsgQue, &daqMsg, sizeof(daqMsg), 0, 0)) < 0) {
@@ -127,24 +126,23 @@ void daq::runDaq() {
         //debugMsg << name << "# " << "fetch netMsg " << daqMsg.size << daqMsg.signal;
         //stMsg->stateOut(debugMsg);
 
-        //daqCount++;
-        //totalDaqSize += daqMsg.size;
+        //daqSize += daqMsg.size;
         if(daqMsg.signal == 2) {
             dataPool->netSetSnap();
-            totalDaqSize = dataPool->netGetSnapSize();
-            readSize = totalDaqSize;
+            daqSize = dataPool->netGetSnapSize();
+            readSize = daqSize;
             netPtr = dataPool->netGetSnapPtr(0, readSize);
             if(netPtr != NULL) {
-                if(readSize == totalDaqSize) {
-                    outFile.write((const char*)netPtr, totalDaqSize);
+                if(readSize == daqSize) {
+                    outFile.write((const char*)netPtr, daqSize);
                 }
                 else {
                     outFile.write((const char*)netPtr, readSize);
-                    restSize = totalDaqSize - readSize;
+                    restSize = daqSize - readSize;
                     netPtr = dataPool->netGetSnapPtr(readSize, restSize);
                     outFile.write((const char*)netPtr, restSize);
                 }
-                recSize += totalDaqSize;
+                recSize += daqSize;
                 debugMsg << name << "# " << "save " << recSize << "data";
                 stMsg->stateOut(debugMsg);
             }
@@ -152,10 +150,7 @@ void daq::runDaq() {
                 daqStatus = TASK_ERROR;
                 break;
             }
-            dataPool->netPopSnap(totalDaqSize);
-
-            //daqCount = 0;
-            //totalDaqSize = 0;
+            dataPool->netPopSnap(daqSize);
 
             continue;
         }
@@ -164,10 +159,9 @@ void daq::runDaq() {
             break;
         }
     }
-    //if(runDaqCtrl == TASK_STOP || daqStatus == TASK_ERROR) {
-        if(daqStatus == TASK_RUN)
-            daqStatus = TASK_EXIT;
-    //}
+
+    if(daqStatus == TASK_RUN)
+        daqStatus = TASK_EXIT;
 
     debugMsg << name << "# " << "stop thread" << daqStatus;
     stMsg->stateOut(debugMsg);
