@@ -628,7 +628,7 @@ int mqdc32::configAdc() {
         for(iter=helpList->begin(); iter!=helpList->end(); iter++) {
             if(iter->first == vmeModeName) {
                 vmeCtrl = iter->second;
-                if(!vmeCtrl->queryInterface("getVME", NULL, (void*)pvme))
+                if(!vmeCtrl->queryInterface("getVME", NULL, (void*)&pvme))
                     return 0;
             }
         }
@@ -653,12 +653,15 @@ int mqdc32::configAdc() {
     }
 
     image = pvme->getImage(base, length, A32, D16, MASTER);
+    debugMsg << name << "# " << "get image number " << image;
+    stMsg->stateOut(debugMsg);
+
     if(image < MIN_IMAGE || image > MAX_IMAGE)
         return 0;
     //imgCtrlAddr = 0x100;
-    void* para0 = (void*)&image;
-    if(vmeCtrl->queryInterface("getImgCtrl", (void**)&para0, (void*)&imgCtrlAddr) != 1)
-        return 0;
+    //void* para0 = (void*)&image;
+    //if(vmeCtrl->queryInterface("getImgCtrl", (void**)&para0, (void*)&imgCtrlAddr) != 1)
+        //return 0;
 
     uint32_t confTemp;
     regUint16 data, mask;
@@ -670,10 +673,12 @@ int mqdc32::configAdc() {
         else 
             confValue[confIdx] = confTemp;
         int regIdx = (*conf2reg)[confNameMQDC32[confIdx]];
+        debugMsg << name << "# " << "confIdx " << confIdx << ", regIdx " << regIdx << ", confValue " << confValue[confIdx];
+        stMsg->stateOut(debugMsg);
         data.setValueP(&confValue[confIdx]);
         mask.setValueP(&confMaskMQDC32[confIdx]);
         maskRegData(data, mask);
-        regValue[regIdx] = regValue[regIdx] & (~((uint32_t)(*(uint16_t*)confMaskMQDC32[confIdx]))) | ((uint32_t)(*(uint16_t*)data.getValueP()));
+        regValue[regIdx] = regValue[regIdx] & (~confMaskMQDC32[confIdx]) | (*(uint16_t*)data.getValueP());
         if(find(regSet.begin(), regSet.end(), regIdx) == regSet.end())
             regSet.push_back(regIdx);
     }
@@ -681,6 +686,8 @@ int mqdc32::configAdc() {
     int rw = 1;
     for(unsigned int i=0; i<regSet.size(); i++) {
         data.setValueP(&regValue[regSet[i]]);
+        debugMsg << name << "# " << "regSet " << regSet[i] << ", data " << *(uint16_t*)data.getValueP();
+        stMsg->stateOut(debugMsg);
         if((res=accessReg(regSet[i], rw, data)) != 0) {
             debugMsg << name << "# " << "config."+name+".register" << regSet[i] << " set with accident !";
             stMsg->stateOut(debugMsg);
