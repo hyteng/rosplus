@@ -6,9 +6,9 @@
 
 import wx
 import struct
-import ROOT
-import matplotlib.pyplot as plt
-import numpy as np
+import ROOT as rt
+#import matplotlib.pyplot as plt
+#import numpy as np
 
 # begin wxGlade: dependencies
 import gettext
@@ -353,7 +353,7 @@ class devFrame(wx.Frame):
         else :
             #plt.figure(n)
             #plt.show()
-            self.C[n] = ROOT.TCanvas("ch"+str(n), "ch"+str(n), 800, 600)
+            self.C[n] = rt.TCanvas("ch"+str(n), "ch"+str(n), 800, 600)
             self.C[n].cd()
             if self.dev!=-1 :
                 self.dev.hist[idx0][idx1].Draw()
@@ -388,7 +388,8 @@ class devApp:
         self.hist = [[0 for i in range(8)] for j in range(2)]
         for idx0 in (0,1) :
             for idx1 in (0,1,2,3,4,5,6,7) :
-                self.hist[idx0][idx1] = ROOT.TH1F(str(idx0*8+idx1), str(idx0*8+idx1), 4098, -1.5, 4096.5)
+                print "%s"%(str(idx0*8+idx1))
+                self.hist[idx0][idx1] = rt.TH1F(str(idx0*8+idx1), str(idx0*8+idx1), 4098, -1.5, 4096.5)
                 #self.hist[idx0][idx1] = []
         
         #dev0.Show()
@@ -463,8 +464,8 @@ class devApp:
                 print "control acknowledge from %s with value %s" %(ctrlName, value)
 
     def timerHandler(self):
-        print ""
-        #print "timerHandler for adc1785"
+        #print ""
+        print "timerHandler for adc1785"
 
 
 # end of class devApp

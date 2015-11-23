@@ -5,6 +5,7 @@
 #
 
 import wx
+import ROOT as rt
 
 # begin wxGlade: dependencies
 import gettext
@@ -15,7 +16,7 @@ import gettext
 
 
 class devFrame(wx.Frame):
-    def __init__(self, *args, **kwds):
+    def __init__(self, cSocket, *args, **kwds):
         # begin wxGlade: devFrame.__init__
         wx.Frame.__init__(self, *args, **kwds)
         self.output0 = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.HSCROLL | wx.TE_MULTILINE | wx.TE_READONLY)
@@ -519,14 +520,44 @@ class devFrame(wx.Frame):
         print "Event handler 'runACQ' not implemented!"
         event.Skip()
 
+    def setDev(self, d):
+        self.dev = d
+        self.SetTitle(_(d.name))
+
 # end of class devFrame
-class devMQDC32App(wx.App):
-    def OnInit(self):
-        wx.InitAllImageHandlers()
-        mqdc = devFrame(None, wx.ID_ANY, "")
-        self.SetTopWindow(mqdc)
-        mqdc.Show()
-        return 1
+class devApp:#(wx.App):
+    #def OnInit(self):
+    def __init__(self, n):   
+        #wx.InitAllImageHandlers()
+        #mqdc = devFrame(None, wx.ID_ANY, "")
+        #self.SetTopWindow(mqdc)
+        #mqdc.Show()
+        self.name = n;
+        self.callTimer = True
+        self.frame = -1
+        #return 1
+
+    def setFrame(self, f):
+        self.frame = f
+
+
+    def ctrlHandler(self, control, ret):
+        if control=="ctrl" :
+            idx = ret.find(';')
+            ctrlName = ret[:idx]
+            idx = ret.find(';', idx+1)
+            rw = ret[len(ctrlName)+1:idx]
+            value = ret[idx+1:-1]
+            print "ctrlHandler for adc1785 %s" %(ctrlName) 
+            obj = getattr(self.frame, ctrlName)
+            if obj!=None :
+                #if obj.ctrlHander!=None :
+                    #obj.ctrlHander(rw, value)
+                print "control acknowledge from %s with value %s" %(ctrlName, value)
+
+    def timerHandler(self):
+        #print ""
+        print "timerHandler for adc1785"
 
 # end of class devMQDC32App
 

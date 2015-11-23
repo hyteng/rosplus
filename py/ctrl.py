@@ -11,6 +11,7 @@ import time
 from socket import *
 
 #import adc1785
+from ROOT import TCanvas
 
 # begin wxGlade: dependencies
 import gettext
@@ -171,13 +172,13 @@ class msgSwitch(threading.Thread):
             else :
                 msg = line[:idx]
                 line = line[idx+1:]
-                #print "%s"%(msg)
+                print "%s"%(msg)
                 name = msg[:msg.find('#')]
                 frame = -1
                 #print name
                 if self.nameList.count(name)==1 : 
                     i = self.nameList.index(name)
-                    #print "message from %s in devList %dth"%(name,i)
+                    print "message from %s in devList %dth"%(name,i)
                     frame = self.frameList[i]
                     if (frame!=-1) and (frame!=None) :
                         txt = frame.output0
@@ -263,7 +264,7 @@ class ctrlSwitch(threading.Thread):
             else :
                 msg = line[:idx]
                 line = line[idx+1:]
-            #print "%s"%(msg)
+            print "%s"%(msg)
             idx = msg.find('#')
             control = msg[:idx]
             idx = msg.find('#', idx+1)
@@ -292,14 +293,14 @@ class timeDamon(threading.Thread):
         print "timeDamon is running"
         while True : 
             time.sleep(self.runTime)
-            #print "time step %f" %(self.runTime)
+            print "time step %f" %(self.runTime)
             self.dev.timerHandler()
         print "timeDamon is finished"
 
 
 class ctrlApp(wx.App):
     def OnInit(self):
-        wx.InitAllImageHandlers()
+        #wx.InitAllImageHandlers()
     
         self.addrMsg = (HOST, MSGPORT)
         self.socketMsg = socket(AF_INET, SOCK_STREAM)
@@ -369,7 +370,7 @@ class ctrlApp(wx.App):
 
         for th in self.thpool :
             th.start()
-
+        print "start done"
         return 1
 
     def stop(self):
