@@ -505,6 +505,7 @@ int mqdc32::afterTransfer() {
 }
 
 int mqdc32::ackTrigger() {
+    pvme->ww(image, base+MQDC32_MCSTAddr_Offset, (uint16_t)0x0001);
     return 1;
 }
 
@@ -755,58 +756,7 @@ int mqdc32::disableAdc() {
     pvme->ww(image, base+MQDC32_StartAcq_Offset, pvme->swap16((uint16_t)0x0000));
     return 1;
 }
-/*
-void mqdc32::runAdc() {
-    adcStatus = TASK_RUN;
 
-    adcCount = 0;
-    totalVmeSize = 0;
-    unsigned int genSize = 0;
-    unsigned int sndSize = 0;
-    char *tmp = "ABCDEFGH";
-    while(1) {
-
-        if(runVmeCtrl == TASK_STOP) {
-            break;
-        }
-        pvme->waitIrq(7, 0);
-        int offset = pvme->DMAread(adc0Base, dmaSize, A32, D32);
-        if(offset < 0) {
-            adcStatus = TASK_ERROR;
-            break;
-        }
-        unsigned int tranSize = dataPool->devWrite((void*)(dmaBase+offset), dmaSize);
-
-        //sleep(1);
-        //unsigned int tranSize = dataPool->devWrite(tmp, dmaSize);
-
-        genSize += dmaSize;
-        sndSize += tranSize;
-        //adcCount++;
-        //totalVmeSize += dmaSize;
-        debugMsg << name << "# " << "adc generate " << dmaSize << " bytes data, pool write " << tranSize << " bytes. total gen " << genSize << ", total send " << sndSize << " bytes";
-        stMsg->stateOut(debugMsg);
-    }
-
-    if(runVmeCtrl == TASK_STOP || adcStatus == TASK_ERROR) {
-        adcMsg.signal = 2;
-        adcMsg.size = 0;
-        int stopSend = msgsnd(devMsgQue, &adcMsg, sizeof(adcMsg), 0);
-        if(stopSend < 0) {
-            adcStatus = TASK_ERROR;
-        }
-
-        debugMsg << name << "# " << "adc send stop to devMsg and return " << stopSend << endl;
-        stMsg->stateOut(debugMsg);
-
-        if(adcStatus == TASK_RUN)
-            adcStatus = TASK_EXIT;
-    }
-
-    debugMsg << name << "# " << "adc stop thread" << adcStatus << endl;
-    stMsg->stateOut(debugMsg);
-}
-*/
 int mqdc32::accessRegNormal(const regAddrType addr, const int rw, regType* data) {
     int res;
     if(rw == 0)
