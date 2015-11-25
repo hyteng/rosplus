@@ -950,10 +950,12 @@ int adc1785::disableAdc() {
 
 int adc1785::accessRegNormal(const regAddrType addr, const int rw, regType* data) {
     int res;
-    if(rw == 0)
+    if(rw == 0) {
         res = pvme->rw(image, base+addr, data);
+        *data = pvme->swap16(*data);
+    }
     if(rw == 1)
-        res = pvme->ww(image, base+addr, data);
+        res = pvme->ww(image, base+addr, pvme->swap16(*data));
     return res;
 }
 

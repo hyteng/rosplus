@@ -254,7 +254,7 @@ static int confDuplicMQDC32[14] = {47, 54, 55, 61, 62, 73, 74, 76, 77, 78, 79, 9
 
 static int confDefaultIdxMQDC32[confSetSize] = {/*ChTh*/1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, /*board*/35, 36, /*irq*/39, 40, 43, 44, /*blt*/46, 47, /*fifo*/53, 54, 55, 56, /*adc*/60, 61, 62, 65, 66, 67, /*delay*/68, 69, 70, 71, /*io*/72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, /*pulser*/86, 87, /*rc*//*ctra*/99, 100, /*ctrb*//*limit*/112, 113, 114, 115};
 
-static uint16_t confDefaultValueMQDC32[confSetSize] = {/*ChTh*/0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /*board*/0xFF, 0, /*irq*/1, 0x000F, 8, 8, /*blt*/0x0015, 0x0001, /*fifo*/0, 1, 1, 0, /*adc*/0, 0, 0, 0, 0, 0, /*delay*/255, 255, 0, 0, /*io*/0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, /*pulser*/0, 32, /*rc*//*ctra*/0, 0x0001, /*ctrb*//*limit*/32, 0, 16, 0};
+static uint16_t confDefaultValueMQDC32[confSetSize] = {/*ChTh*/0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /*board*/0xFF, 0, /*irq*/1, 0x000F, 8, 8, /*blt*/0x0015, 0x0001, /*fifo*/0, 1, 1, 0, /*adc*/0, 1, 0, 0, 0, 0, /*delay*/255, 255, 0, 0, /*io*/0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, /*pulser*/0, 32, /*rc*//*ctra*/0, 0x0001, /*ctrb*//*limit*/32, 0, 16, 0};
 
 #define regSize 102
 
@@ -505,7 +505,8 @@ int mqdc32::afterTransfer() {
 }
 
 int mqdc32::ackTrigger() {
-    pvme->ww(image, base+MQDC32_MCSTAddr_Offset, (uint16_t)0x0001);
+    debugMsg << name << "# " << "acknowledge trigger";
+    pvme->ww(image, base+MQDC32_ReadoutReset_Offset, 0x0001);
     return 1;
 }
 
@@ -621,6 +622,8 @@ int mqdc32::flushData() {
 
 int mqdc32::configAdc() {
     int res;
+    
+    debugMsg << hex;
 
     pvme = NULL;
     string vmeModeName;
@@ -680,11 +683,14 @@ int mqdc32::configAdc() {
         mask.setValueP(&confMaskMQDC32[confIdx]);
         maskRegData(data, mask);
         regValue[regIdx] = regValue[regIdx] & (~confMaskMQDC32[confIdx]) | (*(uint16_t*)data.getValueP());
+        debugMsg << name << "# " << "regIdx " << regIdx << ", regValue " << regValue[regIdx];
+        stMsg->stateOut(debugMsg);
         if(find(regSet.begin(), regSet.end(), regIdx) == regSet.end())
             regSet.push_back(regIdx);
     }
 
     int rw = 1;
+    uint16_t testReg;
     for(unsigned int i=0; i<regSet.size(); i++) {
         data.setValueP(&regValue[regSet[i]]);
         debugMsg << name << "# " << "regSet " << regSet[i] << ", data " << *(uint16_t*)data.getValueP();
@@ -693,7 +699,12 @@ int mqdc32::configAdc() {
             debugMsg << name << "# " << "config."+name+".register" << regSet[i] << " set with accident !";
             stMsg->stateOut(debugMsg);
         }
+        //pvme->rw(image, base+(*(regAddrType*)((*regAddr)[regSet[i]])), &testReg);
+        debugMsg << name << "# " << "regSet " << regSet[i] << ", read " << pvme->swap16(testReg);
+        stMsg->stateOut(debugMsg);
     }
+
+    debugMsg << dec;
 
     return 1;
 }
@@ -759,10 +770,12 @@ int mqdc32::disableAdc() {
 
 int mqdc32::accessRegNormal(const regAddrType addr, const int rw, regType* data) {
     int res;
-    if(rw == 0)
+    if(rw == 0) {
         res = pvme->rw(image, base+addr, data);
+        *data = pvme->swap16(*data);
+    }
     if(rw == 1)
-        res = pvme->ww(image, base+addr, data);
+        res = pvme->ww(image, base+addr, pvme->swap16(*data));
     return res;
 }
 
