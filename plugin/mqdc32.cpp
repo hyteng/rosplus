@@ -254,7 +254,7 @@ static int confDuplicMQDC32[14] = {47, 54, 55, 61, 62, 73, 74, 76, 77, 78, 79, 9
 
 static int confDefaultIdxMQDC32[confSetSize] = {/*ChTh*/1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, /*board*/35, 36, /*irq*/39, 40, 43, 44, /*blt*/46, 47, /*fifo*/53, 54, 55, 56, /*adc*/60, 61, 62, 65, 66, 67, /*delay*/68, 69, 70, 71, /*io*/72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, /*pulser*/86, 87, /*rc*//*ctra*/99, 100, /*ctrb*//*limit*/112, 113, 114, 115};
 
-static uint16_t confDefaultValueMQDC32[confSetSize] = {/*ChTh*/0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /*board*/0xFF, 0, /*irq*/1, 0x000F, 8, 8, /*blt*/0x0015, 0x0001, /*fifo*/0, 1, 1, 0, /*adc*/0, 1, 0, 0, 0, 0, /*delay*/255, 255, 0, 0, /*io*/0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, /*pulser*/0, 32, /*rc*//*ctra*/0, 0x0001, /*ctrb*//*limit*/32, 0, 16, 0};
+static uint16_t confDefaultValueMQDC32[confSetSize] = {/*ChTh*/0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /*board*/0xFF, 0, /*irq*/1, 0x000F, 8, 8, /*blt*/0x0001, 0x0001, /*fifo*/0, 1, 1, 0, /*adc*/0, 1, 0, 0, 0, 0, /*delay*/255, 255, 0, 0, /*io*/0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, /*pulser*/0, 32, /*rc*//*ctra*/0, 0x0001, /*ctrb*//*limit*/32, 0, 16, 0};
 
 #define regSize 102
 
@@ -282,10 +282,11 @@ static int setCtrl() {
     mqdc32_conf2reg.clear();
     mqdc32_conf2mask.clear();
     for(int i=0, j=0; i<confSize; i++,j++) {
-        if(find(confDuplicMQDC32, confDuplicMQDC32+confSize-regSize-1, i) != (confDuplicMQDC32+confSize-regSize-1))
+        if(find(confDuplicMQDC32, confDuplicMQDC32+confSize-regSize, i) != (confDuplicMQDC32+confSize-regSize))
             j--;
         mqdc32_conf2reg[confNameMQDC32[i]] = j;
         mqdc32_conf2mask[confNameMQDC32[i]] = (uintptr_t)(&confMaskMQDC32[i]);
+        cout << hex << "mqdc32# " << "confName " << confNameMQDC32[i] << ", regAddr " << regAddrMQDC32[j] << dec << endl;
     }
 
     mqdc32_regAddr.clear();
@@ -693,14 +694,16 @@ int mqdc32::configAdc() {
     uint16_t testReg;
     for(unsigned int i=0; i<regSet.size(); i++) {
         data.setValueP(&regValue[regSet[i]]);
-        debugMsg << name << "# " << "regSet " << regSet[i] << ", data " << *(uint16_t*)data.getValueP();
+        debugMsg << name << "# " << "regIdx " << regSet[i] << ", data " << *(uint16_t*)data.getValueP();
         stMsg->stateOut(debugMsg);
         if((res=accessReg(regSet[i], rw, data)) != 0) {
             debugMsg << name << "# " << "config."+name+".register" << regSet[i] << " set with accident !";
             stMsg->stateOut(debugMsg);
         }
-        //pvme->rw(image, base+(*(regAddrType*)((*regAddr)[regSet[i]])), &testReg);
-        debugMsg << name << "# " << "regSet " << regSet[i] << ", read " << pvme->swap16(testReg);
+        debugMsg << name << "# " << "regAddr " << *(regAddrType*)((*regAddr)[regSet[i]]);
+        stMsg->stateOut(debugMsg);
+        pvme->rw(image, base+(*(regAddrType*)((*regAddr)[regSet[i]])), &testReg);
+        debugMsg << name << "# " << "regIdx " << regSet[i] << ", read " << pvme->swap16(testReg);
         stMsg->stateOut(debugMsg);
     }
 
