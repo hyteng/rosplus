@@ -1,4 +1,8 @@
-#include "mqdc32.h"
+#include <iostream>
+#include <iomanip>
+#include "vmelib.h"
+#include <map>
+#include <vector>
 #include <algorithm>
 #include <string.h>
 
@@ -7,6 +11,7 @@ using std::stringstream;
 using std::map;
 using std::vector;
 using std::cout;
+using std::cin;
 using std::endl;
 using std::hex;
 using std::dec;
@@ -228,9 +233,6 @@ using std::dec;
 
 #define EVENTSIZE 136
 
-// data width definition
-static uint32_t DataWidth[3] = {D16, D32, D64};
-
 // ctrl, conf, and reg infomation
 
 #define ctrlSize 112
@@ -303,160 +305,9 @@ static int dummy = setCtrl();
 
 #define wordSize 4
 
-mqdc32::mqdc32(const string& n): smBase(n) {
-    ctrl2conf = &mqdc32_ctrl2conf;
-    conf2reg = &mqdc32_conf2reg;
-    conf2mask = &mqdc32_conf2mask;
-    regAddr = &mqdc32_regAddr;
-    regRWIdx = &mqdc32_regRWIdx;
-
-    vd = (regData*) new regUint16();
-    vm = (regData*) new regUint16();
-    imgCtrlAddr = 0;
-}
-
-mqdc32::~mqdc32() {
-}
-
-int mqdc32::queryInterface(const std::string& funcName, void* para[], void* ret) {
-    if(funcName == "getBuffAddr") {
-        *(uintptr_t*)ret = getBuffAddr();
-        return 1;
-    }
-    if(funcName == "getEventTh") {
-        *(uint32_t*)ret = getEventTh();
-        return 1;
-    }
-    if(funcName == "getTranSize") {
-        *(uint32_t*)ret = getTranSize();
-        return 1;
-    }
-    if(funcName == "waitTrigger") {
-        *(int*)ret = waitTrigger();
-        return 1;
-    }
-    if(funcName == "afterTransfer") {
-        *(int*)ret = afterTransfer();
-        return 1;
-    }
-    if(funcName == "ackTrigger") {
-        *(int*)ret = ackTrigger();
-        return 1;
-    }
-    if(funcName == "packData") {
-        *(int*)ret = packData(*(unsigned int*)para[0]);
-        return 1;
-    }
-    if(funcName == "fillEvent") {
-        *(int*)ret = fillEvent(*(unsigned int*)para[0]);
-        return 1;
-    }
-    if(funcName == "flushData") {
-        *(int*)ret = flushData();
-        return 1;
-    }
-    return 0;
-}
-
-int mqdc32::InitializedLOAD(void* argv[]) {
-    debugMsg << name << "# " << "InitializedLOAD";
-    stMsg->stateOut(debugMsg);
-    return 2;
-}
-
-int mqdc32::LoadedUNLD(void* argv[]) {
-    debugMsg << name << "# " << "LoadedUNLD";
-    stMsg->stateOut(debugMsg);
-    return 1;
-}
-
-int mqdc32::LoadedCONF(void* argv[]) {
-    debugMsg << name << "# " << "LoadedCONF";
-    stMsg->stateOut(debugMsg);
-    if(!configAdc())
-        return -1;
-    return 3;
-}
-
-int mqdc32::ConfiguredUNCF(void* argv[]) {
-    debugMsg << name << "# " << "ConfiguredUNCF";
-    stMsg->stateOut(debugMsg);
-    releaseAdc();
-    return 2;
-}
-
-int mqdc32::ConfiguredPREP(void* argv[]) {
-    debugMsg << name << "# " << "ConfiguredPREP";
-    stMsg->stateOut(debugMsg);
-    prepAdc();
-    return 4;
-}
-
-int mqdc32::ReadySTOP(void* argv[]) {
-    debugMsg << name << "# " << "ReadySTOP";
-    stMsg->stateOut(debugMsg);
-    finishAdc();
-    return 3;
-}
-
-int mqdc32::ReadySATR(void* argv[]) {
-    debugMsg << name << "# " << "ReadySATR";
-    stMsg->stateOut(debugMsg);
-    startAdc();
-    return 5;
-}
-
-int mqdc32::RunningSPTR(void* argv[]) {
-    debugMsg << name << "# " << "RunningSPTR";
-    stMsg->stateOut(debugMsg);
-    stopAdc();
-    return 4;
-}
-
-int mqdc32::RunningPAUS(void* argv[]) {
-    debugMsg << name << "# " << "RunningPAUS";
-    stMsg->stateOut(debugMsg);
-    disableAdc();
-    return 6;
-}
-
-int mqdc32::PausedSPTR(void* argv[]) {
-    debugMsg << name << "# " << "PausedSPTR";
-    stMsg->stateOut(debugMsg);
-    stopAdc();
-    return 4;
-}
-
-int mqdc32::PausedRESU(void* argv[]) {
-    debugMsg << name << "# " << "PausedRESU";
-    stMsg->stateOut(debugMsg);
-    enableAdc();
-    return 5;
-}
-
-int mqdc32::OTFCTRL(void* argv[]) {
-    // call smBase::OTFCTRL
-    smBase::OTFCTRL(argv);
-    return (int)stId;
-}
-
-int mqdc32::accessReg(const int idx, const int rw, regData& data) {
-    int res;
-    if(idx<0 || idx>=regSize || rw<0 || rw>1 || data.getValueP()==NULL )
-        return 0;
-
-    if((*regRWIdx)[idx] != 0 && (*regRWIdx)[idx] != rw+1)
-        return 0;
-
-    regAddrType addr = *(regAddrType*)((*regAddr)[idx]);
-    
-    res = accessRegNormal(addr, rw, (regType*)data.getValueP());
-    return res;
-}
-
-int mqdc32::maskRegData(regData& data, regData& mask) {
-    regType mData = *(regType*)(data.getValueP());
-    regType mTest = *(regType*)(mask.getValueP());
+int maskRegData(uint16_t& data, uint16_t& mask) {
+    uint16_t mData = data;
+    uint16_t mTest = mask;
     int shift = 16;
     for(int i=0;i<16;i++) {
         if((mTest>>i)%2 != 0) {
@@ -464,228 +315,62 @@ int mqdc32::maskRegData(regData& data, regData& mask) {
             break;
         }
     }
-    mData = (mData<<shift)&mTest;
-    data.setValueP(&mData);
+    data = (mData<<shift)&mTest;
     return 1;
 }
 
-int mqdc32::unmaskRegData(regData& data, regData& mask) {
-    regType mData = *(regType*)(data.getValueP());
-    regType mTest = *(regType*)(mask.getValueP());
-    int shift = 16;
-    for(int i=0;i<16;i++) {
-        if((mTest>>i)%2 != 0) {
-            shift = i;
-            break;
-        }
-    }
-    mData = (mData&mTest)>>shift;
-    data.setValueP(&mData);
-    return 1;
-}
+int main() {
+    int image, op, i, j;
+    unsigned int dummy32, adc_base, dma_base, fop, offset, *ptr;
+    unsigned short int dummy16;
+    uint16_t confValue[200], regValue[200];
+    std::vector<int> regSet, confSet;
+    VMEBridge vme;
+    adc_base = MQDC32_BASE;
 
-uintptr_t mqdc32::getBuffAddr() {
-    return base;
-}
+    vme.vmeSysReset();
+    cin >> dummy32;
 
-uint32_t mqdc32::getEventTh() {
-    return confValue[irqTh];
-}
-
-uint32_t mqdc32::getTranSize() {
-    return confValue[maxTransfer]*EVENTSIZE;
-}
-
-int mqdc32::waitTrigger() {
-    pvme->waitIrq(confValue[irqLevel], confValue[irqVector]);
-    return 1;
-}
-
-int mqdc32::afterTransfer() {
-    return 1;
-}
-
-int mqdc32::ackTrigger() {
-    debugMsg << name << "# " << "acknowledge trigger";
-    pvme->ww(image, base+MQDC32_ReadoutReset_Offset, 0x0001);
-    return 1;
-}
-
-int mqdc32::packData(unsigned int &packSize) {
-    debugMsg << hex;
-
-    unsigned int tmpIdx;
-    dataPool->devSetSnap();
-    unsigned int bias = 0;
-    void* p;
-    unsigned int value;
-    unsigned int tranSize = 0;
-    unsigned int readSize, restSize, j;
-    for(unsigned int i=0; i<packSize/wordSize; i++,bias+=wordSize) {
-        readSize = wordSize;
-        p = dataPool->devGetSnapPtr(bias, readSize);
-        if(p == NULL)
-            return 0;
-        if(readSize < wordSize) {
-            for(j=0; j<readSize; j++)
-                v[j] = *((char*)p+j);
-            restSize = wordSize-readSize;
-            p = dataPool->devGetSnapPtr(bias+readSize, restSize);
-            for(j=readSize; j<wordSize; j++)
-                v[j] = *((char*)p+j);
-            value = (unsigned int)(*(uint32_t*)v);
-        }
-        else {
-            value = (unsigned int)*(uint32_t*)p;
-        }
-
-        // invalid data
-        if((value&0x00000007) == 0x00000006) {
-            tmpIdx=0;
-            continue;
-        }
-        // header
-        if((value&0x00000007) == 0x00000002) {
-            //memset(tmp, 0, EVENTSIZE);
-            if(eventPtrW == -1)
-                return 0;
-            eventSet[eventPtrW][0] = value;
-            tmpIdx=1;
-            continue;
-        }
-        // valid data
-        if((value&0x00000007) == 0x00000000 && tmpIdx > 0 && tmpIdx < 33) {
-            eventSet[eventPtrW][tmpIdx]=value;
-            tmpIdx++;
-            continue;
-        }
-        // end of event
-        if((value&0x00000007) == 0x00000004 && tmpIdx > 0 && tmpIdx < 34) {
-            eventSet[eventPtrW][tmpIdx] = value;
-            tmpIdx++;
-            // copy to idx set
-            eventIdx->push(tmpIdx);
-            tranSize += tmpIdx*4;
-            debugMsg << name << "# " << "pack data: " << endl;
-            for(unsigned int i=0; i<tmpIdx; i++) {
-                debugMsg << eventSet[eventPtrW][i] << " ";
-            }
-            stMsg->stateOut(debugMsg);
-            tmpIdx=0;
-            if(eventPtrR == -1)
-                eventPtrR = eventPtrW;
-            eventPtrW++;
-            if(eventPtrW==confValue[maxTransfer]*2)
-                eventPtrW = 0;
-            if(eventPtrW == eventPtrR) {
-                debugMsg << name << "# " << "event pack buffer full";
-                stMsg->stateOut(debugMsg);
-                eventPtrW = -1;
-            }
-            continue;
-        }
-    }
-
-    unsigned int popSize = dataPool->devPopSnap(packSize);
-    if(popSize != packSize)
-        return 0;
-
-    debugMsg << dec;
-
-    packSize = tranSize;
-    return 1;
-}
-
-int mqdc32::fillEvent(unsigned int &packSize) {
-    if(eventPtrR==-1 || eventIdx->size()==0) {
-        packSize = 0;
+    dma_base = vme.requestDMA();
+    if (!dma_base) {
+        cerr << "Can't allocate DMA !\n";
         return 0;
     }
-    packSize = eventIdx->front() * 4;
-    dataPool->netWrite(&eventSet[eventPtrR][0], packSize);
-    eventIdx->pop();
-    if(eventPtrW == -1)
-        eventPtrW = eventPtrR;
-    eventPtrR++;
-    if(eventPtrR == confValue[maxTransfer]*2)
-        eventPtrR = 0;
-    if(eventPtrW == eventPtrR) {
-        debugMsg << name << "# " << "event pack buffer empty";
-        stMsg->stateOut(debugMsg);
-        eventPtrR = -1;
+    vme.setOption(DMA, BLT_ON);
+
+    cout << hex << "UniverseII Register: \n" << "PCI_CSR: 0x" << vme.readUniReg(0x004) << ", MISC_CTL: 0x" << vme.readUniReg(0x404) << ", MAST_CTL: 0x" << vme.readUniReg(0x400) << ", LSI0_CTL: 0x" << vme.readUniReg(0x100) << dec << endl;
+
+    if(vme.readUniReg(0x004)&0xF9000000) {
+        vme.writeUniReg(0x004, 0xF9000007);
+        //cin >> dummy32;
+        cout << hex << "UniverseII Register: \n" << "PCI_CSR: 0x" << vme.readUniReg(0x004) << ", MISC_CTL: 0x" << vme.readUniReg(0x404) << ", MAST_CTL: 0x" << vme.readUniReg(0x400) << ", LSI0_CTL: 0x" << vme.readUniReg(0x100) << dec << endl;
     }
-    return 1;
-}
 
-int mqdc32::flushData() {
-    return 1;
-}
+    image = vme.getImage(adc_base, 0x10000, A32, D16, MASTER);
+    if (image < 0 || image > 7) {
+        cerr << "Can't allocate master image !\n";
+        return 0;
+    }
 
-int mqdc32::configAdc() {
-    int res;
+    cout << hex << "UniverseII Register: \n" << "PCI_CSR: 0x" << vme.readUniReg(0x004) << ", MISC_CTL: 0x" << vme.readUniReg(0x404) << ", MAST_CTL: 0x" << vme.readUniReg(0x400) << ", LSI0_CTL: 0x" << vme.readUniReg(0x100) << dec << endl;
+
+    //if((vmectl&0x00080000)>>19 == 1)
+    //vme.writeUniReg(0x400, vmectl&0xFFFBFFFF);
+    //cin >> dummy32;
+
     
-    debugMsg << hex;
-
-    pvme = NULL;
-    string vmeModeName;
-    if((res=cfgInfo->infoGetString("config."+name+".vmeModeName", vmeModeName)) == 1) {
-        std::vector< std::pair<std::string, smBase*> >::const_iterator iter;
-        for(iter=helpList->begin(); iter!=helpList->end(); iter++) {
-            if(iter->first == vmeModeName) {
-                vmeCtrl = iter->second;
-                if(!vmeCtrl->queryInterface("getVME", NULL, (void*)&pvme))
-                    return 0;
-            }
-        }
-    }
-    if(pvme == NULL) {
-        debugMsg << name << "# " << "helper " << vmeModeName << " do not give a VME bridge.";
-        stMsg->stateOut(debugMsg);
-        return 0;
-    }
-
-    base = MQDC32_BASE;
-    if((res=cfgInfo->infoGetUint("config."+name+".base", base)) != 1) {
-        debugMsg << name << "# " << "config."+name+".base" << " not found.";
-        stMsg->stateOut(debugMsg);
-        //return 0;
-    }
-    length = MQDC32_LENGTH;
-    if((res=cfgInfo->infoGetUint("config."+name+".length", length)) != 1) {
-        debugMsg << name << "# " << "config."+name+".length" << " not found.";
-        stMsg->stateOut(debugMsg);
-        //return 0;
-    }
-
-    image = pvme->getImage(base, length, A32, D16, MASTER);
-    debugMsg << name << "# " << "get image number " << image;
-    stMsg->stateOut(debugMsg);
-
-    if(image < MIN_IMAGE || image > MAX_IMAGE)
-        return 0;
-    //imgCtrlAddr = 0x100;
-    //void* para0 = (void*)&image;
-    //if(vmeCtrl->queryInterface("getImgCtrl", (void**)&para0, (void*)&imgCtrlAddr) != 1)
-        //return 0;
-
     uint32_t confTemp;
-    regUint16 data, mask;
+    uint16_t data, mask;
     regSet.clear();
     for(int i=0; i<confSetSize; i++) {
         int confIdx = confDefaultIdxMQDC32[i];
-        if((res=cfgInfo->infoGetUint("config."+name+"."+confNameMQDC32[confIdx], confTemp)) != 1)
-            confValue[confIdx] = confDefaultValueMQDC32[i];
-        else 
-            confValue[confIdx] = confTemp;
-        int regIdx = (*conf2reg)[confNameMQDC32[confIdx]];
-        debugMsg << name << "# " << "confIdx " << confIdx << ", regIdx " << regIdx << ", confValue " << confValue[confIdx];
-        stMsg->stateOut(debugMsg);
-        data.setValueP(&confValue[confIdx]);
-        mask.setValueP(&confMaskMQDC32[confIdx]);
+        confValue[confIdx] = confDefaultValueMQDC32[i];
+        int regIdx = mqdc32_conf2reg[confNameMQDC32[confIdx]];
+        data = confValue[confIdx];
+        mask = confMaskMQDC32[confIdx];
         maskRegData(data, mask);
-        regValue[regIdx] = regValue[regIdx] & (~confMaskMQDC32[confIdx]) | (*(uint16_t*)data.getValueP());
-        debugMsg << name << "# " << "regIdx " << regIdx << ", regValue " << regValue[regIdx];
-        stMsg->stateOut(debugMsg);
+        regValue[regIdx] = regValue[regIdx] & (~confMaskMQDC32[confIdx]) | data;
+        cout << "mqdc32# " << "regIdx " << regIdx << ", regValue " << regValue[regIdx] << endl;
         if(find(regSet.begin(), regSet.end(), regIdx) == regSet.end())
             regSet.push_back(regIdx);
     }
@@ -693,123 +378,88 @@ int mqdc32::configAdc() {
     int rw = 1;
     uint16_t testReg;
     for(unsigned int i=0; i<regSet.size(); i++) {
-        data.setValueP(&regValue[regSet[i]]);
-        debugMsg << name << "# " << "regIdx " << regSet[i] << ", data " << *(uint16_t*)data.getValueP();
-        stMsg->stateOut(debugMsg);
-        if((res=accessReg(regSet[i], rw, data)) != 0) {
-            debugMsg << name << "# " << "config."+name+".register" << regSet[i] << " set with accident !";
-            stMsg->stateOut(debugMsg);
-        }
-        debugMsg << name << "# " << "regAddr " << *(regAddrType*)((*regAddr)[regSet[i]]);
-        stMsg->stateOut(debugMsg);
-        pvme->rw(image, base+(*(regAddrType*)((*regAddr)[regSet[i]])), &testReg);
-        debugMsg << name << "# " << "regIdx " << regSet[i] << ", read " << pvme->swap16(testReg);
-        stMsg->stateOut(debugMsg);
+        data = regValue[regSet[i]];
+        cout << "mqdc32# " << "regIdx " << regSet[i] << ", data " << data << endl;
+        vme.ww(image, adc_base+(*(uint16_t*)(mqdc32_regAddr[regSet[i]])), data);
+        cout << "mqdc# " << "regAddr " << *(uint16_t*)(mqdc32_regAddr[regSet[i]]) << endl;
+        vme.rw(image, adc_base+(*(uint16_t*)(mqdc32_regAddr[regSet[i]])), &testReg);
+        cout << "mqdc# " << "regIdx " << regSet[i] << ", read " << vme.swap16(testReg) << endl;
     }
 
     // setup vme irq
     if(confValue[irqLevel]>0 && confValue[irqLevel]<=7)
-        pvme->setupIrq(image, confValue[irqLevel], confValue[irqVector], 0, 0, 0, 0);
+        vme.setupIrq(image, confValue[irqLevel], confValue[irqVector], 0, 0, 0, 0);
 
-    debugMsg << dec;
+    cout << "mqdc# configAdc done." << endl;
+    /*
+    cin >> hex >> op;
+    cin.sync();
+    do {
+        if(op < 0 && (offset <= 0x10BC || (offset >= 0x8000 && offset <= 0xFFFE)) && offset >= 0x0) {
+            dummy16 = 0x0;
+            vme.rw(image, adc_base+offset, &dummy16);
+            cout << hex << "ADC: read 0x" << offset << ", value 0x" << dummy16 << dec << "!\n";
+            op = 0;
+        }
+        if(op > 0 && offset <= 0x10BC && offset >= 0x0) {
+            cout << hex << "word for adc register 0x" << offset << " : " << dec;
+            cin >> hex >> dummy16;
+            cin.sync();
+            cout <<hex << "write 0x" << dummy16 << endl;
+            vme.ww(image, adc_base+offset, &dummy16);
+            op = 0;
+        }
+        cout << "manual operation" << endl;
+        cout << "offset for adc register: ";
+        cin >> hex >> offset;
+        cin.sync();
+        cout << "0 for quit; positive value for write; nagative value for read; what is your choice: ";
+        cin >> hex >> op;
+        cin.sync();
+    } while(op != 0);
+    */
 
-    return 1;
-}
-
-int mqdc32::releaseAdc() {
-    pvme->freeIrq(image, confValue[irqLevel], confValue[irqVector]);
-    pvme->releaseImage(image);
-    return 1;
-}
-
-int mqdc32::prepAdc() {
-    if(eventSet != NULL)
-        delete [] eventSet;
-    eventSet = new uint32_t[confValue[maxTransfer]*2][MQDC32EVENTUINTSIZE];
-    eventPtrW = 0;
-    eventPtrR = -1;
-    if(eventIdx != NULL)
-        delete eventIdx;
-    eventIdx = new std::queue<unsigned int>;
-    return 1;
-}
-
-int mqdc32::finishAdc() {
-    if(eventSet != NULL)
-        delete [] eventSet;
-    eventPtrW = 0;
-    eventPtrR = -1;
-    if(eventIdx != NULL)
-        delete eventIdx;
-    return 1;
-}
-
-int mqdc32::startAdc() {
-    // first disable adc
-    disableAdc();
+    // stop adc
+    vme.ww(image, adc_base+MQDC32_StartAcq_Offset, vme.swap16((uint16_t)0x0000));
     // clear data
-    pvme->ww(image, base+MQDC32_FIFOReset_Offset, pvme->swap16((uint16_t)0x0001));
+    vme.ww(image, adc_base+MQDC32_FIFOReset_Offset, vme.swap16((uint16_t)0x0001));
     // clear Irq and Berr
-    pvme->ww(image, base+MQDC32_ReadoutReset_Offset, pvme->swap16((uint16_t)0x0001));
-    // enable adc
-    enableAdc();
+    vme.ww(image, adc_base+MQDC32_ReadoutReset_Offset, vme.swap16((uint16_t)0x0001));
+    // start adc
+    vme.ww(image, adc_base+MQDC32_StartAcq_Offset, vme.swap16((uint16_t)0x0001));
+    //while(j <= 2) {
+    //j++;
+    //cin >> dummy32;
+    vme.waitIrq(confValue[irqLevel], confValue[irqVector]);
 
-    return 1;
-}
-
-int mqdc32::stopAdc() {
-    // disable adc
-    disableAdc();
-    return 1;
-}
-
-int mqdc32::enableAdc() {
-    // set startAcq
-    pvme->ww(image, base+MQDC32_StartAcq_Offset, pvme->swap16((uint16_t)0x0001));
-    return 1;
-}
-
-int mqdc32::disableAdc() {
-    // unset startAcq
-    pvme->ww(image, base+MQDC32_StartAcq_Offset, pvme->swap16((uint16_t)0x0000));
-    return 1;
-}
-
-int mqdc32::accessRegNormal(const regAddrType addr, const int rw, regType* data) {
-    int res;
-    if(rw == 0) {
-        res = pvme->rw(image, base+addr, data);
-        *data = pvme->swap16(*data);
-    }
-    if(rw == 1)
-        res = pvme->ww(image, base+addr, pvme->swap16(*data));
-    return res;
-}
-
-int mqdc32::setDWAdc(int dw) {
-    if(dw<0 || dw>2)
+    //vme.generateVmeIrq(1, 0);
+    //vme.generateVmeIrq(2, 0);
+    //vme.generateVmeIrq(3, 0);
+    //vme.generateVmeIrq(4, 0);
+    //vme.generateVmeIrq(5, 0);
+    //vme.generateVmeIrq(6, 0);
+    //vme.generateVmeIrq(7, 0);
+    offset = vme.DMAread(adc_base, 2048, A32, D32);
+    if (offset < 0) {
+        vme.releaseDMA();
         return 0;
-    // lock dev ctrl
-    std::unique_lock<std::mutex> lock(semMutex);
-    // set DW
-    uint32_t lsi0_ctl = pvme->readUniReg(imgCtrlAddr);
-    lsi0_ctl &= 0xFF3FFFFF;
-    lsi0_ctl |= DataWidth[dw];
-    pvme->writeUniReg(imgCtrlAddr, lsi0_ctl);
-    // set blt
-    if(dw == 0)
-        pvme->setOption(image, BLT_OFF);
-    else
-        pvme->setOption(image, BLT_ON);
+    }
+    ptr = (unsigned int *) (dma_base + offset);
+    for(i = 0x0; i <= 2048/4; i++) {                                                                         
+        if(i%8 == 0)                                                                                                     
+            cout << hex << "Buffer " << setw(2) << setfill('0') << i/7 << dec << ":   ";
+        cout << hex << "0x" << setw(8) << setfill('0') << *ptr++ << dec << " ";
+        if(i%8 == 7)
+            cout << endl;                                                                                                      
+    }
+    //}
+ 
+    vme.freeIrq(image, confValue[irqLevel], confValue[irqVector]);   
+    vme.releaseDMA();
 
-    return 1;
-}
+    cout << "operation finish and release adc device" << endl;
+    vme.releaseImage(image);
+    //cin >> dummy32;
+    cout << hex << "UniverseII Register: \n" << "PCI_CSR: 0x" << vme.readUniReg(0x004) << ", MISC_CTL: 0x" << vme.readUniReg(0x404) << ", MAST_CTL: 0x" << vme.readUniReg(0x400) << ", LSI0_CTL: 0x" << vme.readUniReg(0x100) << dec << endl;
 
-extern "C" smBase* create(const string& n) {
-    smBase* pModule = new mqdc32(n);
-    return pModule;
-}
-
-extern "C" void destroy(smBase* pModule) {
-    delete pModule;
 }

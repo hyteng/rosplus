@@ -2,7 +2,7 @@ CC          = g++ -Wall -g -O2
 LN	    = g++ -Wall
 INCLUDE	    = ../vmelib
 LIBS	    = -L ../vmelib -l vmelib 
-PROGS       = test_simple test_mmap test_dma test_llist test_mbx adc_dma adc_test adc_dma2
+PROGS       = test_simple test_mmap test_dma test_llist test_mbx adc_dma adc_test adc_dma2 mqdctool
 
 %.o: %.cpp
 	$(CC) -I $(INCLUDE) -c $<
@@ -32,5 +32,9 @@ adc_test: adc_test.o
 
 adc_dma2: adc_dma2.o
 	$(LN) adc_dma2.o $(LIBS) -o adc_dma2
+
+mqdctool: mqdctool.o
+	$(LN) mqdctool.o $(LIBS) -o mqdctool
+
 clean:
 	rm -f *.o $(PROGS)
