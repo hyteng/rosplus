@@ -1,5 +1,5 @@
 CC          = g++ -Wall -g -O2
-LN	    = g++ -Wall
+LN	    = g++ -lstdc++ -Wall -rdynamic -ldl -Wl,-rpath=../vmelib -lvmelib
 INCLUDE	    = ../vmelib
 LIBS	    = -L ../vmelib -l vmelib 
 PROGS       = test_simple test_mmap test_dma test_llist test_mbx adc_dma adc_test adc_dma2 mqdctool

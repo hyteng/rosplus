@@ -23,7 +23,7 @@ using std::dec;
 
 // register inform
 #define MQDC32_BASE                 0xDD000000
-#define MQDC32_LENGTH               0x100000
+#define MQDC32_LENGTH               0x80000
 #define MQDC32_FIFO_Offset          0x0000
 #define MQDC32_Ch00Th_Offset        0x4000
 #define MQDC32_Ch01Th_Offset        0x4002
@@ -346,7 +346,7 @@ int main() {
         cout << hex << "UniverseII Register: \n" << "PCI_CSR: 0x" << vme.readUniReg(0x004) << ", MISC_CTL: 0x" << vme.readUniReg(0x404) << ", MAST_CTL: 0x" << vme.readUniReg(0x400) << ", LSI0_CTL: 0x" << vme.readUniReg(0x100) << dec << endl;
     }
 
-    image = vme.getImage(adc_base, 0x10000, A32, D16, MASTER);
+    image = vme.getImage(adc_base, MQDC32_LENGTH, A32, D16, MASTER);
     if (image < 0 || image > 7) {
         cerr << "Can't allocate master image !\n";
         return 0;
@@ -419,6 +419,7 @@ int main() {
     } while(op != 0);
     */
 
+    cin >> dummy32;
     // stop adc
     vme.ww(image, adc_base+MQDC32_StartAcq_Offset, vme.swap16((uint16_t)0x0000));
     // clear data
@@ -427,9 +428,8 @@ int main() {
     vme.ww(image, adc_base+MQDC32_ReadoutReset_Offset, vme.swap16((uint16_t)0x0001));
     // start adc
     vme.ww(image, adc_base+MQDC32_StartAcq_Offset, vme.swap16((uint16_t)0x0001));
-    //while(j <= 2) {
-    //j++;
-    //cin >> dummy32;
+
+    cin >> dummy32;
     vme.waitIrq(confValue[irqLevel], confValue[irqVector]);
 
     //vme.generateVmeIrq(1, 0);
