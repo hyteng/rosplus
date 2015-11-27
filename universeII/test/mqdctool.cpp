@@ -358,7 +358,8 @@ int main() {
     //vme.writeUniReg(0x400, vmectl&0xFFFBFFFF);
     //cin >> dummy32;
 
-    
+    cout << hex;
+
     uint32_t confTemp;
     uint16_t data, mask;
     regSet.clear();
