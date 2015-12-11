@@ -256,7 +256,7 @@ static int confDuplicMQDC32[14] = {47, 54, 55, 61, 62, 73, 74, 76, 77, 78, 79, 9
 
 static int confDefaultIdxMQDC32[confSetSize] = {/*ChTh*/1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, /*board*/35, 36, /*irq*/39, 40, 43, 44, /*blt*/46, 47, /*fifo*/53, 54, 55, 56, /*adc*/60, 61, 62, 65, 66, 67, /*delay*/68, 69, 70, 71, /*io*/72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, /*pulser*/86, 87, /*rc*//*ctra*/99, 100, /*ctrb*//*limit*/112, 113, 114, 115};
 
-static uint16_t confDefaultValueMQDC32[confSetSize] = {/*ChTh*/0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /*board*/0xFF, 0, /*irq*/1, 0x000F, 8, 8, /*blt*/0x0001, 0x0001, /*fifo*/0, 1, 1, 0, /*adc*/0, 1, 0, 0, 0, 0, /*delay*/255, 255, 0, 0, /*io*/0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, /*pulser*/0, 32, /*rc*//*ctra*/0, 0x0001, /*ctrb*//*limit*/32, 0, 16, 0};
+static uint16_t confDefaultValueMQDC32[confSetSize] = {/*ChTh*/0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /*board*/0xFF, 0, /*irq*/1, 0x000F, 1, 1, /*blt*/0x0001, 0x0001, /*fifo*/0, 1, 1, 0, /*adc*/0, 0, 0, 0, 0, 0, /*delay*/255, 255, 0, 0, /*io*/0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, /*pulser*/0, 32, /*rc*//*ctra*/0, 0x0001, /*ctrb*//*limit*/32, 0, 16, 0};
 
 #define regSize 102
 
@@ -329,7 +329,6 @@ int main() {
     adc_base = MQDC32_BASE;
 
     vme.vmeSysReset();
-    cin >> dummy32;
 
     dma_base = vme.requestDMA();
     if (!dma_base) {
@@ -358,11 +357,13 @@ int main() {
     //vme.writeUniReg(0x400, vmectl&0xFFFBFFFF);
     //cin >> dummy32;
 
-    cout << hex;
-
     uint32_t confTemp;
     uint16_t data, mask;
     regSet.clear();
+    for(int i=0;i<200;i++) {
+        confValue[i] = 0;
+        regValue[i] = 0;
+    }
     for(int i=0; i<confSetSize; i++) {
         int confIdx = confDefaultIdxMQDC32[i];
         confValue[confIdx] = confDefaultValueMQDC32[i];
@@ -371,27 +372,47 @@ int main() {
         mask = confMaskMQDC32[confIdx];
         maskRegData(data, mask);
         regValue[regIdx] = regValue[regIdx] & (~confMaskMQDC32[confIdx]) | data;
-        cout << "mqdc32# " << "regIdx " << regIdx << ", regValue " << regValue[regIdx] << endl;
+        cout << hex << "mqdc32# " << "regIdx " << regIdx << ", conf " << data << ", mask " << mask << ", regValue " << regValue[regIdx] << endl;
         if(find(regSet.begin(), regSet.end(), regIdx) == regSet.end())
             regSet.push_back(regIdx);
     }
+
+    // stop adc
+    vme.ww(image, adc_base+MQDC32_StartAcq_Offset, vme.swap16((uint16_t)0x0000));
+    // clear data
+    //vme.ww(image, adc_base+MQDC32_FIFOReset_Offset, vme.swap16((uint16_t)0x0001));
+    // clear Irq and Berr
+    //vme.ww(image, adc_base+MQDC32_ReadoutReset_Offset, vme.swap16((uint16_t)0x0001));
+
+    // irq status
+    //vme.ww(image, adc_base+0x6012, vme.swap16((uint16_t)0x000F));
+    uint16_t irqST;
+    vme.rw(image, adc_base+0x6012, &irqST);
+    irqST = vme.swap16(irqST);
+    cout << "mqdc32# " << "irqST: " << irqST << endl;
+    // irq vector
+    //vme.ww(image, adc_base+0x6010, vme.swap16((uint16_t)0x0001));
+    uint16_t irqVT;
+    vme.rw(image, adc_base+0x6010, &irqVT);
+    irqVT = vme.swap16(irqVT);
+    cout << "mqdc32# " << "irqST: " << irqVT << endl;
 
     int rw = 1;
     uint16_t testReg;
     for(unsigned int i=0; i<regSet.size(); i++) {
         data = regValue[regSet[i]];
-        cout << "mqdc32# " << "regIdx " << regSet[i] << ", data " << data << endl;
-        vme.ww(image, adc_base+(*(uint16_t*)(mqdc32_regAddr[regSet[i]])), data);
-        cout << "mqdc# " << "regAddr " << *(uint16_t*)(mqdc32_regAddr[regSet[i]]) << endl;
+        cout << hex << "mqdc32# " << "regIdx " << regSet[i] << ", data " << data << endl;
+        vme.ww(image, adc_base+(*(uint16_t*)(mqdc32_regAddr[regSet[i]])), vme.swap16(data));
+        cout << hex << "mqdc# " << "regAddr " << *(uint16_t*)(mqdc32_regAddr[regSet[i]]) << endl;
         vme.rw(image, adc_base+(*(uint16_t*)(mqdc32_regAddr[regSet[i]])), &testReg);
-        cout << "mqdc# " << "regIdx " << regSet[i] << ", read " << vme.swap16(testReg) << endl;
+        cout << hex << "mqdc# " << "regIdx " << regSet[i] << ", read " << vme.swap16(testReg) << endl;
     }
 
     // setup vme irq
     if(confValue[irqLevel]>0 && confValue[irqLevel]<=7)
         vme.setupIrq(image, confValue[irqLevel], confValue[irqVector], 0, 0, 0, 0);
-
-    cout << "mqdc# configAdc done." << endl;
+    cout << hex << "mqdc# setup vme irq: " << confValue[irqLevel] << ", " << confValue[irqVector] << endl;
+    cout << hex << "mqdc# configAdc done." << endl;
     /*
     cin >> hex >> op;
     cin.sync();
@@ -420,9 +441,8 @@ int main() {
     } while(op != 0);
     */
 
-    cin >> dummy32;
     // stop adc
-    vme.ww(image, adc_base+MQDC32_StartAcq_Offset, vme.swap16((uint16_t)0x0000));
+    //vme.ww(image, adc_base+MQDC32_StartAcq_Offset, vme.swap16((uint16_t)0x0000));
     // clear data
     vme.ww(image, adc_base+MQDC32_FIFOReset_Offset, vme.swap16((uint16_t)0x0001));
     // clear Irq and Berr
@@ -430,9 +450,10 @@ int main() {
     // start adc
     vme.ww(image, adc_base+MQDC32_StartAcq_Offset, vme.swap16((uint16_t)0x0001));
 
-    cin >> dummy32;
+    cout << "waiting irq: " << confValue[irqLevel] << ", " << confValue[irqVector] << endl;
     vme.waitIrq(confValue[irqLevel], confValue[irqVector]);
 
+    cout << "reading data..." << endl;
     //vme.generateVmeIrq(1, 0);
     //vme.generateVmeIrq(2, 0);
     //vme.generateVmeIrq(3, 0);
@@ -440,11 +461,15 @@ int main() {
     //vme.generateVmeIrq(5, 0);
     //vme.generateVmeIrq(6, 0);
     //vme.generateVmeIrq(7, 0);
-    offset = vme.DMAread(adc_base, 2048, A32, D32);
+    offset = vme.DMAread(adc_base, 66*4*10, A32, D32);
     if (offset < 0) {
         vme.releaseDMA();
         return 0;
     }
+    // clear Irq and Berr
+    cout << "acknowledge irq" << endl;
+    vme.ww(image, adc_base+MQDC32_ReadoutReset_Offset, vme.swap16((uint16_t)0x0001));
+
     ptr = (unsigned int *) (dma_base + offset);
     for(i = 0x0; i <= 2048/4; i++) {                                                                         
         if(i%8 == 0)                                                                                                     
