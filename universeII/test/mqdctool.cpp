@@ -5,6 +5,8 @@
 #include <vector>
 #include <algorithm>
 #include <string.h>
+#include <unistd.h>
+
 
 using std::string;
 using std::stringstream;
@@ -23,7 +25,7 @@ using std::dec;
 
 // register inform
 #define MQDC32_BASE                 0xDD000000
-#define MQDC32_LENGTH               0x80000
+#define MQDC32_LENGTH               0x10000
 #define MQDC32_FIFO_Offset          0x0000
 #define MQDC32_Ch00Th_Offset        0x4000
 #define MQDC32_Ch01Th_Offset        0x4002
@@ -256,7 +258,7 @@ static int confDuplicMQDC32[14] = {47, 54, 55, 61, 62, 73, 74, 76, 77, 78, 79, 9
 
 static int confDefaultIdxMQDC32[confSetSize] = {/*ChTh*/1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, /*board*/35, 36, /*irq*/39, 40, 43, 44, /*blt*/46, 47, /*fifo*/53, 54, 55, 56, /*adc*/60, 61, 62, 65, 66, 67, /*delay*/68, 69, 70, 71, /*io*/72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, /*pulser*/86, 87, /*rc*//*ctra*/99, 100, /*ctrb*//*limit*/112, 113, 114, 115};
 
-static uint16_t confDefaultValueMQDC32[confSetSize] = {/*ChTh*/0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /*board*/0xFF, 0, /*irq*/1, 0x000F, 1, 1, /*blt*/0x0001, 0x0001, /*fifo*/0, 1, 1, 0, /*adc*/0, 0, 0, 0, 0, 0, /*delay*/255, 255, 0, 0, /*io*/0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, /*pulser*/0, 32, /*rc*//*ctra*/0, 0x0001, /*ctrb*//*limit*/32, 0, 16, 0};
+static uint16_t confDefaultValueMQDC32[confSetSize] = {/*ChTh*/0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /*board*/0xFF, 0, /*irq*/7, 0x00FE, 100, 4, /*blt*/0x0002, 0x0002, /*fifo*/3, 1, 1, 0, /*adc*/0, 0, 0, 0, 0, 0, /*delay*/255, 255, 0, 0, /*io*/0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, /*pulser*/0, 32, /*rc*//*ctra*/0, 0x0001, /*ctrb*//*limit*/32, 0, 16, 0};
 
 #define regSize 102
 
@@ -321,8 +323,9 @@ int maskRegData(uint16_t& data, uint16_t& mask) {
 
 int main() {
     int image, op, i, j;
-    unsigned int dummy32, adc_base, dma_base, fop, offset, *ptr;
-    unsigned short int dummy16;
+    uintptr_t adc_base, dma_base, fop, offset;
+    uint32_t *ptr;
+    uint16_t dummy16;
     uint16_t confValue[200], regValue[200];
     std::vector<int> regSet, confSet;
     VMEBridge vme;
@@ -385,13 +388,11 @@ int main() {
     //vme.ww(image, adc_base+MQDC32_ReadoutReset_Offset, vme.swap16((uint16_t)0x0001));
 
     // irq status
-    //vme.ww(image, adc_base+0x6012, vme.swap16((uint16_t)0x000F));
     uint16_t irqST;
     vme.rw(image, adc_base+0x6012, &irqST);
     irqST = vme.swap16(irqST);
     cout << "mqdc32# " << "irqST: " << irqST << endl;
     // irq vector
-    //vme.ww(image, adc_base+0x6010, vme.swap16((uint16_t)0x0001));
     uint16_t irqVT;
     vme.rw(image, adc_base+0x6010, &irqVT);
     irqVT = vme.swap16(irqVT);
@@ -442,14 +443,18 @@ int main() {
     */
 
     // stop adc
-    //vme.ww(image, adc_base+MQDC32_StartAcq_Offset, vme.swap16((uint16_t)0x0000));
+    vme.ww(image, adc_base+MQDC32_StartAcq_Offset, vme.swap16((uint16_t)0x0000));
     // clear data
     vme.ww(image, adc_base+MQDC32_FIFOReset_Offset, vme.swap16((uint16_t)0x0001));
+    sleep(1);
+    cout << "clear fifo" << endl;
     // clear Irq and Berr
     vme.ww(image, adc_base+MQDC32_ReadoutReset_Offset, vme.swap16((uint16_t)0x0001));
+    sleep(1);
+    cout << "reset readout" << endl;
     // start adc
     vme.ww(image, adc_base+MQDC32_StartAcq_Offset, vme.swap16((uint16_t)0x0001));
-
+    sleep(1);
     cout << "waiting irq: " << confValue[irqLevel] << ", " << confValue[irqVector] << endl;
     vme.waitIrq(confValue[irqLevel], confValue[irqVector]);
 
@@ -461,7 +466,20 @@ int main() {
     //vme.generateVmeIrq(5, 0);
     //vme.generateVmeIrq(6, 0);
     //vme.generateVmeIrq(7, 0);
-    offset = vme.DMAread(adc_base, 66*4*10, A32, D32);
+    uint16_t dataLength = 0;
+    string cmd;
+    while(true) {
+        vme.rw(image, adc_base+0x6030, &dataLength);
+        dataLength = vme.swap16(dataLength);
+        cout << "data length " << dec << dataLength << hex << endl;
+        cin.sync();
+        cin >> cmd;
+        if(cmd == "quit")
+            break;
+    }
+    offset = -1;
+    if(dataLength > 0)
+        offset = vme.DMAread(adc_base, dataLength*4, A32, D32);
     if (offset < 0) {
         vme.releaseDMA();
         return 0;
@@ -470,15 +488,14 @@ int main() {
     cout << "acknowledge irq" << endl;
     vme.ww(image, adc_base+MQDC32_ReadoutReset_Offset, vme.swap16((uint16_t)0x0001));
 
-    ptr = (unsigned int *) (dma_base + offset);
-    for(i = 0x0; i <= 2048/4; i++) {                                                                         
-        if(i%8 == 0)                                                                                                     
+    ptr = (uint32_t*)(dma_base+offset);
+    for(i = 0x0; i < dataLength; i++) {
+        if(i%8 == 0)
             cout << hex << "Buffer " << setw(2) << setfill('0') << i/7 << dec << ":   ";
         cout << hex << "0x" << setw(8) << setfill('0') << *ptr++ << dec << " ";
         if(i%8 == 7)
-            cout << endl;                                                                                                      
+            cout << endl;                                                
     }
-    //}
  
     vme.freeIrq(image, confValue[irqLevel], confValue[irqVector]);   
     vme.releaseDMA();
