@@ -18,7 +18,7 @@ static map<string, int> mpodHV_conf2reg;
 static map<string, uintptr_t>mpodHV_conf2mask;
 static vector<uintptr_t> mpodHV_regAddr;
 static vector<int> mpodHV_regRWIdx;
-
+/*
 static int setCtrl() {
     mpodHV_ctrl2conf.clear();
     for(int i=0,j=0; i<ctrlSize; i++, j++) {
@@ -81,3 +81,4 @@ static int setCtrl() {
 }
 
 static int dummy = setCtrl();
+*/

@@ -86,6 +86,10 @@ mqdc32.so: mqdc32.o
 	$(CC)  $(LINKOPT) -shared -o $@ $< $(addprefix -L,$(LIBDIR)) $(addprefix -l,$(LIBS)) -Wl,-rpath=../universeII/vmelib -lvmelib
 	mv mqdc32.so ../lib/
 
+mpodHV.so: mpodHV.o
+	$(CC)  $(LINKOPT) -shared -o $@ $< $(addprefix -L,$(LIBDIR)) $(addprefix -l,$(LIBS))
+	mv mpodHV.so ../lib/
+
 #$(EXECUTABLE) : $(OBJS)
 #	$(CC)  $(LINKOPT) -shared -o $(EXECUTABLE) $(OBJS) $(addprefix -L,$(LIBDIR)) $(addprefix -l,$(LIBS))
 #	mv $(EXECUTABLE) ../lib/
