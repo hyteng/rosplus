@@ -25,7 +25,7 @@ using std::dec;
 
 // register inform
 #define MQDC32_BASE                 0xDD000000
-#define MQDC32_LENGTH               0x10000
+#define MQDC32_LENGTH               0x40000
 #define MQDC32_FIFO_Offset          0x0000
 #define MQDC32_Ch00Th_Offset        0x4000
 #define MQDC32_Ch01Th_Offset        0x4002
