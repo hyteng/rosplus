@@ -13,21 +13,21 @@ class vme :public smBase {
         virtual int queryInterface(const std::string& funcName, void* para[], void* ret);
 
     protected:
-        virtual int InitializedLOAD(void* argv[]=NULL);
-        virtual int LoadedUNLD(void* argv[]=NULL);
-        virtual int LoadedCONF(void* argv[]=NULL);
-        virtual int ConfiguredUNCF(void* argv[]=NULL);
-        virtual int ConfiguredPREP(void* argv[]=NULL);
-        virtual int ReadySTOP(void* argv[]=NULL);
-        virtual int ReadySATR(void* argv[]=NULL);
-        virtual int RunningSPTR(void* argv[]=NULL);
-        virtual int RunningPAUS(void* argv[]=NULL);
-        virtual int PausedSPTR(void* argv[]=NULL);
-        virtual int PausedRESU(void* argv[]=NULL);
-        virtual int OTFCONF(void* argv[]=NULL);
+        virtual int InitializedLOAD(std::string& ret, void* para[]=NULL);
+        virtual int LoadedUNLD(std::string& ret, void* para[]=NULL);
+        virtual int LoadedCONF(std::string& ret, void* para[]=NULL);
+        virtual int ConfiguredUNCF(std::string& ret, void* para[]=NULL);
+        virtual int ConfiguredPREP(std::string& ret, void* para[]=NULL);
+        virtual int ReadySTOP(std::string& ret, void* para[]=NULL);
+        virtual int ReadySATR(std::string& ret, void* para[]=NULL);
+        virtual int RunningSPTR(std::string& ret, void* para[]=NULL);
+        virtual int RunningPAUS(std::string& ret, void* para[]=NULL);
+        virtual int PausedSPTR(std::string& ret, void* para[]=NULL);
+        virtual int PausedRESU(std::string& ret, void* para[]=NULL);
+        virtual int OTFCONF(std::string& ret, void* para[]=NULL);
 
     private:
-        int configVme();
+        int configVme(std::string& ret);
         int releaseVme();
         int prepVme();
         int finishVme();

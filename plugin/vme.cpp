@@ -35,7 +35,7 @@ vme::vme(const string& n): smBase(n) {
 vme::~vme() {
 }
 
-int vme::queryInterface(const std::string& funcName, void* para[], void* ret) {
+int vme::queryInterface(const string& funcName, void* para[], void* ret) {
     if(funcName == "getVME") {
         *(VMEBridge**)ret = getVME();
         return 1;
@@ -45,41 +45,41 @@ int vme::queryInterface(const std::string& funcName, void* para[], void* ret) {
             return 1;
     }
     if(funcName == "getNameList") {
-        *(std::vector<std::string>*)ret = getNameList();
+        *(std::vector<string>*)ret = getNameList();
         return 1;
     }
     return 0;
 }
 
-int vme::InitializedLOAD(void* argv[]) {
+int vme::InitializedLOAD(string& ret, void* para[]) {
     debugMsg << name << "# " << "InitializedLOAD";
     stMsg->stateOut(debugMsg); 
     pvme = new VMEBridge;
     return 2;
 }
 
-int vme::LoadedUNLD(void* argv[]) {
+int vme::LoadedUNLD(string& ret, void* para[]) {
     debugMsg << name << "# " << "LoadedUNLD";
     stMsg->stateOut(debugMsg);
     delete pvme;
     return 1;
 }
 
-int vme::LoadedCONF(void* argv[]) {
+int vme::LoadedCONF(string& ret, void* para[]) {
     debugMsg << name << "# " << "LoadedCONF";
     stMsg->stateOut(debugMsg);
-    configVme();
+    configVme(ret);
     return 3;
 }
 
-int vme::ConfiguredUNCF(void* argv[]) {
+int vme::ConfiguredUNCF(string& ret, void* para[]) {
     debugMsg << name << "# " << "ConfiguredUNCF";
     stMsg->stateOut(debugMsg);
     releaseVme();
     return 2;
 }
 
-int vme::ConfiguredPREP(void* argv[]) {
+int vme::ConfiguredPREP(string& ret, void* para[]) {
     debugMsg << name << "# " << "ConfiguredPREP";
     stMsg->stateOut(debugMsg);
     if(!prepVme())
@@ -87,47 +87,47 @@ int vme::ConfiguredPREP(void* argv[]) {
     return 4;
 }
 
-int vme::ReadySTOP(void* argv[]) {
+int vme::ReadySTOP(string& ret, void* para[]) {
     debugMsg << name << "# " << "ReadySTOP";
     stMsg->stateOut(debugMsg);
     finishVme();
     return 3;
 }
 
-int vme::ReadySATR(void* argv[]) {
+int vme::ReadySATR(string& ret, void* para[]) {
     debugMsg << name << "# " << "ReadySATR";
     stMsg->stateOut(debugMsg);
     startVme();
     return 5;
 }
 
-int vme::RunningSPTR(void* argv[]) {
+int vme::RunningSPTR(string& ret, void* para[]) {
     debugMsg << name << "# " << "RunningSPTR";
     stMsg->stateOut(debugMsg);
     stopVme();
     return 4;
 }
 
-int vme::RunningPAUS(void* argv[]) {
+int vme::RunningPAUS(string& ret, void* para[]) {
     return 6;
 }
 
-int vme::PausedSPTR(void* argv[]) {
+int vme::PausedSPTR(string& ret, void* para[]) {
     debugMsg << name << "# " << "PausedSPTR";
     stMsg->stateOut(debugMsg);
     stopVme();
     return 4;
 }
 
-int vme::PausedRESU(void* argv[]) {
+int vme::PausedRESU(string& ret, void* para[]) {
     return 5;
 }
 
-int vme::OTFCONF(void* argv[]) {
+int vme::OTFCONF(string& ret, void* para[]) {
     return stId;
 }
 
-int vme::configVme() {
+int vme::configVme(string& ret) {
     debugMsg << hex;
 
     pvme->resetDriver();
@@ -178,7 +178,7 @@ int vme::prepVme() {
 
     string triggerDevice, linkList;
     int res;
-    std::vector< std::pair<std::string, smBase*> >::const_iterator iter;
+    std::vector< std::pair<string, smBase*> >::const_iterator iter;
 
     triDev = NULL;
     if((res=cfgInfo->infoGetString("config."+name+".triggerDevice", triggerDevice)) == 1) {
@@ -335,7 +335,7 @@ int vme::getImgCtrl(int i, uint32_t& addr) {
     return 1;
 }
 
-std::vector<std::string>& vme::getNameList() {
+std::vector<string>& vme::getNameList() {
     return nameList;
 }
 
