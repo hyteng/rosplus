@@ -33,18 +33,17 @@ class adc1785 :public smBase {
         virtual int queryInterface(const string& funcName, void* para[], void* ret);
 
     protected:
-        virtual int InitializedLOAD(void* argv[]=NULL);
-        virtual int LoadedUNLD(void* argv[]=NULL);
-        virtual int LoadedCONF(void* argv[]=NULL);
-        virtual int ConfiguredUNCF(void* argv[]=NULL);
-        virtual int ConfiguredPREP(void* argv[]=NULL);
-        virtual int ReadySTOP(void* argv[]=NULL);
-        virtual int ReadySATR(void* argv[]=NULL);
-        virtual int RunningSPTR(void* argv[]=NULL);
-        virtual int RunningPAUS(void* argv[]=NULL);
-        virtual int PausedSPTR(void* argv[]=NULL);
-        virtual int PausedRESU(void* argv[]=NULL);
-        virtual int OTFCTRL(void* argv[]=NULL);
+        virtual int InitializedLOAD(std::string& ret, void* para[]=NULL);
+        virtual int LoadedUNLD(std::string& ret, void* para[]=NULL);
+        virtual int LoadedCONF(std::string& ret, void* para[]=NULL);
+        virtual int ConfiguredUNCF(std::string& ret, void* para[]=NULL);
+        virtual int ConfiguredPREP(std::string& ret, void* para[]=NULL);
+        virtual int ReadySTOP(std::string& ret, void* para[]=NULL);
+        virtual int ReadySATR(std::string& ret, void* para[]=NULL);
+        virtual int RunningSPTR(std::string& ret, void* para[]=NULL);
+        virtual int RunningPAUS(std::string& ret, void* para[]=NULL);
+        virtual int PausedSPTR(std::string& ret, void* para[]=NULL);
+        virtual int PausedRESU(std::string& ret, void* para[]=NULL);
         virtual int accessReg(const int idx, const int rw, regData& data);
         virtual int maskRegData(regData& data, regData& mask);
         virtual int unmaskRegData(regData& data, regData& mask);
@@ -61,7 +60,7 @@ class adc1785 :public smBase {
         int fillEvent(unsigned int &packSize);
         int flushData();
 
-        int configAdc();
+        int configAdc(std::string& ret);
         int releaseAdc();
         int prepAdc();
         int finishAdc();

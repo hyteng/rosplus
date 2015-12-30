@@ -71,21 +71,21 @@ class smBase {
         virtual int queryInterface(const std::string& funcName, void* para[], void* ret) {return false;};
 
     protected:
-        virtual int InitializedLOAD(std::string& ret, void* para[]=NULL) {return 2;};
-        virtual int LoadedUNLD(std::string& ret, void* para[]=NULL) {return 1;};
-        virtual int LoadedCONF(std::string& ret, void* para[]=NULL) {return 3;};
-        virtual int ConfiguredUNCF(std::string& ret, void* para[]=NULL) {return 2;};
-        virtual int ConfiguredPREP(std::string& ret, void* para[]=NULL) {return 4;};
-        virtual int ReadySATR(std::string& ret, void* para[]=NULL) {return 5;};
-        virtual int ReadySTOP(std::string& ret, void* para[]=NULL) {return 3;};
-        virtual int RunningSPTR(std::string& ret, void* para[]=NULL) {return 4;};
-        virtual int RunningPAUS(std::string& ret, void* para[]=NULL) {return 6;};
-        virtual int PausedSPTR(std::string& ret, void* para[]=NULL) {return 4;};
-        virtual int PausedRESU(std::string& ret, void* para[]=NULL) {return 5;};
-        virtual int SelfTrans(std::string& ret, void* para[]=NULL) {return (int)stId;};
-        virtual int AnyIMPO(std::string& ret, void* para[]=NULL) {return (int)stId;};
-        virtual int AnyEXIT(std::string& ret, void* para[]=NULL) {return 1;};
-        virtual int OTFCTRL(std::string& ret, void* para[]=NULL); //{return stId;};
+        virtual int InitializedLOAD(std::string& ret, void* para[]=NULL) {stId=2;ret="2;";return 2;};
+        virtual int LoadedUNLD(std::string& ret, void* para[]=NULL) {stId=1;ret="1;";return 1;};
+        virtual int LoadedCONF(std::string& ret, void* para[]=NULL) {stId=3;ret="3;";return 3;};
+        virtual int ConfiguredUNCF(std::string& ret, void* para[]=NULL) {stId=2;ret="2;";return 2;};
+        virtual int ConfiguredPREP(std::string& ret, void* para[]=NULL) {stId=4;ret="4;";return 4;};
+        virtual int ReadySATR(std::string& ret, void* para[]=NULL) {stId=5;ret="5;";return 5;};
+        virtual int ReadySTOP(std::string& ret, void* para[]=NULL) {stId=3;ret="3;";return 3;};
+        virtual int RunningSPTR(std::string& ret, void* para[]=NULL) {stId=4;ret="4;";return 4;};
+        virtual int RunningPAUS(std::string& ret, void* para[]=NULL) {stId=6;ret="6;";return 6;};
+        virtual int PausedSPTR(std::string& ret, void* para[]=NULL) {stId=4;ret="4;";return 4;};
+        virtual int PausedRESU(std::string& ret, void* para[]=NULL) {stId=5;ret="5;";return 5;};
+        virtual int SelfTrans(std::string& ret, void* para[]=NULL) {std::stringstream sId;sId<<stId;sId>>ret;ret+=";";return (int)stId;};
+        virtual int AnyIMPO(std::string& ret, void* para[]=NULL) {std::stringstream sId;sId<<stId;sId>>ret;ret+=";";return (int)stId;};
+        virtual int AnyEXIT(std::string& ret, void* para[]=NULL) {stId=1;ret="1;";return 1;};
+        virtual int OTFCTRL(std::string& ret, void* para[]=NULL); //{ret="otf";return stId;};
         virtual int RunningCTRL(std::string& ret, void* para[]=NULL) {return OTFCTRL(ret, para);};
         virtual int PausedCTRL(std::string& ret, void* para[]=NULL) {return OTFCTRL(ret, para);};
         virtual int ReadyCTRL(std::string& ret, void* para[]=NULL) {return OTFCTRL(ret, para);};

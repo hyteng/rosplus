@@ -358,86 +358,82 @@ int mqdc32::queryInterface(const std::string& funcName, void* para[], void* ret)
     return 0;
 }
 
-int mqdc32::InitializedLOAD(void* argv[]) {
+int mqdc32::InitializedLOAD(std::string& ret, void* para[]) {
     debugMsg << name << "# " << "InitializedLOAD";
     stMsg->stateOut(debugMsg);
-    return 2;
+    return smBase::InitializedLOAD(ret, para);
 }
 
-int mqdc32::LoadedUNLD(void* argv[]) {
+int mqdc32::LoadedUNLD(std::string& ret, void* para[]) {
     debugMsg << name << "# " << "LoadedUNLD";
     stMsg->stateOut(debugMsg);
-    return 1;
+    return smBase::LoadedUNLD(ret, para);
 }
 
-int mqdc32::LoadedCONF(void* argv[]) {
+int mqdc32::LoadedCONF(std::string& ret, void* para[]) {
     debugMsg << name << "# " << "LoadedCONF";
     stMsg->stateOut(debugMsg);
-    if(!configAdc())
+    if(!configAdc(ret))
         return -1;
+    ret = "3;"+ret;
+    stId = 3;
     return 3;
 }
 
-int mqdc32::ConfiguredUNCF(void* argv[]) {
+int mqdc32::ConfiguredUNCF(std::string& ret, void* para[]) {
     debugMsg << name << "# " << "ConfiguredUNCF";
     stMsg->stateOut(debugMsg);
     releaseAdc();
-    return 2;
+    return smBase::ConfiguredUNCF(ret, para);
 }
 
-int mqdc32::ConfiguredPREP(void* argv[]) {
+int mqdc32::ConfiguredPREP(std::string& ret, void* para[]) {
     debugMsg << name << "# " << "ConfiguredPREP";
     stMsg->stateOut(debugMsg);
     prepAdc();
-    return 4;
+    return smBase::ConfiguredPREP(ret, para);
 }
 
-int mqdc32::ReadySTOP(void* argv[]) {
+int mqdc32::ReadySTOP(std::string& ret, void* para[]) {
     debugMsg << name << "# " << "ReadySTOP";
     stMsg->stateOut(debugMsg);
     finishAdc();
-    return 3;
+    return smBase::ReadySTOP(ret, para);
 }
 
-int mqdc32::ReadySATR(void* argv[]) {
+int mqdc32::ReadySATR(std::string& ret, void* para[]) {
     debugMsg << name << "# " << "ReadySATR";
     stMsg->stateOut(debugMsg);
     startAdc();
-    return 5;
+    return smBase::ReadySATR(ret, para);
 }
 
-int mqdc32::RunningSPTR(void* argv[]) {
+int mqdc32::RunningSPTR(std::string& ret, void* para[]) {
     debugMsg << name << "# " << "RunningSPTR";
     stMsg->stateOut(debugMsg);
     stopAdc();
-    return 4;
+    return smBase::RunningSPTR(ret, para);
 }
 
-int mqdc32::RunningPAUS(void* argv[]) {
+int mqdc32::RunningPAUS(std::string& ret, void* para[]) {
     debugMsg << name << "# " << "RunningPAUS";
     stMsg->stateOut(debugMsg);
     disableAdc();
-    return 6;
+    return smBase::RunningPAUS(ret, para);
 }
 
-int mqdc32::PausedSPTR(void* argv[]) {
+int mqdc32::PausedSPTR(std::string& ret, void* para[]) {
     debugMsg << name << "# " << "PausedSPTR";
     stMsg->stateOut(debugMsg);
     stopAdc();
-    return 4;
+    return smBase::PausedSPTR(ret, para);
 }
 
-int mqdc32::PausedRESU(void* argv[]) {
+int mqdc32::PausedRESU(std::string& ret, void* para[]) {
     debugMsg << name << "# " << "PausedRESU";
     stMsg->stateOut(debugMsg);
     enableAdc();
-    return 5;
-}
-
-int mqdc32::OTFCTRL(void* argv[]) {
-    // call smBase::OTFCTRL
-    smBase::OTFCTRL(argv);
-    return (int)stId;
+    return smBase::PausedRESU(ret, para);
 }
 
 int mqdc32::accessReg(const int idx, const int rw, regData& data) {
@@ -621,9 +617,10 @@ int mqdc32::flushData() {
     return 1;
 }
 
-int mqdc32::configAdc() {
+int mqdc32::configAdc(string& ret) {
     int res;
-    
+    std::stringstream result("");
+
     debugMsg << hex;
 
     pvme = NULL;
@@ -712,7 +709,7 @@ int mqdc32::configAdc() {
         pvme->setupIrq(image, confValue[irqLevel], confValue[irqVector], 0, 0, 0, 0);
 
     debugMsg << dec;
-
+    ret += result.str();
     return 1;
 }
 

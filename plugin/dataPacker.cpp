@@ -29,48 +29,35 @@ dataPacker::dataPacker(const string& n): smBase(n) {
 dataPacker::~dataPacker() {
 }
 
-int dataPacker::ConfiguredPREP(void* argv[]) {
+int dataPacker::ConfiguredPREP(std::string& ret, void* para[]) {
     debugMsg << name << "# " << "ConfiguredPREP";
     stMsg->stateOut(debugMsg);
     prepPacker();
-    return 4;
+    return smBase::ConfiguredPREP(ret, para);
 }
 
-int dataPacker::ReadySATR(void* argv[]) {
+int dataPacker::ReadySATR(std::string& ret, void* para[]) {
     debugMsg << name << "# " << "ReadySATR";
     stMsg->stateOut(debugMsg);
     startPacker();
-    return 5;
+    return smBase::ReadySATR(ret, para);
 }
 
-int dataPacker::RunningSPTR(void* argv[]) {
+int dataPacker::RunningSPTR(std::string& ret, void* para[]) {
     debugMsg << name << "# " << "RunningSPTR";
     stMsg->stateOut(debugMsg);
     stopPacker();
-    return 4;
+    return smBase::RunningSPTR(ret, para);
 }
 
-int dataPacker::RunningPAUS(void* argv[]) {
-    return 6;
-}
-
-int dataPacker::PausedSPTR(void* argv[]) {
+int dataPacker::PausedSPTR(std::string& ret, void* para[]) {
     debugMsg << name << "# " << "PausedSPTR";
     stMsg->stateOut(debugMsg);
     stopPacker();
-    return 4;
-}
-
-int dataPacker::PausedRESU(void* argv[]) {
-    return 5;
-}
-
-int dataPacker::OTFCONF(void* argv[]) {
-    return stId;
+    return smBase::PausedSPTR(ret, para);
 }
 
 int dataPacker::prepPacker() {
-
     string vmeDevice;
     int res;
     std::vector< std::pair<std::string, smBase*> >::const_iterator iter;
@@ -133,7 +120,6 @@ int dataPacker::stopPacker() {
 }
 
 void dataPacker::runPack() {
-
     packStatus = TASK_RUN;
 
     totalPackSize = 0;

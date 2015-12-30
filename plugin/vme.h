@@ -21,13 +21,10 @@ class vme :public smBase {
         virtual int ReadySTOP(std::string& ret, void* para[]=NULL);
         virtual int ReadySATR(std::string& ret, void* para[]=NULL);
         virtual int RunningSPTR(std::string& ret, void* para[]=NULL);
-        virtual int RunningPAUS(std::string& ret, void* para[]=NULL);
         virtual int PausedSPTR(std::string& ret, void* para[]=NULL);
-        virtual int PausedRESU(std::string& ret, void* para[]=NULL);
-        virtual int OTFCONF(std::string& ret, void* para[]=NULL);
 
     private:
-        int configVme(std::string& ret);
+        int configVme();
         int releaseVme();
         int prepVme();
         int finishVme();

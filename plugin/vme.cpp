@@ -55,28 +55,28 @@ int vme::InitializedLOAD(string& ret, void* para[]) {
     debugMsg << name << "# " << "InitializedLOAD";
     stMsg->stateOut(debugMsg); 
     pvme = new VMEBridge;
-    return 2;
+    return smBase::InitializedLOAD(ret, para);
 }
 
 int vme::LoadedUNLD(string& ret, void* para[]) {
     debugMsg << name << "# " << "LoadedUNLD";
     stMsg->stateOut(debugMsg);
     delete pvme;
-    return 1;
+    return smBase::LoadedUNLD(ret, para);
 }
 
 int vme::LoadedCONF(string& ret, void* para[]) {
     debugMsg << name << "# " << "LoadedCONF";
     stMsg->stateOut(debugMsg);
-    configVme(ret);
-    return 3;
+    configVme();
+    return smBase::LoadedCONF(ret, para);
 }
 
 int vme::ConfiguredUNCF(string& ret, void* para[]) {
     debugMsg << name << "# " << "ConfiguredUNCF";
     stMsg->stateOut(debugMsg);
     releaseVme();
-    return 2;
+    return smBase::ConfiguredUNCF(ret, para);
 }
 
 int vme::ConfiguredPREP(string& ret, void* para[]) {
@@ -84,50 +84,38 @@ int vme::ConfiguredPREP(string& ret, void* para[]) {
     stMsg->stateOut(debugMsg);
     if(!prepVme())
         return -1;
-    return 4;
+    return smBase::ConfiguredPREP(ret, para);
 }
 
 int vme::ReadySTOP(string& ret, void* para[]) {
     debugMsg << name << "# " << "ReadySTOP";
     stMsg->stateOut(debugMsg);
     finishVme();
-    return 3;
+    return smBase::ReadySTOP(ret, para);
 }
 
 int vme::ReadySATR(string& ret, void* para[]) {
     debugMsg << name << "# " << "ReadySATR";
     stMsg->stateOut(debugMsg);
     startVme();
-    return 5;
+    return smBase::ReadySATR(ret, para);
 }
 
 int vme::RunningSPTR(string& ret, void* para[]) {
     debugMsg << name << "# " << "RunningSPTR";
     stMsg->stateOut(debugMsg);
     stopVme();
-    return 4;
-}
-
-int vme::RunningPAUS(string& ret, void* para[]) {
-    return 6;
+    return smBase::RunningSPTR(ret, para);
 }
 
 int vme::PausedSPTR(string& ret, void* para[]) {
     debugMsg << name << "# " << "PausedSPTR";
     stMsg->stateOut(debugMsg);
     stopVme();
-    return 4;
+    return smBase::PausedSPTR(ret, para);
 }
 
-int vme::PausedRESU(string& ret, void* para[]) {
-    return 5;
-}
-
-int vme::OTFCONF(string& ret, void* para[]) {
-    return stId;
-}
-
-int vme::configVme(string& ret) {
+int vme::configVme() {
     debugMsg << hex;
 
     pvme->resetDriver();

@@ -301,90 +301,85 @@ int adc1785::queryInterface(const string& funcName, void* para[], void* ret) {
     return 0;
 }
 
-int adc1785::InitializedLOAD(void* argv[]) {
+int adc1785::InitializedLOAD(std::string& ret, void* para[]) {
     debugMsg << name << "# " << "InitializedLOAD";
     stMsg->stateOut(debugMsg);
-    return 2;
+    return smBase::InitializedLOAD(ret, para);
 }
 
-int adc1785::LoadedUNLD(void* argv[]) {
+int adc1785::LoadedUNLD(std::string& ret, void* para[]) {
     debugMsg << name << "# " << "LoadedUNLD";
     stMsg->stateOut(debugMsg);
-    return 1;
+    return smBase::LoadedUNLD(ret, para);
 }
 
-int adc1785::LoadedCONF(void* argv[]) {
+int adc1785::LoadedCONF(std::string& ret, void* para[]) {
     debugMsg << name << "# " << "LoadedCONF";
     stMsg->stateOut(debugMsg);
-    if(!configAdc())
+    if(!configAdc(ret))
         return -1;
     // for test
     //confValue[eventTh] = 4;
-    sendData = true;
+    ret = "3;"+ret;
+    stId = 3;
     return 3;
 }
 
-int adc1785::ConfiguredUNCF(void* argv[]) {
+int adc1785::ConfiguredUNCF(std::string& ret, void* para[]) {
     debugMsg << name << "# " << "ConfiguredUNCF";
     stMsg->stateOut(debugMsg);
     releaseAdc();
-    return 2;
+    return smBase::ConfiguredUNCF(ret, para);
 }
 
-int adc1785::ConfiguredPREP(void* argv[]) {
+int adc1785::ConfiguredPREP(std::string& ret, void* para[]) {
     debugMsg << name << "# " << "ConfiguredPREP";
     stMsg->stateOut(debugMsg);
     prepAdc();
-    return 4;
+    return smBase::ConfiguredPREP(ret, para);
 }
 
-int adc1785::ReadySTOP(void* argv[]) {
+int adc1785::ReadySTOP(std::string& ret, void* para[]) {
     debugMsg << name << "# " << "ReadySTOP";
     stMsg->stateOut(debugMsg);
     finishAdc();
-    return 3;
+    return smBase::ReadySTOP(ret, para);
 }
 
-int adc1785::ReadySATR(void* argv[]) {
+int adc1785::ReadySATR(std::string& ret, void* para[]) {
     debugMsg << name << "# " << "ReadySATR";
     stMsg->stateOut(debugMsg);
     stopAdc();
     startAdc();
-    return 5;
+    return smBase::ReadySATR(ret, para);
 }
 
-int adc1785::RunningSPTR(void* argv[]) {
+int adc1785::RunningSPTR(std::string& ret, void* para[]) {
     debugMsg << name << "# " << "RunningSPTR";
     stMsg->stateOut(debugMsg);
     stopAdc();
-    return 4;
+    return smBase::RunningSPTR(ret, para);
 }
 
-int adc1785::RunningPAUS(void* argv[]) {
+int adc1785::RunningPAUS(std::string& ret, void* para[]) {
     debugMsg << name << "# " << "RunningPAUS";
     stMsg->stateOut(debugMsg);
     disableAdc();
-    return 6;
+    return smBase::RunningPAUS(ret, para);
 }
 
-int adc1785::PausedSPTR(void* argv[]) {
+int adc1785::PausedSPTR(std::string& ret, void* para[]) {
     debugMsg << name << "# " << "PausedSPTR";
     stMsg->stateOut(debugMsg);
     stopAdc();
-    return 4;
+    return smBase::PausedSPTR(ret, para);
 }
 
-int adc1785::PausedRESU(void* argv[]) {
+int adc1785::PausedRESU(std::string& ret, void* para[]) {
     debugMsg << name << "# " << "PausedRESU";
     stMsg->stateOut(debugMsg);
     enableAdc();
-    return 5;
-}
-
-int adc1785::OTFCTRL(void* argv[]) {
-    // call smBase::OTFCTRL
-    smBase::OTFCTRL(argv);
-    return (int)stId;
+    return smBase::PausedRESU(ret, para);
 }
 
 int adc1785::accessReg(const int idx, const int rw, regData& data) {
@@ -652,8 +647,10 @@ int adc1785::flushData() {
     return 1;
 }
 
-int adc1785::configAdc() {
+int adc1785::configAdc(string& ret) {
     debugMsg << hex;
+
+    std::stringstream result("");
 
     int res;
     pvme = NULL;
@@ -714,6 +711,10 @@ int adc1785::configAdc() {
         }
         else
             confValue[i] = adcReg;
+
+        std::stringstream sValue("");
+        sValue << confValue[i];
+        result << confName1785[i]+ ";"+"w"+";"+sValue.str()+";";
 
         // merge to register
         if(i<RegSize-RegRO-RegBitSet)
@@ -868,6 +869,8 @@ int adc1785::configAdc() {
 
     debugMsg << dec;
 
+    sendData = true;
+    ret += result.str();
     return 1;
 }
 

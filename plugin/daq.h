@@ -13,15 +13,12 @@ class daq :public smBase {
         ~daq();
         
     protected:
-        virtual int LoadedCONF(void* argv[]=NULL);
-        virtual int ConfiguredPREP(void* argv[]=NULL);
-        virtual int ReadySTOP(void* argv[]=NULL);
-        virtual int ReadySATR(void* argv[]=NULL);
-        virtual int RunningSPTR(void* argv[]=NULL);
-        virtual int RunningPAUS(void* argv[]=NULL);
-        virtual int PausedSPTR(void* argv[]=NULL);
-        virtual int PausedRESU(void* argv[]=NULL);
-        virtual int OTFCONF(void* argv[]=NULL);
+        virtual int LoadedCONF(std::string& ret, void* para[]=NULL);
+        virtual int ConfiguredPREP(std::string& ret, void* para[]=NULL);
+        virtual int ReadySTOP(std::string& ret, void* para[]=NULL);
+        virtual int ReadySATR(std::string& ret, void* para[]=NULL);
+        virtual int RunningSPTR(std::string& ret, void* para[]=NULL);
+        virtual int PausedSPTR(std::string& ret, void* para[]=NULL);
 
     private:
         int configDaq();
