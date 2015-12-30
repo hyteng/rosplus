@@ -59,19 +59,16 @@ void smBase::init(stateMessager* msg, configSet* cfg, dataStream* data, const st
     actions[CMID_CTRL][STID_Running] = &smBase::RunningCTRL;
     actions[CMID_CTRL][STID_Paused] = &smBase::PausedCTRL;
     actions[CMID_CTRL][STID_Ready] = &smBase::ReadyCTRL;
-    actions[CMID_STAT][STID_Running] = &smBase::RunningSTAT;
-    actions[CMID_STAT][STID_Paused] = &smBase::PausedSTAT;
-    actions[CMID_STAT][STID_Ready] = &smBase::ReadySTAT;
 
 
     stId = STID_Initialized;
 }
 
-int smBase::doAction(command cmId, void* para[]) {
+int smBase::doAction(command cmId, string& ret, void* para[]) {
     int res;
     debugMsg << name << "# doAction";
     stMsg->stateOut(debugMsg);
-    res = (this->*actions[cmId][stId])(para);
+    res = (this->*actions[cmId][stId])(ret, para);
     if (res == -1) {
         stId = STID_Invaild;
         return 0;
@@ -80,13 +77,13 @@ int smBase::doAction(command cmId, void* para[]) {
     return res;
 }
 
-int smBase::OTFCTRL(void* argv[]) {
+int smBase::OTFCTRL(string& ret, void* para[]) {
     debugMsg << name << "# " << "OTFCONF";
     stMsg->stateOut(debugMsg);
 
-    string ctrlName = *(string*)argv[0];
-    string rw = *(string*)argv[1];
-    string value = *(string*)argv[2];
+    string ctrlName = *(string*)para[0];
+    string rw = *(string*)para[1];
+    string value = *(string*)para[2];
     stringstream result("");
     int res;
 
@@ -173,6 +170,8 @@ int smBase::OTFCTRL(void* argv[]) {
         }
     }
 
-    *(string*)argv[2] = result.str();
+    //*(string*)para[2] = result.str();
+    ret = ctrlName+";"+rw+";"+result.str()+";";
+
     return (int)stId;
 }

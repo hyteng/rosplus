@@ -178,7 +178,7 @@ int stateMessager::controlRun(int socketMsg) {
     std::unique_lock<std::mutex> lock(ctrlMutex);
     int rval, res;
     char msg[MAXMSG];
-    string ctrlMsg;
+    string ctrlMsg, retMsg="";
     while(status) {
         if(socketMsg < 0) {
             return 0;
@@ -193,11 +193,11 @@ int stateMessager::controlRun(int socketMsg) {
         cout << "ctrlMsg: " << ctrlMsg << endl;
         if(ctrlMsg == "cmd#all#quitMsgThread#")
             return 1;
-        res = pMachine->dispatch2(ctrlMsg);
+        res = pMachine->dispatch2(ctrlMsg, retMsg);
         if(res == 0)
             break;
 
-        sendCtrl(ctrlMsg);
+        sendCtrl(retMsg);
 
         //lock.unlock();
         //lock.release();

@@ -31,14 +31,18 @@ int stateMachine::init() {
     return 1;
 }
 
-int stateMachine::doAction(const smBase::command& cmId) {
-
+int stateMachine::doAction(const smBase::command& cmId, string& ret) {
+    string cmd, ret0;
+    stringstream sCmd("");
+    sCmd << (int)cmId;
+    sCmd >> cmd;
     for(unsigned int i=0; i<moduleList.size(); i++) {
-        int res = moduleList[i].second->doAction(cmId);
+        int res = moduleList[i].second->doAction(cmId, ret0="");
         //if(result == smBase::STID_Invaild || result == smBase::MAX_STATES_AMOUNT) {
         stId = smBase::status(res);
         if(res == -1)
             return 0;
+        ret += moduleList[i].first+"#"+cmd+"#"+ret0+"#";
     }
     return 1;
 }
@@ -117,13 +121,14 @@ smBase::command stateMachine::getCommand() {
 }
 
 int stateMachine::dispatch1() {
-
+    string ret;
     while(1) {
         smBase::command cmd = getCommand();
         if(cmd != smBase::CMID_UNKNCM) {
-            int res = doAction(cmd);
+            ret = "";
+            int res = doAction(cmd, ret);
             if(res != 1) {
-                return 0;
+                return res;
             }
             else {
                 if(cmd == smBase::CMID_EXIT)
@@ -134,75 +139,48 @@ int stateMachine::dispatch1() {
     return 1;
 }
 
-int stateMachine::dispatch2(string& ctrl) {
+int stateMachine::dispatch2(const string& ctrl, string& ret) {
 
-    string type, dev, msg;
+    string cmd, dev, msg;
     stringstream sCtrl(ctrl);
-    getline(sCtrl, type, '#');
+    getline(sCtrl, cmd, '#');
     getline(sCtrl, dev, '#');
     getline(sCtrl, msg, '#');
+    cout << "cmd: " << cmd << ", dev: " << dev << ", msg: " << msg << endl;
+
+    stringstream sCmd(cmd);
+    int vCmd;
+    sCmd >> vCmd;
     stringstream sMsg(msg);
-    cout << "type: " << type << ", dev: " << dev << ", msg: " << msg << endl;
+    string ctrlName, rw, value="";
+    getline(sMsg, ctrlName, ';');
+    getline(sMsg, rw, ';');
+    if(rw == "w")
+        getline(sMsg, value, ';');
+    cout << "ctrlName: " << ctrlName << ", rw: " << rw << ", value: " << value << endl;
+    void* para[] = {&ctrlName, &rw, &value};
+
     int res = 0;
-    // for device command
-    if(type == "cmd") {
-        int v;
-        sMsg >> v;
-        if(v >= (int)smBase::CMID_UNKNCM && v < (int)smBase::MAX_CMD_AMOUNT && v != smBase::CMID_CTRL) {
-            smBase::command cmd = smBase::command(v);
-            cout << "cmd: " << v << ", id: " << cmd << endl;
-            if(dev == "all")
-                res = doAction(cmd);
-            else {
-                smBase* pModule = NULL;
-                for(unsigned int i=0; i<moduleList.size();i++) {
-                    std::pair<string, smBase*> pMode = moduleList[i];
-                    if(pMode.first == dev) {
-                        pModule = pMode.second;
-                        break;
-                    }
-                }
-                if(pModule != NULL) {
-                    res = pModule->doAction(cmd);
+    if(vCmd >= (int)smBase::CMID_UNKNCM && vCmd < (int)smBase::MAX_CMD_AMOUNT) {
+        smBase::command eCmd = smBase::command(vCmd);
+        cout << "cmd: " << vCmd << ", id: " << eCmd << endl;
+        if(dev == "all") {
+            res = doAction(eCmd, ret);
+        }
+        else {
+            smBase* pModule = NULL;
+            for(unsigned int i=0; i<moduleList.size();i++) {
+                std::pair<string, smBase*> pMode = moduleList[i];
+                if(pMode.first == dev) {
+                    pModule = pMode.second;
+                    break;
                 }
             }
-            ctrl = dev+"#"+type+"#"+msg+"#";
-
-            if(res != 1) {
-                return 0;
+            if(pModule != NULL) {
+                res = pModule->doAction(eCmd, ret, para);
             }
-            else {
-                if(cmd == smBase::CMID_EXIT)
-                    return 1;
-            }
+            ret = dev+"#"+cmd+"#"+ret+"#";
         }
-
     }
-    // for configure reg
-    if(type == "ctrl") {
-        smBase* pModule = NULL;
-        for(unsigned int i=0; i<moduleList.size();i++) {
-            std::pair<string, smBase*> pMode = moduleList[i];
-            if(pMode.first == dev) {
-                pModule = pMode.second;
-                break;
-            }
-        }
-        if(pModule != NULL) {
-            string ctrlName, rw, value="";
-            getline(sMsg, ctrlName, ';');
-            getline(sMsg, rw, ';');
-            if(rw == "w")
-                getline(sMsg, value, ';');
-
-            //configSet::infoValue* data*;
-            void* para[] = {&ctrlName, &rw, &value};
-            pModule->doAction(smBase::CMID_CTRL, para);
-            // reverse the deve and type in string
-            ctrl = dev+"#"+type+"#"+ctrlName+";"+rw+";"+value+";"+"#";
-        }
-
-    }
-
-    return 1;
+    return res;
 }

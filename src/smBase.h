@@ -48,7 +48,7 @@ class regData {
 };
 
 class smBase;
-typedef int(smBase::*pFunc)(void* argv[]);
+typedef int(smBase::*pFunc)(std::string& ret, void* para[]);
 typedef smBase* pBase;
 
 class smBase {
@@ -67,33 +67,29 @@ class smBase {
         //static int result[MAX_CMD_AMOUNT][MAX_STATES_AMOUNT];
 
         void init(stateMessager* msg, configSet* cfg, dataStream* data, const std::vector< std::pair<std::string, smBase*> > *other);
-        virtual int doAction(command cmId, void* para[]=NULL);
+        virtual int doAction(command cmId, std::string& ret, void* para[]=NULL);
         virtual int queryInterface(const std::string& funcName, void* para[], void* ret) {return false;};
 
     protected:
-        virtual int InitializedLOAD(void* argv[]=NULL) {return 2;};
-        virtual int LoadedUNLD(void* argv[]=NULL) {return 1;};
-        virtual int LoadedCONF(void* argv[]=NULL) {return 3;};
-        virtual int ConfiguredUNCF(void* argv[]=NULL) {return 2;};
-        virtual int ConfiguredPREP(void* argv[]=NULL) {return 4;};
-        virtual int ReadySATR(void* argv[]=NULL) {return 5;};
-        virtual int ReadySTOP(void* argv[]=NULL) {return 3;};
-        virtual int RunningSPTR(void* argv[]=NULL) {return 4;};
-        virtual int RunningPAUS(void* argv[]=NULL) {return 6;};
-        virtual int PausedSPTR(void* argv[]=NULL) {return 4;};
-        virtual int PausedRESU(void* argv[]=NULL) {return 5;};
-        //virtual int PausedSATR(void* argv[]=NULL) {return 5;};
-        virtual int SelfTrans(void* argv[]=NULL) {return (int)stId;};
-        virtual int AnyIMPO(void* argv[]=NULL) {return (int)stId;};
-        virtual int AnyEXIT(void* argv[]=NULL) {return 1;};
-        virtual int OTFSTAT(void* argv[]=NULL) {return stId;};
-        virtual int RunningSTAT(void* argv[]=NULL) {return OTFSTAT(argv);};
-        virtual int PausedSTAT(void* argv[]=NULL) {return OTFSTAT(argv);};
-        virtual int ReadySTAT(void* argv[]=NULL) {return OTFSTAT(argv);};
-        virtual int OTFCTRL(void* argv[]=NULL); //{return stId;};
-        virtual int RunningCTRL(void* argv[]=NULL) {return OTFCTRL(argv);};
-        virtual int PausedCTRL(void* argv[]=NULL) {return OTFCTRL(argv);};
-        virtual int ReadyCTRL(void* argv[]=NULL) {return OTFCTRL(argv);};
+        virtual int InitializedLOAD(std::string& ret, void* para[]=NULL) {return 2;};
+        virtual int LoadedUNLD(std::string& ret, void* para[]=NULL) {return 1;};
+        virtual int LoadedCONF(std::string& ret, void* para[]=NULL) {return 3;};
+        virtual int ConfiguredUNCF(std::string& ret, void* para[]=NULL) {return 2;};
+        virtual int ConfiguredPREP(std::string& ret, void* para[]=NULL) {return 4;};
+        virtual int ReadySATR(std::string& ret, void* para[]=NULL) {return 5;};
+        virtual int ReadySTOP(std::string& ret, void* para[]=NULL) {return 3;};
+        virtual int RunningSPTR(std::string& ret, void* para[]=NULL) {return 4;};
+        virtual int RunningPAUS(std::string& ret, void* para[]=NULL) {return 6;};
+        virtual int PausedSPTR(std::string& ret, void* para[]=NULL) {return 4;};
+        virtual int PausedRESU(std::string& ret, void* para[]=NULL) {return 5;};
+        virtual int SelfTrans(std::string& ret, void* para[]=NULL) {return (int)stId;};
+        virtual int AnyIMPO(std::string& ret, void* para[]=NULL) {return (int)stId;};
+        virtual int AnyEXIT(std::string& ret, void* para[]=NULL) {return 1;};
+        virtual int OTFCTRL(std::string& ret, void* para[]=NULL); //{return stId;};
+        virtual int RunningCTRL(std::string& ret, void* para[]=NULL) {return OTFCTRL(ret, para);};
+        virtual int PausedCTRL(std::string& ret, void* para[]=NULL) {return OTFCTRL(ret, para);};
+        virtual int ReadyCTRL(std::string& ret, void* para[]=NULL) {return OTFCTRL(ret, para);};
+
         virtual int accessReg(const int idx, const int rw, regData& data) {return 1;};
         virtual int maskRegData(regData& data, regData& mask) {return 1;};
         virtual int unmaskRegData(regData& data, regData& mask) {return 1;};
