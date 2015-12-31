@@ -232,6 +232,9 @@ using std::dec;
 static uint32_t DataWidth[3] = {D16, D32, D64};
 
 // ctrl, conf, and reg infomation
+#define RW 0
+#define RO 1
+#define WO 2
 
 #define ctrlSize 112
 
@@ -680,11 +683,30 @@ int mqdc32::configAdc(string& ret) {
         data.setValueP(&confValue[confIdx]);
         mask.setValueP(&confMaskMQDC32[confIdx]);
         maskRegData(data, mask);
-        regValue[regIdx] = regValue[regIdx] & (~confMaskMQDC32[confIdx]) | (*(uint16_t*)data.getValueP());
+        regValue[regIdx] = (regValue[regIdx] & (~confMaskMQDC32[confIdx])) | (*(uint16_t*)data.getValueP());
         debugMsg << name << "# " << "regIdx " << regIdx << ", regValue " << regValue[regIdx];
         stMsg->stateOut(debugMsg);
         if(find(regSet.begin(), regSet.end(), regIdx) == regSet.end())
             regSet.push_back(regIdx);
+    }
+
+    stringstream sConf;
+    for(int i=1; i<ctrlSize; i++) {
+        if(ctrlRWMQDC32[i] != WO) {
+            result << ctrlMQDC32[i]+";"+"w"+";";
+            vector<string> &confList = (*ctrl2conf)[ctrlMQDC32[i]];
+            for(unsigned int j=0; j<confList.size(); j++) {
+                string* confIdx = find(confNameMQDC32, confNameMQDC32+confSize, confList[j]);
+                if(confIdx != confNameMQDC32+confSize) {
+                    sConf.str("");
+                    sConf << confValue[confIdx-confNameMQDC32];
+                    if(j != 0)
+                        result << ",";
+                    result << sConf.str();
+                }
+            }
+            result << ";";
+        }
     }
 
     int rw = 1;

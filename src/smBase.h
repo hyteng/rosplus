@@ -64,11 +64,10 @@ class smBase {
         typedef enum {
             STID_Invaild=-1, STID_Waiting, STID_Initialized, STID_Loaded, STID_Configured, STID_Ready, STID_Running, STID_Paused, MAX_STATES_AMOUNT
         } status;
-        //static int result[MAX_CMD_AMOUNT][MAX_STATES_AMOUNT];
 
         void init(stateMessager* msg, configSet* cfg, dataStream* data, const std::vector< std::pair<std::string, smBase*> > *other);
         virtual int doAction(command cmId, std::string& ret, void* para[]=NULL);
-        virtual int queryInterface(const std::string& funcName, void* para[], void* ret) {return false;};
+        virtual int queryInterface(const std::string& funcName, void* para[], void* ret) {return 0;};
 
     protected:
         virtual int InitializedLOAD(std::string& ret, void* para[]=NULL) {stId=2;ret="2;";return 2;};
@@ -101,7 +100,7 @@ class smBase {
         configSet* cfgInfo;
         dataStream* dataPool;
         const std::vector< std::pair<std::string, smBase*> > *helpList;
-        status stId;
+        int stId;
         std::string name;
         std::stringstream debugMsg;
 
