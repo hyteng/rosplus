@@ -394,7 +394,7 @@ class ctrlApp(wx.App):
 
 if __name__ == "__main__":
 
-    opts, args = getopt.getopt(sys.argv[1:], "a:p:")
+    opts, args = getopt.getopt(sys.argv[1:], "ha:p:")
     for op, value in opts:
         if op == "-a" :
             HOST = value
