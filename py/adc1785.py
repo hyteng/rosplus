@@ -279,7 +279,7 @@ class devFrame(wx.Frame):
         spin = event.GetEventObject()
         v = spin.GetValue()
         vs = '%x' %v
-        cs = "ctrl#"+self.dev.name+"#crateSel;w;"+vs+";"
+        cs = self.dev.name+"#11"+"#crateSel;w;"+vs+";"+"#"
         self.ctrl.sendCtrl(cs.encode('utf8'))
         event.Skip()
 
@@ -287,7 +287,7 @@ class devFrame(wx.Frame):
         print "Event handler 'setStepTh' !"
         tb = event.GetEventObject()
         st = tb.GetValue()
-        cs = "ctrl#"+self.dev.name+"#stepTh;w;"
+        cs = self.dev.name+"#11"+"#stepTh;w;"+"#"
         if st==0 :
             cs += "0;"
             tb.SetLabel("stepTh X16")
@@ -299,13 +299,13 @@ class devFrame(wx.Frame):
 
     def clearBuff(self, event):  # wxGlade: devFrame.<event_handler>
         print "Event handler 'clearBuff' !"
-        cs = "ctrl#"+self.dev.name+"#clearData;w;1;"
+        cs = self.dev.name+"#11"+"#clearData;w;1;"+"#"
         self.ctrl.sendCtrl(cs.encode('utf8'))
         event.Skip()
 
     def resetCount(self, event):  # wxGlade: devFrame.<event_handler>
         print "Event handler 'resetCount' !"
-        cs = "ctrl#"+self.dev.name+"#countReset;w;1"
+        cs = self.dev.name+"#11"+"#countReset;w;1"+"#"
         self.ctrl.sendCtrl(cs.encode('utf8'))
         event.Skip()
 
@@ -314,7 +314,7 @@ class devFrame(wx.Frame):
         spin = event.GetEventObject()
         v = spin.GetValue()
         vs = '%x' %v
-        cs = "ctrl#"+self.dev.name+"#fclrw;w;"+vs+";"
+        cs = self.dev.name+"#11"+"#fclrw;w;"+vs+";"+"#"
         self.ctrl.sendCtrl(cs.encode('utf8'))
         event.Skip()
 
@@ -323,19 +323,19 @@ class devFrame(wx.Frame):
         tb = event.GetEventObject()
         st = tb.GetValue()
         sts = '%d' %st
-        cs = "ctrl#"+self.dev.name+"#offline;w;"+sts+";";
+        cs = self.dev.name+"#11"+"#offline;w;"+sts+";"+"#"
         self.ctrl.sendCtrl(cs.encode('utf8'))
         event.Skip()
 
     def comm(self, event):  # wxGlade: devFrame.<event_handler>
         print "Event handler 'swComm' !"
-        cs = "ctrl#"+self.dev.name+"#swComm;w;1"
+        cs = self.dev.name+"#11"+"#swComm;w;1"+"#"
         self.ctrl.sendCtrl(cs.encode('utf8'))
         event.Skip()
 
     def reset(self, event):  # wxGlade: devFrame.<event_handler>
         print "Event handler 'softReset' !"
-        cs = "ctrl#"+self.dev.name+"#ssReset;w;1;"
+        cs = self.dev.name+"#11"+"#ssReset;w;1;"+"#"
         self.ctrl.sendCtrl(cs.encode('utf8'))
         event.Skip()
 
