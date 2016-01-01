@@ -16,7 +16,7 @@ void frameEngine::setMachine(stateMachine* m) {
     theFrame = m;
 }
 
-int frameEngine::InitializedLOAD(void* argv[]) {
+int frameEngine::InitializedLOAD(std::string& ret, void* para[]) {
     
     cfgInfo->infoClear();
     cfgInfo->readConfig("runSet.conf");
@@ -45,10 +45,12 @@ int frameEngine::InitializedLOAD(void* argv[]) {
             return -1;
         }
     }
+    stId = 2;
+    ret = "2;";
     return 2;
 }
 
-int frameEngine::LoadedUNLD(void* argv[]) {
+int frameEngine::LoadedUNLD(std::string& ret, void* para[]) {
     std::map<std::string, std::string>::const_iterator modeIter;
     for(modeIter=dev2libMap.begin(); modeIter!=dev2libMap.end(); modeIter++) {
         if(unloadSharedModule(modeIter->first)) {
@@ -59,6 +61,8 @@ int frameEngine::LoadedUNLD(void* argv[]) {
             return -1;
         }
     }
+    stId = 1;
+    ret = "1;";
     return 1;
 }
 

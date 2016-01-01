@@ -151,7 +151,7 @@ int stateMessager::setCtrlSocket() {
     if(listen(ctrlSocket, BACKLOG) == -1)
         return 0;
 
-    string quitMsg = "cmd#ctrl#quitMsgThread";
+    //string quitMsg = "cmd#ctrl#quitMsgThread";
     clientCtrl = -1;
     int remoteCtrl;
     while(status) {
@@ -178,7 +178,7 @@ int stateMessager::controlRun(int socketMsg) {
     std::unique_lock<std::mutex> lock(ctrlMutex);
     int rval, res;
     char msg[MAXMSG];
-    string ctrlMsg, retMsg="";
+    string ctrlMsg, retMsg;
     while(status) {
         if(socketMsg < 0) {
             return 0;
@@ -191,13 +191,15 @@ int stateMessager::controlRun(int socketMsg) {
         }
         ctrlMsg = string(msg);
         cout << "ctrlMsg: " << ctrlMsg << endl;
-        if(ctrlMsg == "cmd#all#quitMsgThread#")
+        if(ctrlMsg == "ctrl#all#quitMsgThread#")
             return 1;
         res = pMachine->dispatch2(ctrlMsg, retMsg);
         if(res == 0)
             break;
 
+        //cout << retMsg << endl;
         sendCtrl(retMsg);
+        retMsg = "";
 
         //lock.unlock();
         //lock.release();

@@ -14,9 +14,8 @@ class frameEngine :public smBase {
         void setMachine(stateMachine* m);
 
     protected:
-        virtual int InitializedLOAD(void* argv[]=NULL);
-        virtual int LoadedUNLD(void* argv[]=NULL);
-        virtual int OTFCTRL(void* argv[]=NULL) {return stId;};
+        virtual int InitializedLOAD(std::string& ret, void* para[]=NULL);
+        virtual int LoadedUNLD(std::string& ret, void* para[]=NULL);
         
     private:
         int moduleStringSplit(const std::string& modeList);
