@@ -125,7 +125,7 @@ class ctrlFrame(wx.Frame):
             #b = event.GetEventObject()
             #st = b.GetValue()
             #cmdId += st
-        msg = "cmd#all#"+str(cmdId)+"#"
+        msg = "all#"+str(cmdId)+"#"+"#"
         self.ctrl.sendCtrl(msg.encode('utf8'))
         event.Skip()
 

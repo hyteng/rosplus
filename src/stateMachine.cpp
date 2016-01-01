@@ -143,10 +143,10 @@ int stateMachine::dispatch2(const string& ctrl, string& ret) {
 
     string cmd, dev, msg;
     stringstream sCtrl(ctrl);
-    getline(sCtrl, cmd, '#');
     getline(sCtrl, dev, '#');
+    getline(sCtrl, cmd, '#');
     getline(sCtrl, msg, '#');
-    cout << "cmd: " << cmd << ", dev: " << dev << ", msg: " << msg << endl;
+    cout << "dev: " << dev << ", cmd: " << cmd << ", msg: " << msg << endl;
 
     stringstream sCmd(cmd);
     int vCmd;
