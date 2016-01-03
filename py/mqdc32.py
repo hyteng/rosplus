@@ -552,15 +552,11 @@ class devApp:#(wx.App):
                 rw = ret[idx1+1:idx2]
                 idx3 = ret.find(';', idx2+1)
                 value = ret[idx2+1:idx3]
-                print "ctrlHandler for adc1785 %s" %(ctrlName) 
-                self.setContrl(ctrlName, value)
+                print "ctrlHandler for adc1785 %s" %(ctrlName)
+                obj = getattr(self.frame, ctrlName)
+                if obj.SetValue!=None :
+                    obj.SetValue(value)
                 idx0 = ret.find(';', idx3+1)
-
-    def setContrl(self, ctrlName, value)
-        obj = getattr(self.frame, ctrlName)
-            if obj.ctrlHander!=None :
-                obj.ctrlHander(value)
-                print "control acknowledge from %s with value %s" %(ctrlName, value)
 
     def timerHandler(self):
         #print ""

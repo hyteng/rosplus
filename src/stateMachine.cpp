@@ -42,7 +42,7 @@ int stateMachine::doAction(const smBase::command& cmId, string& ret) {
         stId = smBase::status(res);
         if(res == -1)
             return 0;
-        ret += moduleList[i].first+"#"+cmd+"#"+ret0+"#";
+        ret += moduleList[i].first+"#"+cmd+"#"+ret0+"#"+"$";
     }
     return 1;
 }
@@ -179,7 +179,7 @@ int stateMachine::dispatch2(const string& ctrl, string& ret) {
             if(pModule != NULL) {
                 res = pModule->doAction(eCmd, ret, para);
             }
-            ret = dev+"#"+cmd+"#"+ret+"#";
+            ret = dev+"#"+cmd+"#"+ret+"#"+"$";
         }
     }
     return res;
