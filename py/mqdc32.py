@@ -6,6 +6,7 @@
 
 import wx
 import ROOT as rt
+import time
 
 # begin wxGlade: dependencies
 import gettext
@@ -92,73 +93,73 @@ class devFrame(wx.Frame):
         self.limit1High = wx.SpinCtrl(self, wx.ID_ANY, "16", min=0, max=31)
         self.label_bank1LowLimit = wx.StaticText(self, wx.ID_ANY, _("bank1LowLimit"), style=wx.ALIGN_CENTER)
         self.limit1Low = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=31)
-        self.disableTH = wx.ToggleButton(self, wx.ID_ANY, _("disableTH"))
+        self.disableTh = wx.ToggleButton(self, wx.ID_ANY, _("disableTh"))
         self.startAcq = wx.ToggleButton(self, wx.ID_ANY, _("startACQ"))
         self.label_CH = wx.StaticText(self, wx.ID_ANY, _("Channel with Threshold"), style=wx.ALIGN_CENTER)
         self.ch00 = wx.ToggleButton(self, wx.ID_ANY, _("ch00"))
-        self.ch00_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
+        self.Ch00Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
         self.ch01 = wx.ToggleButton(self, wx.ID_ANY, _("ch01"))
-        self.ch01_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
+        self.Ch01Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
         self.ch02 = wx.ToggleButton(self, wx.ID_ANY, _("ch02"))
-        self.ch02_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
+        self.Ch02Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
         self.ch03 = wx.ToggleButton(self, wx.ID_ANY, _("ch03"))
-        self.ch03_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
+        self.Ch03Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
         self.ch04 = wx.ToggleButton(self, wx.ID_ANY, _("ch04"))
-        self.ch04_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
+        self.Ch04Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
         self.ch05 = wx.ToggleButton(self, wx.ID_ANY, _("ch05"))
-        self.ch05_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
+        self.Ch05Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
         self.ch06 = wx.ToggleButton(self, wx.ID_ANY, _("ch06"))
-        self.ch06_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
+        self.Ch06Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
         self.ch07 = wx.ToggleButton(self, wx.ID_ANY, _("ch07"))
-        self.ch07_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
+        self.Ch07Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
         self.ch08 = wx.ToggleButton(self, wx.ID_ANY, _("ch08"))
-        self.ch08_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
+        self.Ch08Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
         self.ch09 = wx.ToggleButton(self, wx.ID_ANY, _("ch09"))
-        self.ch09_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
+        self.Ch09Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
         self.ch10 = wx.ToggleButton(self, wx.ID_ANY, _("ch10"))
-        self.ch10_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
+        self.Ch10Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
         self.ch11 = wx.ToggleButton(self, wx.ID_ANY, _("ch11"))
-        self.ch11_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
+        self.Ch11Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
         self.ch12 = wx.ToggleButton(self, wx.ID_ANY, _("ch12"))
-        self.ch12_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
+        self.Ch12Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
         self.ch13 = wx.ToggleButton(self, wx.ID_ANY, _("ch13"))
-        self.ch13_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
+        self.Ch13Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
         self.ch14 = wx.ToggleButton(self, wx.ID_ANY, _("ch14"))
-        self.ch14_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
+        self.Ch14Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
         self.ch15 = wx.ToggleButton(self, wx.ID_ANY, _("ch15"))
-        self.ch15_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
+        self.Ch15Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
         self.ch16 = wx.ToggleButton(self, wx.ID_ANY, _("ch16"))
-        self.ch16_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
+        self.Ch16Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
         self.ch17 = wx.ToggleButton(self, wx.ID_ANY, _("ch17"))
-        self.ch17_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
+        self.Ch17Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
         self.ch18 = wx.ToggleButton(self, wx.ID_ANY, _("ch18"))
-        self.ch18_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
+        self.Ch18Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
         self.ch19 = wx.ToggleButton(self, wx.ID_ANY, _("ch19"))
-        self.ch19_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
+        self.Ch19Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
         self.ch20 = wx.ToggleButton(self, wx.ID_ANY, _("ch20"))
-        self.ch20_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
+        self.Ch20Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
         self.c21 = wx.ToggleButton(self, wx.ID_ANY, _("ch21"))
-        self.ch21_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
+        self.Ch21Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
         self.ch22 = wx.ToggleButton(self, wx.ID_ANY, _("ch22"))
-        self.ch22_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
+        self.Ch22Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
         self.ch23 = wx.ToggleButton(self, wx.ID_ANY, _("ch23"))
-        self.ch23_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
+        self.Ch23Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
         self.ch24 = wx.ToggleButton(self, wx.ID_ANY, _("ch24"))
-        self.ch24_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
+        self.Ch24Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
         self.ch25 = wx.ToggleButton(self, wx.ID_ANY, _("ch25"))
-        self.ch25_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
+        self.Ch25Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
         self.ch26 = wx.ToggleButton(self, wx.ID_ANY, _("ch26"))
-        self.ch26_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
+        self.Ch26Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
         self.ch27 = wx.ToggleButton(self, wx.ID_ANY, _("ch27"))
-        self.ch27_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
+        self.Ch27Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
         self.ch28 = wx.ToggleButton(self, wx.ID_ANY, _("ch28"))
-        self.ch28_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
+        self.Ch28Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
         self.ch29 = wx.ToggleButton(self, wx.ID_ANY, _("ch29"))
-        self.ch29_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
+        self.Ch29Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
         self.ch30 = wx.ToggleButton(self, wx.ID_ANY, _("ch30"))
-        self.ch30_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
+        self.Ch30Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
         self.ch31 = wx.ToggleButton(self, wx.ID_ANY, _("ch31"))
-        self.ch31_Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
+        self.Ch31Th = wx.SpinCtrl(self, wx.ID_ANY, "0", min=0, max=100)
         self.static_line_1 = wx.StaticLine(self, wx.ID_ANY, style=wx.EXPAND)
 
         self.__set_properties()
@@ -170,9 +171,15 @@ class devFrame(wx.Frame):
         self.Bind(wx.EVT_SPINCTRL, self.setIrqTh, self.irqTh)
         self.Bind(wx.EVT_SPINCTRL, self.setMaxTransfer, self.maxTransfer)
         self.Bind(wx.EVT_TOGGLEBUTTON, self.mcstControl, self.mcstCtrl)
-        self.Bind(wx.EVT_TOGGLEBUTTON, self.disableTh, self.disableTH)
+        self.Bind(wx.EVT_TOGGLEBUTTON, self.disableThreshold, self.disableTh)
         self.Bind(wx.EVT_TOGGLEBUTTON, self.runACQ, self.startAcq)
         # end wxGlade
+        self.Bind(wx.EVT_CLOSE, self.on_close)
+        # user ctrl 
+        self.ctrl = cSocket
+
+    def on_close(self, event):
+        self.Hide()
 
     def __set_properties(self):
         # begin wxGlade: devFrame.__set_properties
@@ -379,107 +386,107 @@ class devFrame(wx.Frame):
         grid_sizer_3E.Add(self.label_bank1LowLimit, 0, wx.ALL | wx.EXPAND, 1)
         grid_sizer_3E.Add(self.limit1Low, 0, wx.ALL | wx.EXPAND, 1)
         grid_sizer_3.Add(grid_sizer_3E, 1, wx.ALL | wx.EXPAND, 1)
-        grid_sizer_3F.Add(self.disableTH, 0, wx.ALL | wx.EXPAND, 1)
+        grid_sizer_3F.Add(self.disableTh, 0, wx.ALL | wx.EXPAND, 1)
         grid_sizer_3F.Add(self.startAcq, 0, wx.ALL | wx.EXPAND, 1)
         grid_sizer_3.Add(grid_sizer_3F, 1, wx.ALL | wx.EXPAND, 1)
         sizer_1.Add(grid_sizer_3, 2, wx.ALL | wx.EXPAND | wx.FIXED_MINSIZE, 1)
         sizer_1.Add(self.label_CH, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL | wx.EXPAND, 1)
         grid_sizer_20.Add(self.ch00, 1, wx.ALL | wx.EXPAND, 1)
-        grid_sizer_20.Add(self.ch00_Th, 0, wx.ALL | wx.EXPAND, 1)
+        grid_sizer_20.Add(self.Ch00Th, 0, wx.ALL | wx.EXPAND, 1)
         grid_sizer_2.Add(grid_sizer_20, 1, wx.ALL | wx.EXPAND, 1)
         grid_sizer_21.Add(self.ch01, 0, wx.ALL | wx.EXPAND, 1)
-        grid_sizer_21.Add(self.ch01_Th, 0, wx.ALL | wx.EXPAND, 1)
+        grid_sizer_21.Add(self.Ch01Th, 0, wx.ALL | wx.EXPAND, 1)
         grid_sizer_2.Add(grid_sizer_21, 1, wx.ALL | wx.EXPAND, 1)
         grid_sizer_22.Add(self.ch02, 0, wx.ALL | wx.EXPAND, 1)
-        grid_sizer_22.Add(self.ch02_Th, 0, wx.ALL | wx.EXPAND, 1)
+        grid_sizer_22.Add(self.Ch02Th, 0, wx.ALL | wx.EXPAND, 1)
         grid_sizer_2.Add(grid_sizer_22, 1, wx.ALL | wx.EXPAND, 1)
         grid_sizer_23.Add(self.ch03, 0, wx.ALL | wx.EXPAND, 1)
-        grid_sizer_23.Add(self.ch03_Th, 0, wx.ALL | wx.EXPAND, 1)
+        grid_sizer_23.Add(self.Ch03Th, 0, wx.ALL | wx.EXPAND, 1)
         grid_sizer_2.Add(grid_sizer_23, 1, wx.ALL | wx.EXPAND, 1)
         grid_sizer_24.Add(self.ch04, 0, wx.ALL | wx.EXPAND, 1)
-        grid_sizer_24.Add(self.ch04_Th, 0, wx.ALL | wx.EXPAND, 1)
+        grid_sizer_24.Add(self.Ch04Th, 0, wx.ALL | wx.EXPAND, 1)
         grid_sizer_2.Add(grid_sizer_24, 1, wx.ALL | wx.EXPAND, 1)
         grid_sizer_25.Add(self.ch05, 0, wx.ALL | wx.EXPAND, 1)
-        grid_sizer_25.Add(self.ch05_Th, 0, wx.ALL | wx.EXPAND, 1)
+        grid_sizer_25.Add(self.Ch05Th, 0, wx.ALL | wx.EXPAND, 1)
         grid_sizer_2.Add(grid_sizer_25, 1, wx.ALL | wx.EXPAND, 1)
         grid_sizer_26.Add(self.ch06, 0, wx.ALL | wx.EXPAND, 1)
-        grid_sizer_26.Add(self.ch06_Th, 0, wx.ALL | wx.EXPAND, 1)
+        grid_sizer_26.Add(self.Ch06Th, 0, wx.ALL | wx.EXPAND, 1)
         grid_sizer_2.Add(grid_sizer_26, 1, wx.ALL | wx.EXPAND, 1)
         grid_sizer_27.Add(self.ch07, 0, wx.ALL | wx.EXPAND, 1)
-        grid_sizer_27.Add(self.ch07_Th, 0, wx.ALL | wx.EXPAND, 1)
+        grid_sizer_27.Add(self.Ch07Th, 0, wx.ALL | wx.EXPAND, 1)
         grid_sizer_2.Add(grid_sizer_27, 1, wx.ALL | wx.EXPAND, 1)
         grid_sizer_28.Add(self.ch08, 0, wx.ALL | wx.EXPAND, 1)
-        grid_sizer_28.Add(self.ch08_Th, 0, wx.ALL | wx.EXPAND, 1)
+        grid_sizer_28.Add(self.Ch08Th, 0, wx.ALL | wx.EXPAND, 1)
         grid_sizer_2.Add(grid_sizer_28, 1, wx.ALL | wx.EXPAND, 1)
         grid_sizer_29.Add(self.ch09, 0, wx.ALL | wx.EXPAND, 1)
-        grid_sizer_29.Add(self.ch09_Th, 0, wx.ALL | wx.EXPAND, 1)
+        grid_sizer_29.Add(self.Ch09Th, 0, wx.ALL | wx.EXPAND, 1)
         grid_sizer_2.Add(grid_sizer_29, 1, wx.ALL | wx.EXPAND, 1)
         grid_sizer_2A.Add(self.ch10, 0, wx.ALL | wx.EXPAND, 1)
-        grid_sizer_2A.Add(self.ch10_Th, 0, wx.ALL | wx.EXPAND, 1)
+        grid_sizer_2A.Add(self.Ch10Th, 0, wx.ALL | wx.EXPAND, 1)
         grid_sizer_2.Add(grid_sizer_2A, 1, wx.ALL | wx.EXPAND, 1)
         grid_sizer_2B.Add(self.ch11, 0, wx.ALL | wx.EXPAND, 1)
-        grid_sizer_2B.Add(self.ch11_Th, 0, wx.ALL | wx.EXPAND, 1)
+        grid_sizer_2B.Add(self.Ch11Th, 0, wx.ALL | wx.EXPAND, 1)
         grid_sizer_2.Add(grid_sizer_2B, 1, wx.ALL | wx.EXPAND, 1)
         grid_sizer_2C.Add(self.ch12, 0, wx.ALL | wx.EXPAND, 1)
-        grid_sizer_2C.Add(self.ch12_Th, 0, wx.ALL | wx.EXPAND, 1)
+        grid_sizer_2C.Add(self.Ch12Th, 0, wx.ALL | wx.EXPAND, 1)
         grid_sizer_2.Add(grid_sizer_2C, 1, wx.ALL | wx.EXPAND, 1)
         grid_sizer_2D.Add(self.ch13, 0, wx.ALL | wx.EXPAND, 1)
-        grid_sizer_2D.Add(self.ch13_Th, 0, wx.ALL | wx.EXPAND, 1)
+        grid_sizer_2D.Add(self.Ch13Th, 0, wx.ALL | wx.EXPAND, 1)
         grid_sizer_2.Add(grid_sizer_2D, 1, wx.ALL | wx.EXPAND, 1)
         grid_sizer_2E.Add(self.ch14, 0, wx.ALL | wx.EXPAND, 1)
-        grid_sizer_2E.Add(self.ch14_Th, 0, wx.ALL | wx.EXPAND, 1)
+        grid_sizer_2E.Add(self.Ch14Th, 0, wx.ALL | wx.EXPAND, 1)
         grid_sizer_2.Add(grid_sizer_2E, 1, wx.ALL | wx.EXPAND, 1)
         grid_sizer_2F.Add(self.ch15, 0, wx.ALL | wx.EXPAND, 1)
-        grid_sizer_2F.Add(self.ch15_Th, 0, wx.ALL | wx.EXPAND, 1)
+        grid_sizer_2F.Add(self.Ch15Th, 0, wx.ALL | wx.EXPAND, 1)
         grid_sizer_2.Add(grid_sizer_2F, 1, wx.ALL | wx.EXPAND, 1)
         sizer_1.Add(grid_sizer_2, 2, wx.ALL | wx.EXPAND | wx.FIXED_MINSIZE, 1)
         grid_sizer_10.Add(self.ch16, 1, wx.ALL | wx.EXPAND, 1)
-        grid_sizer_10.Add(self.ch16_Th, 0, wx.ALL | wx.EXPAND, 1)
+        grid_sizer_10.Add(self.Ch16Th, 0, wx.ALL | wx.EXPAND, 1)
         grid_sizer_1.Add(grid_sizer_10, 1, wx.ALL | wx.EXPAND, 1)
         grid_sizer_11.Add(self.ch17, 0, wx.ALL | wx.EXPAND, 1)
-        grid_sizer_11.Add(self.ch17_Th, 0, wx.ALL | wx.EXPAND, 1)
+        grid_sizer_11.Add(self.Ch17Th, 0, wx.ALL | wx.EXPAND, 1)
         grid_sizer_1.Add(grid_sizer_11, 1, wx.ALL | wx.EXPAND, 1)
         grid_sizer_12.Add(self.ch18, 0, wx.ALL | wx.EXPAND, 1)
-        grid_sizer_12.Add(self.ch18_Th, 0, wx.ALL | wx.EXPAND, 1)
+        grid_sizer_12.Add(self.Ch18Th, 0, wx.ALL | wx.EXPAND, 1)
         grid_sizer_1.Add(grid_sizer_12, 1, wx.ALL | wx.EXPAND, 1)
         grid_sizer_13.Add(self.ch19, 0, wx.ALL | wx.EXPAND, 1)
-        grid_sizer_13.Add(self.ch19_Th, 0, wx.ALL | wx.EXPAND, 1)
+        grid_sizer_13.Add(self.Ch19Th, 0, wx.ALL | wx.EXPAND, 1)
         grid_sizer_1.Add(grid_sizer_13, 1, wx.ALL | wx.EXPAND, 1)
         grid_sizer_14.Add(self.ch20, 0, wx.ALL | wx.EXPAND, 1)
-        grid_sizer_14.Add(self.ch20_Th, 0, wx.ALL | wx.EXPAND, 1)
+        grid_sizer_14.Add(self.Ch20Th, 0, wx.ALL | wx.EXPAND, 1)
         grid_sizer_1.Add(grid_sizer_14, 1, wx.ALL | wx.EXPAND, 1)
         grid_sizer_15.Add(self.c21, 0, wx.ALL | wx.EXPAND, 1)
-        grid_sizer_15.Add(self.ch21_Th, 0, wx.ALL | wx.EXPAND, 1)
+        grid_sizer_15.Add(self.Ch21Th, 0, wx.ALL | wx.EXPAND, 1)
         grid_sizer_1.Add(grid_sizer_15, 1, wx.ALL | wx.EXPAND, 1)
         grid_sizer_16.Add(self.ch22, 0, wx.ALL | wx.EXPAND, 1)
-        grid_sizer_16.Add(self.ch22_Th, 0, wx.ALL | wx.EXPAND, 1)
+        grid_sizer_16.Add(self.Ch22Th, 0, wx.ALL | wx.EXPAND, 1)
         grid_sizer_1.Add(grid_sizer_16, 1, wx.ALL | wx.EXPAND, 1)
         grid_sizer_17.Add(self.ch23, 0, wx.ALL | wx.EXPAND, 1)
-        grid_sizer_17.Add(self.ch23_Th, 0, wx.ALL | wx.EXPAND, 1)
+        grid_sizer_17.Add(self.Ch23Th, 0, wx.ALL | wx.EXPAND, 1)
         grid_sizer_1.Add(grid_sizer_17, 1, wx.ALL | wx.EXPAND, 1)
         grid_sizer_18.Add(self.ch24, 0, wx.ALL | wx.EXPAND, 1)
-        grid_sizer_18.Add(self.ch24_Th, 0, wx.ALL | wx.EXPAND, 1)
+        grid_sizer_18.Add(self.Ch24Th, 0, wx.ALL | wx.EXPAND, 1)
         grid_sizer_1.Add(grid_sizer_18, 1, wx.ALL | wx.EXPAND, 1)
         grid_sizer_19.Add(self.ch25, 0, wx.ALL | wx.EXPAND, 1)
-        grid_sizer_19.Add(self.ch25_Th, 0, wx.ALL | wx.EXPAND, 1)
+        grid_sizer_19.Add(self.Ch25Th, 0, wx.ALL | wx.EXPAND, 1)
         grid_sizer_1.Add(grid_sizer_19, 1, wx.ALL | wx.EXPAND, 1)
         grid_sizer_1A.Add(self.ch26, 0, wx.ALL | wx.EXPAND, 1)
-        grid_sizer_1A.Add(self.ch26_Th, 0, wx.ALL | wx.EXPAND, 1)
+        grid_sizer_1A.Add(self.Ch26Th, 0, wx.ALL | wx.EXPAND, 1)
         grid_sizer_1.Add(grid_sizer_1A, 1, wx.ALL | wx.EXPAND, 1)
         grid_sizer_1B.Add(self.ch27, 0, wx.ALL | wx.EXPAND, 1)
-        grid_sizer_1B.Add(self.ch27_Th, 0, wx.ALL | wx.EXPAND, 1)
+        grid_sizer_1B.Add(self.Ch27Th, 0, wx.ALL | wx.EXPAND, 1)
         grid_sizer_1.Add(grid_sizer_1B, 1, wx.ALL | wx.EXPAND, 1)
         grid_sizer_1C.Add(self.ch28, 0, wx.ALL | wx.EXPAND, 1)
-        grid_sizer_1C.Add(self.ch28_Th, 0, wx.ALL | wx.EXPAND, 1)
+        grid_sizer_1C.Add(self.Ch28Th, 0, wx.ALL | wx.EXPAND, 1)
         grid_sizer_1.Add(grid_sizer_1C, 1, wx.ALL | wx.EXPAND, 1)
         grid_sizer_1D.Add(self.ch29, 0, wx.ALL | wx.EXPAND, 1)
-        grid_sizer_1D.Add(self.ch29_Th, 0, wx.ALL | wx.EXPAND, 1)
+        grid_sizer_1D.Add(self.Ch29Th, 0, wx.ALL | wx.EXPAND, 1)
         grid_sizer_1.Add(grid_sizer_1D, 1, wx.ALL | wx.EXPAND, 1)
         grid_sizer_1E.Add(self.ch30, 0, wx.ALL | wx.EXPAND, 1)
-        grid_sizer_1E.Add(self.ch30_Th, 0, wx.ALL | wx.EXPAND, 1)
+        grid_sizer_1E.Add(self.Ch30Th, 0, wx.ALL | wx.EXPAND, 1)
         grid_sizer_1.Add(grid_sizer_1E, 1, wx.ALL | wx.EXPAND, 1)
         grid_sizer_1F.Add(self.ch31, 0, wx.ALL | wx.EXPAND, 1)
-        grid_sizer_1F.Add(self.ch31_Th, 0, wx.ALL | wx.EXPAND, 1)
+        grid_sizer_1F.Add(self.Ch31Th, 0, wx.ALL | wx.EXPAND, 1)
         grid_sizer_1.Add(grid_sizer_1F, 1, wx.ALL | wx.EXPAND, 1)
         sizer_1.Add(grid_sizer_1, 2, wx.ALL | wx.EXPAND | wx.FIXED_MINSIZE, 1)
         sizer_1.Add(self.static_line_1, 0, wx.ALL | wx.EXPAND, 0)
@@ -512,8 +519,8 @@ class devFrame(wx.Frame):
         print "Event handler 'mcstControl' not implemented!"
         event.Skip()
 
-    def disableTh(self, event):  # wxGlade: devFrame.<event_handler>
-        print "Event handler 'disableTh' not implemented!"
+    def disableThreshold(self, event):  # wxGlade: devFrame.<event_handler>
+        print "Event handler 'disableThreshold' not implemented!"
         event.Skip()
 
     def runACQ(self, event):  # wxGlade: devFrame.<event_handler>
@@ -535,6 +542,7 @@ class devApp:#(wx.App):
         self.name = n;
         self.callTimer = True
         self.frame = -1
+        self.stId = -1
         #return 1
 
     def setFrame(self, f):
@@ -542,25 +550,36 @@ class devApp:#(wx.App):
 
 
     def ctrlHandler(self, control, ret):
-        if control==self.stId :
-            idx0 = ret.find(';')
-            self.stId = ret[:idx0]
-            while idx0!=-1:
-                idx1 = ret.find(';', idx0+1)
-                ctrlName = ret[idx0+1:idx1]
-                idx2 = ret.find(';', idx1+1)
-                rw = ret[idx1+1:idx2]
-                idx3 = ret.find(';', idx2+1)
-                value = ret[idx2+1:idx3]
-                print "ctrlHandler for adc1785 %s" %(ctrlName)
+        idx0 = ret.find(';')
+        self.stId = ret[:idx0]
+        while idx0!=-1:
+            idx1 = ret.find(';', idx0+1)
+            if idx1==-1 :
+                break
+            ctrlName = ret[idx0+1:idx1]
+            idx2 = ret.find(';', idx1+1)
+            if idx2==-1 :
+                break
+            rw = ret[idx1+1:idx2]
+            idx3 = ret.find(';', idx2+1)
+            if idx3==-1 :
+                break
+            value = [int(i) for i in ret[idx2+1:idx3].split(',')]
+            print "ctrlHandler for %s: %s, %s, %d, %d, %d" %(self.name, ctrlName, rw, idx1, idx2, idx3)
+            print value
+            #time.sleep(1)
+            if (ctrlName!="") and (hasattr(self.frame, ctrlName)) :
                 obj = getattr(self.frame, ctrlName)
-                if obj.SetValue!=None :
-                    obj.SetValue(value)
-                idx0 = ret.find(';', idx3+1)
+                if obj!=None :
+                    objClass = obj.GetClassName()
+                    print "ctrl object: %s" %(objClass)
+                    if (objClass=="wxSpinCtrl") :
+                        obj.SetValue(int(value[0]))
+            idx0 = idx3
 
     def timerHandler(self):
         #print ""
-        print "timerHandler for adc1785"
+        print "timerHandler for %s" %(self.name)
 
 # end of class devMQDC32App
 
