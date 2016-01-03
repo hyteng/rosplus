@@ -542,17 +542,24 @@ class devApp:#(wx.App):
 
 
     def ctrlHandler(self, control, ret):
-        if control=="ctrl" :
-            idx = ret.find(';')
-            ctrlName = ret[:idx]
-            idx = ret.find(';', idx+1)
-            rw = ret[len(ctrlName)+1:idx]
-            value = ret[idx+1:-1]
-            print "ctrlHandler for adc1785 %s" %(ctrlName) 
-            obj = getattr(self.frame, ctrlName)
-            if obj!=None :
-                #if obj.ctrlHander!=None :
-                    #obj.ctrlHander(rw, value)
+        if control==self.stId :
+            idx0 = ret.find(';')
+            self.stId = ret[:idx0]
+            while idx0!=-1:
+                idx1 = ret.find(';', idx0+1)
+                ctrlName = ret[idx0+1:idx1]
+                idx2 = ret.find(';', idx1+1)
+                rw = ret[idx1+1:idx2]
+                idx3 = ret.find(';', idx2+1)
+                value = ret[idx2+1:idx3]
+                print "ctrlHandler for adc1785 %s" %(ctrlName) 
+                self.setContrl(ctrlName, value)
+                idx0 = ret.find(';', idx3+1)
+
+    def setContrl(self, ctrlName, value)
+        obj = getattr(self.frame, ctrlName)
+            if obj.ctrlHander!=None :
+                obj.ctrlHander(value)
                 print "control acknowledge from %s with value %s" %(ctrlName, value)
 
     def timerHandler(self):
