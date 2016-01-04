@@ -178,7 +178,7 @@ uint32_t regAddr1785[regSize] = {0x1002/*geoAddr*/, 0x1004/*cbltAddr*/, 0x100A/*
 
 static map<string, vector<string> > adc1785_ctrl2conf;
 static map<string, int> adc1785_conf2reg;
-static map<string, uintptr_t>adc1785_conf2mask;
+static map<string, uintptr_t> adc1785_conf2mask;
 static vector<uintptr_t> adc1785_regAddr;
 static vector<int> adc1785_regRWIdx;
 

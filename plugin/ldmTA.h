@@ -1,5 +1,5 @@
-#ifndef mpodHV_h
-#define mpodHV_h
+#ifndef ldmTA_h
+#define ldmTA_h
 
 #include "../src/smBase.h"
 #include <stdint.h>
@@ -18,18 +18,18 @@ class regUint16 :public regData {
         uint16_t v;
 };
 
-//class mpodHV;
-//typedef uint32_t (mpodHV::* mpodHVFunc)();
-#define MPODHVEVENTUINTSIZE 18
+//class ldmTA;
+//typedef uint32_t (ldmTA::* ldmTAFunc)();
+#define LDMTAEVENTUINTSIZE 18
 
-class mpodHV :public smBase {
+class ldmTA :public smBase {
     public:
         typedef uint32_t regAddrType;
         typedef uint16_t regType;
-        typedef uint32_t (*mpodHVEvent)[MPODHVEVENTUINTSIZE];
+        typedef uint32_t (*ldmTAEvent)[LDMTAEVENTUINTSIZE];
 
-        mpodHV(const std::string& n);
-        ~mpodHV();
+        ldmTA(const std::string& n);
+        ~ldmTA();
         virtual int queryInterface(const string& funcName, void* para[], void* ret);
 
     protected:
@@ -73,7 +73,7 @@ class mpodHV :public smBase {
         int image;
         uint32_t base, length; // 32bit VME address
         uint32_t regValue[80], confValue[100]; //reg is 16bit, use uint32 and cut later
-        mpodHVEvent eventSet;
+        ldmTAEvent eventSet;
         int eventPtrR, eventPtrW;
         std::queue<unsigned int> *eventIdx;
         char v[4];
