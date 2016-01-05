@@ -4,6 +4,8 @@
 #include <sys/ipc.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <iostream>
+#include <iomanip>
 
 using std::stringstream;
 using std::string;
@@ -216,8 +218,6 @@ int vme::prepVme() {
         offsetList.clear();
         offsetList.resize(listSize, 0);
         for(unsigned int i=0; i<listSize;i++) {
-            debugMsg << name << "# " << "add cmd packet list, idx " << i << ", buff addr " << buffList[i] << ", tranSize " << sizeList[i] << ", aw " << awList[i] << ", dw " << dwList[i];
-            stMsg->stateOut(debugMsg);
             offsetList[i] = pvme->addCmdPkt(listNumber, 0, buffList[i], sizeList[i], awList[i], dwList[i]);
             debugMsg << name << "# " << "add cmd packet list, idx " << i << ", buff addr " << buffList[i] << ", tranSize " << sizeList[i] << ", aw " << awList[i] << ", dw " << dwList[i];
             stMsg->stateOut(debugMsg);
@@ -278,7 +278,12 @@ void vme::runVme() {
         pvme->execCmdPktList(listNumber);
         tranSize = 0;
         dmaSize = 0;
-        for(unsigned int i=0; i< listSize; i++) {
+        for(unsigned int i=0; i<listSize; i++) {
+            cout << "vme data: " << endl;
+            uint32_t* ptr = (uint32_t*)(dmaBase+offsetList[i]);
+            for(unsigned int j=0; j<sizeList[i]/4;j+=4)
+                cout << hex << "0x" << setw(8) << setfill('0') << *ptr++ << ", ";
+            cout << endl;
             tranSize += dataPool->devWrite((void*)(dmaBase+offsetList[i]), sizeList[i]);
             dmaSize += sizeList[i];
             devList[i]->queryInterface("afterTransfer", NULL, &res);

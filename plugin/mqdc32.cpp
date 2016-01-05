@@ -496,6 +496,8 @@ uint32_t mqdc32::getTranSize() {
 }
 
 int mqdc32::waitTrigger() {
+    debugMsg << name << "# " << "waiting for trigger";
+    stMsg->stateOut(debugMsg);
     pvme->waitIrq(confValue[irqLevel], confValue[irqVector]);
     return 1;
 }
@@ -506,6 +508,7 @@ int mqdc32::afterTransfer() {
 
 int mqdc32::ackTrigger() {
     debugMsg << name << "# " << "acknowledge trigger";
+    stMsg->stateOut(debugMsg);
     pvme->ww(image, base+MQDC32_ReadoutReset_Offset, 0x0001);
     return 1;
 }
@@ -537,14 +540,15 @@ int mqdc32::packData(unsigned int &packSize) {
         else {
             value = (unsigned int)*(uint32_t*)p;
         }
-
+        debugMsg << name << "# " << "pack value: " << hex << value << endl;
+        stMsg->stateOut(debugMsg);
         // invalid data
         if((value&0x00000007) == 0x00000006) {
             tmpIdx=0;
             continue;
         }
         // header
-        if((value&0x00000007) == 0x00000002) {
+        if((value&0x000000FF) == 0x00000001) {
             //memset(tmp, 0, EVENTSIZE);
             if(eventPtrW == -1)
                 return 0;
@@ -553,13 +557,13 @@ int mqdc32::packData(unsigned int &packSize) {
             continue;
         }
         // valid data
-        if((value&0x00000007) == 0x00000000 && tmpIdx > 0 && tmpIdx < 33) {
+        if((((value&0x000007FF) == 0x00000020) || ((value&0x000007FF) == 0x0000001)) && tmpIdx > 0 && tmpIdx < 33) {
             eventSet[eventPtrW][tmpIdx]=value;
             tmpIdx++;
             continue;
         }
         // end of event
-        if((value&0x00000007) == 0x00000004 && tmpIdx > 0 && tmpIdx < 34) {
+        if((value&0x00000003) == 0x00000003 && tmpIdx > 0 && tmpIdx < 34) {
             eventSet[eventPtrW][tmpIdx] = value;
             tmpIdx++;
             // copy to idx set
