@@ -275,7 +275,12 @@ void vme::runVme() {
         //dmaSize = 24*sizeof(uint32_t);
         //tranSize = dataPool->devWrite((void*)&tmp[0], dmaSize, 1);
         
-        pvme->execCmdPktList(listNumber);
+        res = pvme->execCmdPktList(listNumber);
+        if(!res) {
+            vmeStatus = TASK_ERROR;
+            break;
+        }
+
         tranSize = 0;
         dmaSize = 0;
         for(unsigned int i=0; i<listSize; i++) {

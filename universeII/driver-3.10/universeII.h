@@ -66,11 +66,11 @@ typedef struct {
 typedef struct {
     u32 dctl;                 // DMA transfer control register
     u32 dtbc;                 // DMA transfer byte count
-    u32 dla;                  // DMA PCI bus address
+    uintptr_t dla;                  // DMA PCI bus address
     u32 reserved1;
     u32 dva;                  // DMA VMEBus address
     u32 reserved2;
-    u32 dcpp;                 // DMA command packet pointer
+    uintptr_t dcpp;                 // DMA command packet pointer
     u32 reserved3;
 } DMA_cmd_packet_t;
 

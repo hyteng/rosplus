@@ -340,6 +340,7 @@ int main() {
     }
     vme.setOption(DMA, BLT_ON);
 
+
     cout << hex << "UniverseII Register: \n" << "PCI_CSR: 0x" << vme.readUniReg(0x004) << ", MISC_CTL: 0x" << vme.readUniReg(0x404) << ", MAST_CTL: 0x" << vme.readUniReg(0x400) << ", LSI0_CTL: 0x" << vme.readUniReg(0x100) << dec << endl;
 
     if(vme.readUniReg(0x004)&0xF9000000) {
@@ -409,6 +410,11 @@ int main() {
         cout << hex << "mqdc# " << "regIdx " << regSet[i] << ", read " << vme.swap16(testReg) << endl;
     }
 
+
+    int listNumber = vme.newCmdPktList();
+    uint32_t sizeTransfer = 544; 
+    offset = vme.addCmdPkt(listNumber, 0, adc_base, sizeTransfer, A32, D32);
+
     // setup vme irq
     if(confValue[irqLevel]>0 && confValue[irqLevel]<=7)
         vme.setupIrq(image, confValue[irqLevel], confValue[irqVector], 0, 0, 0, 0);
@@ -468,6 +474,7 @@ int main() {
     //vme.generateVmeIrq(7, 0);
     uint16_t dataLength = 0;
     string cmd;
+    
     while(true) {
         vme.rw(image, adc_base+0x6030, &dataLength);
         dataLength = vme.swap16(dataLength);
@@ -477,6 +484,7 @@ int main() {
         if(cmd == "quit")
             break;
     }
+    /*
     offset = -1;
     if(dataLength > 0)
         offset = vme.DMAread(adc_base, dataLength*4, A32, D32);
@@ -484,9 +492,21 @@ int main() {
         vme.releaseDMA();
         return 0;
     }
+    */
+    int res = vme.execCmdPktList(listNumber);
+    if(!res) {
+        cout << "DMA ERROR!" << endl;
+    }
+
     // clear Irq and Berr
     cout << "acknowledge irq" << endl;
     vme.ww(image, adc_base+MQDC32_ReadoutReset_Offset, vme.swap16((uint16_t)0x0001));
+
+    cout << "vme data: " << endl;
+    ptr = (uint32_t*)(dma_base+offset);
+    for(unsigned int j=0; j<sizeTransfer/4;j+=4)
+        cout << hex << "0x" << setw(8) << setfill('0') << *ptr++ << ", ";
+    cout << endl;
 
     ptr = (uint32_t*)(dma_base+offset);
     for(i = 0x0; i < dataLength; i++) {
