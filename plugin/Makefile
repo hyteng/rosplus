@@ -90,6 +90,10 @@ mpodHV.so: mpodHV.o
 	$(CC)  $(LINKOPT) -shared -o $@ $< $(addprefix -L,$(LIBDIR)) $(addprefix -l,$(LIBS))
 	mv mpodHV.so ../lib/
 
+ldmTA.so: ldmTA.o
+	$(CC)  $(LINKOPT) -shared -o $@ $< $(addprefix -L,$(LIBDIR)) $(addprefix -l,$(LIBS))
+	mv ldmTA.so ../lib/
+
 #$(EXECUTABLE) : $(OBJS)
 #	$(CC)  $(LINKOPT) -shared -o $(EXECUTABLE) $(OBJS) $(addprefix -L,$(LIBDIR)) $(addprefix -l,$(LIBS))
 #	mv $(EXECUTABLE) ../lib/
