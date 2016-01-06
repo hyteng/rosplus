@@ -737,7 +737,7 @@ unsigned int VMEBridge::addCmdPkt(int list, int write, unsigned int vmeAddr,
         *Err << "Illigal write parameter!\n";
         return 0xFFFFFFFF;
     }
-    lpacket.dctl = (write << 31) | vdw | vas;
+    lpacket.dctl = (write << 31) | vdw | vas | 0x00000100; // 0x00000100 for BLT_ON option
     lpacket.dtbc = size;
     lpacket.dva = vmeAddr;
     lpacket.list = list;

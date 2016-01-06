@@ -273,6 +273,7 @@ _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 static void DMA_timeout(unsigned long ptr)
 {
     wake_up_interruptible(&dmaWait);
+    printk("UniverseII: DMA timeout.");
     statistics.timeouts++;
 }
 
@@ -313,19 +314,17 @@ static irqreturn_t irq_handler(int irq, void *dev_id)
     int i;
     u32 status, enable, statVme;
 
-    printk("UniverseII: VME IRQ handler! %d \n", irq);
-
     enable = ioread32(baseaddr + LINT_EN);
     status = ioread32(baseaddr + LINT_STAT);
 
     status &= enable;        // check only irq sources that are enabled
 
+    printk("UniverseII: VME IRQ handler! %d, %04x.\n", irq, status);
+
     if (!status)             // we use shared ints, so we first check
         return IRQ_NONE;     // if this irq origins from universeII chip
 
     statistics.irqs++;
-
-    printk("UniverseII: VME IRQ handler! %d\n", irq);
 
     // VMEbus interrupt
 
@@ -355,8 +354,10 @@ static irqreturn_t irq_handler(int irq, void *dev_id)
     }
 
     // DMA interrupt
-    if (status & 0x0100)
+    if (status & 0x0100) {
         wake_up_interruptible(&dmaWait);
+        printk("UniverseII: DMA wakeup by irq status 0x0100, done.");
+    }
 
     // mailbox interrupt
     if (status & 0xF0000)
@@ -1190,6 +1191,7 @@ static int universeII_ioctl(struct file *file, unsigned int cmd,
             break;
 
         case IOCTL_SET_OPT:
+            printk("UniverseII: IOCTL_SET_OPT: minor %d, aCTL %04x, arg %04x.\n", minor, aCTL[minor], arg);
             if (arg & 0x10000000)
                 iowrite32(ioread32(baseaddr + aCTL[minor]) & ~arg,
                        baseaddr + aCTL[minor]);
@@ -1692,7 +1694,8 @@ static int universeII_ioctl(struct file *file, unsigned int cmd,
                             "%08x!\n", arg, val);
                     return -1;
                 }
-
+                
+                //iowrite32(0x80000000 | dma_dctl, baseaddr + DCTL);  // Setup Control Reg
                 iowrite32(0, baseaddr + DTBC);              // clear DTBC register
                 iowrite32(cpLists[arg].start, baseaddr + DCPP);
 

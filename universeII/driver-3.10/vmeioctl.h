@@ -80,8 +80,8 @@ typedef struct
     unsigned int count;
     int vas;
     int vdw;
-    int dma_ctl;
-    int bufNr;
+    unsigned int dma_ctl;
+    unsigned int bufNr;
 } dma_param_t;
 
 
