@@ -29,13 +29,15 @@ cscope.*
 *.out
 bin/
 lib/
-
+universeII/test/mqdctool
 !.gitignore
 !.c
 !.h
 !.cpp
 !.py
 !Makefile
+!.conf
+!.wxg
 !.conf
 
 
