@@ -4,6 +4,7 @@
 #include <sys/ipc.h>
 #include <sys/types.h>
 #include <string.h> // for memset function
+#include <unistd.h>
 
 using std::stringstream;
 using std::string;
@@ -19,7 +20,7 @@ using std::dec;
 #define TASK_EXIT 0
 #define TASK_ERROR 2
 
-static string eventHead = "event Head";
+static string eventHead = "Head";
 static const void* pHead = eventHead.c_str();
 static unsigned int eventHeadSize = eventHead.length();
 
@@ -148,6 +149,7 @@ void dataPacker::runPack() {
                 break;
             }
 
+            //usleep(1000000);
             int packSend = msgsnd(netMsgQue, &packMsg, sizeof(packMsg)-sizeof(long), 0);
             if(packSend < 0) {
                 packStatus = TASK_ERROR;
@@ -239,8 +241,8 @@ int dataPacker::packData(unsigned int& packSize) {
         pSize = (void*)&tmpSize;
         for(int j=0; j<listSize; j++) {
             packList[j]->queryInterface("fillEvent", &pSize, (void*)&ret);
-            debugMsg << name << "# " << "dev: " << devList[j] << " fill " << *(unsigned int*)pSize << "bytes data to a event";
-            stMsg->stateOut(debugMsg);
+            //debugMsg << name << "# " << "dev: " << devList[j] << " fill " << *(unsigned int*)pSize << "bytes data to a event";
+            //stMsg->stateOut(debugMsg);
             tranSize += *(unsigned int*)pSize;
         }
     }

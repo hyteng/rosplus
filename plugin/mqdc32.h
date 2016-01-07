@@ -18,7 +18,7 @@ class regUint16 :public regData {
         uint16_t v;
 };
 
-#define MQDC32EVENTUINTSIZE 34
+#define MQDC32EVENTUINTSIZE 66
 class mqdc32 :public smBase {
     public:
         typedef uint32_t regAddrType;

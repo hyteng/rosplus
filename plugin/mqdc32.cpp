@@ -1,6 +1,7 @@
 #include "mqdc32.h"
 #include <algorithm>
 #include <string.h>
+#include <iomanip>
 
 using std::string;
 using std::stringstream;
@@ -499,6 +500,12 @@ int mqdc32::waitTrigger() {
     debugMsg << name << "# " << "waiting for trigger";
     stMsg->stateOut(debugMsg);
     pvme->waitIrq(confValue[irqLevel], confValue[irqVector]);
+    // wakeup and print data length
+    uint16_t dataLength;
+    pvme->rw(image, base+MQDC32_DataLength_Offset, &dataLength);
+    dataLength = pvme->swap16(dataLength);
+    debugMsg << name << "# " << "data length " << dataLength;
+    stMsg->stateOut(debugMsg);
     return 1;
 }
 
@@ -540,15 +547,10 @@ int mqdc32::packData(unsigned int &packSize) {
         else {
             value = (unsigned int)*(uint32_t*)p;
         }
-        debugMsg << name << "# " << "pack value: " << hex << value << endl;
-        stMsg->stateOut(debugMsg);
-        // invalid data
-        if((value&0x00000007) == 0x00000006) {
-            tmpIdx=0;
-            continue;
-        }
+        //debugMsg << name << "# " << "pack value: " << hex << std::setw(8) << std::setfill('0') << value << endl;
+        //stMsg->stateOut(debugMsg);
         // header
-        if((value&0x000000FF) == 0x00000001) {
+        if((value&0x000000FF) == 0x00000040) {
             //memset(tmp, 0, EVENTSIZE);
             if(eventPtrW == -1)
                 return 0;
@@ -557,13 +559,19 @@ int mqdc32::packData(unsigned int &packSize) {
             continue;
         }
         // valid data
-        if((((value&0x000007FF) == 0x00000020) || ((value&0x000007FF) == 0x0000001)) && tmpIdx > 0 && tmpIdx < 33) {
+        else if(((((value&0x00000FFF)&0xFFFFE0FF) == 0x00000004) || ((value&0x0000FFFF) == 0x00008004)) && tmpIdx > 0 && tmpIdx < (MQDC32EVENTUINTSIZE-1)) {
+            eventSet[eventPtrW][tmpIdx]=value;
+            tmpIdx++;
+            continue;
+        }
+        // dummy word for MBLT64
+        else if((value == 0x00000000) && tmpIdx > 0 && tmpIdx < (MQDC32EVENTUINTSIZE-1)) {
             eventSet[eventPtrW][tmpIdx]=value;
             tmpIdx++;
             continue;
         }
         // end of event
-        if((value&0x00000003) == 0x00000003 && tmpIdx > 0 && tmpIdx < 34) {
+        else if((value&0x000000C0) == 0x000000C0 && tmpIdx > 0 && tmpIdx < MQDC32EVENTUINTSIZE) {
             eventSet[eventPtrW][tmpIdx] = value;
             tmpIdx++;
             // copy to idx set
@@ -585,6 +593,11 @@ int mqdc32::packData(unsigned int &packSize) {
                 stMsg->stateOut(debugMsg);
                 eventPtrW = -1;
             }
+            continue;
+        }
+        // invalid data
+        else if(tmpIdx > 0) {
+            tmpIdx=0;
             continue;
         }
     }

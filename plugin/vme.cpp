@@ -276,7 +276,7 @@ void vme::runVme() {
         //tranSize = dataPool->devWrite((void*)&tmp[0], dmaSize, 1);
         
         res = pvme->execCmdPktList(listNumber);
-        if(!res) {
+        if(res) {
             vmeStatus = TASK_ERROR;
             break;
         }
@@ -284,12 +284,12 @@ void vme::runVme() {
         tranSize = 0;
         dmaSize = 0;
         for(unsigned int i=0; i<listSize; i++) {
-            cout << "vme data: " << endl;
-            uint32_t* ptr = (uint32_t*)(dmaBase+offsetList[i]);
-            for(unsigned int j=0; j<sizeList[i]/4;j++)
-                cout << hex << "0x" << setw(8) << setfill('0') << *ptr++ << ", ";
-            cout << endl;
-            tranSize += dataPool->devWrite((void*)(dmaBase+offsetList[i]), sizeList[i]);
+            //cout << "vme data: " << endl;
+            //uint32_t* ptr = (uint32_t*)(dmaBase+offsetList[i]);
+            //for(unsigned int j=0; j<sizeList[i]/4;j++)
+            //    cout << hex << "0x" << setw(8) << setfill('0') << *ptr++ << ", ";
+            //cout << endl;
+            tranSize += dataPool->devWrite((void*)(dmaBase+offsetList[i]), sizeList[i], 1);
             dmaSize += sizeList[i];
             devList[i]->queryInterface("afterTransfer", NULL, &res);
         }

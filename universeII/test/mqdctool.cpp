@@ -334,13 +334,13 @@ int main() {
     vme.vmeSysReset();
 
     /*
-    dma_base = vme.requestDMA();
-    if (!dma_base) {
-        cerr << "Can't allocate DMA !\n";
-        return 0;
-    }
-    vme.setOption(DMA, BLT_ON);
-    */
+       dma_base = vme.requestDMA();
+       if (!dma_base) {
+       cerr << "Can't allocate DMA !\n";
+       return 0;
+       }
+       vme.setOption(DMA, BLT_ON);
+       */
 
 
     cout << hex << "UniverseII Register: \n" << "PCI_CSR: 0x" << vme.readUniReg(0x004) << ", MISC_CTL: 0x" << vme.readUniReg(0x404) << ", MAST_CTL: 0x" << vme.readUniReg(0x400) << ", LSI0_CTL: 0x" << vme.readUniReg(0x100) << dec << endl;
@@ -450,7 +450,7 @@ int main() {
        cin.sync();
        } while(op != 0);
        */
-    
+
     dma_base = vme.requestDMA();
     if (!dma_base) {
         cerr << "Can't allocate DMA !\n";
@@ -487,29 +487,38 @@ int main() {
         vme.waitIrq(confValue[irqLevel], confValue[irqVector]);
         cout << "reading data..." << endl;
 
-        if(true) {
+        while(true) {
             vme.rw(image, adc_base+0x6030, &dataLength);
             dataLength = vme.swap16(dataLength);
             cout << "data length " << dec << dataLength << hex << endl;
-            //cin.sync();
-            //cin >> cmd;
-            //if(cmd == "quit")
-                //break;
+            cin.sync();
+            cin >> cmd;
+            if(cmd == "quit")
+                break;
         }
         /*
            offset = -1;
            if(dataLength > 0)
            offset = vme.DMAread(adc_base, dataLength*4, A32, D32);
            if(offset < 0) {
-              vme.releaseDMA();
-              return 0;
+           vme.releaseDMA();
+           return 0;
            }
-        */
+           */
         int res = vme.execCmdPktList(listNumber);
         if(res) {
             cout << "DMA ERROR!" << endl;
         }
-        
+
+        while(true) {
+            vme.rw(image, adc_base+0x6030, &dataLength);
+            dataLength = vme.swap16(dataLength);
+            cout << "data length " << dec << dataLength << hex << endl;
+            cin.sync();
+            cin >> cmd;
+            if(cmd == "quit")
+                break;
+        }
         // clear Irq and Berr
         cout << "acknowledge irq" << endl;
         vme.ww(image, adc_base+MQDC32_ReadoutReset_Offset, vme.swap16((uint16_t)0x0001));
@@ -520,14 +529,25 @@ int main() {
             cout << hex << "0x" << setw(8) << setfill('0') << *ptr++ << ", ";
         cout << endl;
 
-        ptr = (uint32_t*)(dma_base+offset);
-        for(i = 0x0; i < dataLength; i++) {
-            if(i%8 == 0)
-                cout << hex << "Buffer " << setw(2) << setfill('0') << i/7 << dec << ":   ";
-            cout << hex << "0x" << setw(8) << setfill('0') << *ptr++ << dec << " ";
-            if(i%8 == 7)
-                cout << endl;                                                
+        while(true) {
+            vme.rw(image, adc_base+0x6030, &dataLength);
+            dataLength = vme.swap16(dataLength);
+            cout << "data length " << dec << dataLength << hex << endl;
+            cin.sync();
+            cin >> cmd;
+            if(cmd == "quit")
+                break;
         }
+        /*
+           ptr = (uint32_t*)(dma_base+offset);
+           for(i = 0x0; i < dataLength; i++) {
+           if(i%8 == 0)
+           cout << hex << "Buffer " << setw(2) << setfill('0') << i/7 << dec << ":   ";
+           cout << hex << "0x" << setw(8) << setfill('0') << *ptr++ << dec << " ";
+           if(i%8 == 7)
+           cout << endl;                                                
+           }
+           */
         cin.sync();
         cin >> cmd;
         if(cmd == "quit")
