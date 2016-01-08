@@ -146,7 +146,9 @@ enum ADC1785Reg {/*RW*/GeoAddr=0, CBLTAddr, IrqLevel, IrqVector, AddrHigh, AddrL
 #define ctrlStatus1 8
 #define ctrlStatus2 6
 
-string ctrl1785[ctrlSize] = {"geoAddr", "cbltAddr", "irqLevel", "irqVector", "vmeAddr", "eventTh", "loadTest", "fclrw", "crateSel", "slideConst", "threshold0H", "threshold0L", "threshold1H", "threshold1L", "threshold2H", "threshold2L", "threshold3H", "threshold3L", "threshold4H", "threshold4L", "threshold5H", "threshold5L", "threshold6H", "threshold6L", "threshold7H", "threshold7L", /*WO*/"ssReset", "cbltCtrl", "incEvent", "incOffset", "wTestAddr", "memTestW", "testEventW", "countReset", "rTestAddr", "swComm", /*BitSet1*/"berrFlag", "selAddr", "softReset", /*Ctrl1*/"blkend", "progResetMod", "busError", "align64", /*BitSet2*/"mode", "offline", "clearData", "overRange", "lowTh", "testACQ", "slideScale", "stepTh", "autoInc", "emptyProg", "slideSub", "allTrigger", /*RO*/"firmware", /*Status1*/"DRDY", "gDRDY", "busy", "gbusy", "purged", "termOn", "termOff", "EVRDY", /*Status2*/"buffEmpty", "buffFull", "DSel0", "DSel1", "CSel0", "CSel1", "eventCount", "aad", "bad"};
+static string ctrl1785[ctrlSize] = {"geoAddr", "cbltAddr", "irqLevel", "irqVector", "vmeAddr", "eventTh", "loadTest", "fclrw", "crateSel", "slideConst", "threshold0H", "threshold0L", "threshold1H", "threshold1L", "threshold2H", "threshold2L", "threshold3H", "threshold3L", "threshold4H", "threshold4L", "threshold5H", "threshold5L", "threshold6H", "threshold6L", "threshold7H", "threshold7L", /*WO*/"ssReset", "cbltCtrl", "incEvent", "incOffset", "wTestAddr", "memTestW", "testEventW", "countReset", "rTestAddr", "swComm", /*BitSet1*/"berrFlag", "selAddr", "softReset", /*Ctrl1*/"blkend", "progResetMod", "busError", "align64", /*BitSet2*/"mode", "offline", "clearData", "overRange", "lowTh", "testACQ", "slideScale", "stepTh", "autoInc", "emptyProg", "slideSub", "allTrigger", /*RO*/"firmware", /*Status1*/"DRDY", "gDRDY", "busy", "gbusy", "purged", "termOn", "termOff", "EVRDY", /*Status2*/"buffEmpty", "buffFull", "DSel0", "DSel1", "CSel0", "CSel1", "eventCount", "aad", "bad"};
+
+static int ctrlLevelADC1785[ctrlSize][smBase::MAX_STATES_AMOUNT] = {{2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}};
 
 unsigned int ctrlDefault[]={0,0xAA,7,0,0x00CC0000,8,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,8,0,4,0,0,0,/*BitSet1*/0,0,0,/*Ctrl1*/0,0,0,0,/*BitSet2*/0,0,0,1,1,0,1,1,1,0,0,1};
 
@@ -161,7 +163,7 @@ unsigned int ctrlDefault[]={0,0xAA,7,0,0x00CC0000,8,0,0,0,0,1,1,1,1,1,1,1,1,1,1,
 #define confStatus1 8
 #define confStatus2 6
 
-string confName1785[confSize] = {"geoAddr", "cbltAddr", "irqLevel", "irqVector", "addrHigh", "addrLow", "eventTh", "loadTest", "fclrw", "crateSel", "slideConst", "threshold0H", "threshold0L", "threshold1H", "threshold1L", "threshold2H", "threshold2L", "threshold3H", "threshold3L", "threshold4H", "threshold4L", "threshold5H", "threshold5L", "threshold6H", "threshold6L", "threshold7H", "threshold7L", "ssReset", "cbltCtrl", "incEvent", "incOffset", "wTestAddr", "memTestHigh", "memTestLow", "testEventW", "countReset", "rTestAddr", "swComm", /*BitSet1*/"berrFlag", "selAddr", "softReset", /*Ctrl1*/"blkend", "progResetMod", "busError", "align64", /*BitSet2*/"mode", "offline", "clearData", "overRange", "lowTh", "testACQ", "slideScale", "stepTh", "autoInc", "emptyProg", "slideSub", "allTrigger", /*BitClear1*/"berrFlag~", "selAddr~", "softReset~", /*BitClear2*/"mode~", "offline~", "clearData~", "overRange~", "lowTh~", "testACQ~", "slideScale~", "stepTh~", "autoInc~", "emptyProg~", "slideSub~", "allTrigger~", /*RO*/"firmware", /*Status1*/"DRDY", "gDRDY", "busy", "gbusy", "purged", "termOn", "termOff", "EVRDY", /*Status2*/"buffEmpty", "buffFull", "DSel0", "DSel1", "CSel0", "CSel1", "eventCountLow", "eventCountHigh", "aad", "bad"};
+static string confName1785[confSize] = {"geoAddr", "cbltAddr", "irqLevel", "irqVector", "addrHigh", "addrLow", "eventTh", "loadTest", "fclrw", "crateSel", "slideConst", "threshold0H", "threshold0L", "threshold1H", "threshold1L", "threshold2H", "threshold2L", "threshold3H", "threshold3L", "threshold4H", "threshold4L", "threshold5H", "threshold5L", "threshold6H", "threshold6L", "threshold7H", "threshold7L", "ssReset", "cbltCtrl", "incEvent", "incOffset", "wTestAddr", "memTestHigh", "memTestLow", "testEventW", "countReset", "rTestAddr", "swComm", /*BitSet1*/"berrFlag", "selAddr", "softReset", /*Ctrl1*/"blkend", "progResetMod", "busError", "align64", /*BitSet2*/"mode", "offline", "clearData", "overRange", "lowTh", "testACQ", "slideScale", "stepTh", "autoInc", "emptyProg", "slideSub", "allTrigger", /*BitClear1*/"berrFlag~", "selAddr~", "softReset~", /*BitClear2*/"mode~", "offline~", "clearData~", "overRange~", "lowTh~", "testACQ~", "slideScale~", "stepTh~", "autoInc~", "emptyProg~", "slideSub~", "allTrigger~", /*RO*/"firmware", /*Status1*/"DRDY", "gDRDY", "busy", "gbusy", "purged", "termOn", "termOff", "EVRDY", /*Status2*/"buffEmpty", "buffFull", "DSel0", "DSel1", "CSel0", "CSel1", "eventCountLow", "eventCountHigh", "aad", "bad"};
 
 uint16_t confMask1785[confSize] = {0x001F, 0x00FF, 0x0007, 0x00FF, 0x00FF, 0x00FF, 0x001F, 0xFFFF, 0x03FF, 0x00FF, 0x00FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0x01FF, 0xFFFF, 0x0003, 0xFFFF, 0xFFFF, 0x07FF, 0xFFFF, 0xFFFF, 0x1FFF, 0xFFFF, 0x07FF, 0xFFFF, /*BitSet1*/0x0008, 0x0010, 0x0080, /*Ctrl1*/0x0004, 0x0010, 0x0020, 0x0040, /*BitSet2*/0x0001, 0x0002, 0x0004, 0x0008, 0x0010, 0x0040, 0x0080, 0x0100, 0x0800, 0x1000, 0x2000, 0x4000, /*BitClear1*/0x0008, 0x0010, 0x0080, /*BitClear2*/0x0001, 0x0002, 0x0004, 0x0008, 0x0010, 0x0040, 0x0080, 0x0100, 0x0800, 0x1000, 0x2000, 0x4000, /*RO*/0xFFFF, /*Status1*/0x0001, 0x0002, 0x0004, 0x0008, 0x0020, 0x0040, 0x0080, 0x0100, /*Status2*/0x0002, 0x0004, 0x0010, 0x0020, 0x0040, 0x0080, 0xFFFF, 0x00FF, 0x0FFF, 0x0FFF};
 
@@ -177,6 +179,7 @@ uint32_t regAddr1785[regSize] = {0x1002/*geoAddr*/, 0x1004/*cbltAddr*/, 0x100A/*
 
 
 static map<string, vector<string> > adc1785_ctrl2conf;
+static map<string, vector<int> > adc1785_ctrl2level;
 static map<string, int> adc1785_conf2reg;
 static map<string, uintptr_t> adc1785_conf2mask;
 static vector<uintptr_t> adc1785_regAddr;
@@ -249,6 +252,7 @@ static int dummy = setCtrl();
 
 adc1785::adc1785(const string& n): smBase(n) {
     ctrl2conf = &adc1785_ctrl2conf;
+    ctrl2level = &adc1785_ctrl2level;
     conf2reg = &adc1785_conf2reg;
     conf2mask = &adc1785_conf2mask;
     regAddr = &adc1785_regAddr;
@@ -256,7 +260,6 @@ adc1785::adc1785(const string& n): smBase(n) {
 
     vd = new regUint16();
     vm = new regUint16();
-    stId = smBase::STID_Initialized;
 }
 
 adc1785::~adc1785() {
