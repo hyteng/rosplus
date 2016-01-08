@@ -256,6 +256,7 @@ adc1785::adc1785(const string& n): smBase(n) {
 
     vd = new regUint16();
     vm = new regUint16();
+    stId = smBase::STID_Initialized;
 }
 
 adc1785::~adc1785() {

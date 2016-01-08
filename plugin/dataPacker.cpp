@@ -25,6 +25,7 @@ static const void* pHead = eventHead.c_str();
 static unsigned int eventHeadSize = eventHead.length();
 
 dataPacker::dataPacker(const string& n): smBase(n) {
+    stId = smBase::STID_Initialized;
 }
 
 dataPacker::~dataPacker() {

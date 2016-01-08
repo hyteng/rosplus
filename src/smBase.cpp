@@ -30,43 +30,41 @@ void smBase::init(stateMessager* msg, configSet* cfg, dataStream* data, const st
     dataPool = data;
     helpList = other;
 
-    int i, j;
-    for(i = 0; i < MAX_CMD_AMOUNT; i++) {
-        for(j = 0; j < MAX_STATES_AMOUNT; j++) {
+    for(int i=0; i<MAX_CMD_AMOUNT; i++) {
+        for(int j=0; j<MAX_STATES_AMOUNT; j++) {
             actions[i][j] = &smBase::AnyIMPO;
         }
     }
 
     /*ensure that EXIT is the last command before doing so*/
-    for(j = 0; j < MAX_STATES_AMOUNT; j ++) {
+    for(int j=0; j<MAX_STATES_AMOUNT; j++) {
         actions[CMID_EXIT][j] = &smBase::AnyEXIT;
     }
 
     actions[CMID_LOAD][STID_Initialized] = &smBase::InitializedLOAD;
-    actions[CMID_LOAD][STID_Loaded] = &smBase::SelfTrans;
     actions[CMID_UNLD][STID_Initialized] = &smBase::SelfTrans;
+    actions[CMID_LOAD][STID_Loaded] = &smBase::SelfTrans;
     actions[CMID_UNLD][STID_Loaded] = &smBase::LoadedUNLD;
     actions[CMID_CONF][STID_Loaded] = &smBase::LoadedCONF;
-    actions[CMID_CONF][STID_Configured] = &smBase::SelfTrans;
-    actions[CMID_UNCF][STID_Loaded] = &smBase::SelfTrans;
+    actions[CMID_CONF][STID_Configured] = &smBase::LoadedCONF;
     actions[CMID_UNCF][STID_Configured] = &smBase::ConfiguredUNCF;
+    actions[CMID_STOP][STID_Configured] = &smBase::SelfTrans;
     actions[CMID_PREP][STID_Configured] = &smBase::ConfiguredPREP;
-    actions[CMID_PREP][STID_Ready] = &smBase::SelfTrans;
+    actions[CMID_PREP][STID_Ready] = &smBase::ConfiguredPREP;
+    actions[CMID_STOP][STID_Ready] = &smBase::ReadySTOP;
+    actions[CMID_SPTR][STID_Ready] = &smBase::SelfTrans;
     actions[CMID_SATR][STID_Ready] = &smBase::ReadySATR;
     actions[CMID_SATR][STID_Running] = &smBase::SelfTrans;
     actions[CMID_SPTR][STID_Running] = &smBase::RunningSPTR;
-    actions[CMID_SPTR][STID_Ready] = &smBase::SelfTrans;
-    actions[CMID_SPTR][STID_Paused] = &smBase::PausedSPTR;
-    actions[CMID_STOP][STID_Configured] = &smBase::SelfTrans;
-    actions[CMID_STOP][STID_Ready] = &smBase::ReadySTOP;
+    actions[CMID_RESU][STID_Running] = &smBase::SelfTrans;
     actions[CMID_PAUS][STID_Running] = &smBase::RunningPAUS;
+    actions[CMID_SPTR][STID_Paused] = &smBase::PausedSPTR;
     actions[CMID_PAUS][STID_Paused] = &smBase::SelfTrans;
     actions[CMID_RESU][STID_Paused] = &smBase::PausedRESU;
-    actions[CMID_RESU][STID_Running] = &smBase::SelfTrans;
+
     actions[CMID_CTRL][STID_Running] = &smBase::RunningCTRL;
     actions[CMID_CTRL][STID_Paused] = &smBase::PausedCTRL;
     actions[CMID_CTRL][STID_Ready] = &smBase::ReadyCTRL;
-
 
     stId = STID_Initialized;
 }

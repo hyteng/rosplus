@@ -323,7 +323,6 @@ mqdc32::mqdc32(const string& n): smBase(n) {
     vd = (regData*) new regUint16();
     vm = (regData*) new regUint16();
     imgCtrlAddr = 0;
-    stId = STID_Initialized;
 }
 
 mqdc32::~mqdc32() {

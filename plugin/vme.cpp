@@ -31,7 +31,8 @@ static uint32_t imgCtrlAddr[18] = {0x100, 0x114, 0x128, 0x13C, 0x1A0, 0x1B4, 0x1
 static uint32_t awValue[3] = {A16, A24, A32}; // A64 is not supported by universeII
 static uint32_t dwValue[4] = {D8, D16, D32, D64};
 
-vme::vme(const string& n): smBase(n) {    
+vme::vme(const string& n): smBase(n) {
+    stId = smBase::STID_Initialized;
 }
 
 vme::~vme() {
