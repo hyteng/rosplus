@@ -241,6 +241,8 @@ static uint32_t DataWidth[3] = {D16, D32, D64};
 
 static string ctrlMQDC32[ctrlSize] = {/*buf*/"buffer", /*ChTh*/"Ch00Th", "Ch01Th", "Ch02Th", "Ch03Th", "Ch04Th", "Ch05Th", "Ch06Th", "Ch07Th", "Ch08Th", "Ch09Th", "Ch10Th", "Ch11Th", "Ch12Th", "Ch13Th", "Ch14Th", "Ch15Th", "Ch16Th", "Ch17Th", "Ch18Th", "Ch19Th", "Ch20Th", "Ch21Th", "Ch22Th", "Ch23Th", "Ch24Th", "Ch25Th", "Ch26Th", "Ch27Th", "Ch28Th", "Ch29Th", "Ch30Th", "Ch31Th", /*board*/"addrSource", "addrReg", "moduleId", "fastVme", "softReset", "firmware", /*irq*/"irqLevel", "irqVector", "irqTest", "irqReset", "irqTh", "maxTransfer", "irqWithdraw", /*blt*/"cbltCtrl", "mcstCtrl", "cbltAddr", "mcstAddr", /*fifo*/"dataLength", "dataFormat", "readoutReset", "multiEvent", "skipBerr", "countUnit", "markType", "startAcq", "fifoReset", "dataReady", /*adc*/"bankConnect", "switchPull0", "switchPull1", "shiftBank0", "shiftBank1", "slideScale", "overFlow", "disableTh", /*delay*/"limitBank0", "limitBank1", "expDelay0", "expDelay1", /*io*/"inputCouple0", "inputCouple1", "BLR", "terGate0", "terGate1", "terReset", "terBank0", "terBank1", "eclGate1Osc", "eclFCReset", "gateSelect", "nimGate1Osc", "nimFCReset", "nimBusy", /*pulser*/"pulserSt", "pulserDac", /*rc*/"rcBusNo", "rcModNum", "rcOpCode", "rcAddr", "rcSt", "rcData", /*ctra*/"ctraReset", "ctrbReset", "extReset", "eventCounter", "tsSource", "tsDivisor", "tsCounter", /*ctrb*/"adcTime", "gate1Time", "time0", "time1", "time2", "stopCounterB", "stopCounterA", /*limit*/"limit0High", "limit0Low", "limit1High", "limit1Low"};
 
+static int ctrlLevelMQDC32[ctrlSize][smBase::MAX_STATES_AMOUNT] = {{2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}, {2,3,4,5,6,-1,-1}};
+
 static int ctrlSizeMQDC32[ctrlSize] = {/*buf*/1, /*ChTh*/1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, /*board*/1, 1, 1, 1, 1, 1, /*irq*/1, 1, 1, 1, 1, 1, 1, /*blt*/1, 1, 1, 1, /*fifo*/1, 1, 1, 1, 1, 1, 1, 1, 1, 1, /*adc*/1, 1, 1, 1, 1, 1, 1, 1, /*delay*/1, 1, 1, 1, /*io*/1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, /*pulser*/1, 1, /*rc*/1, 1, 1, 1, 1, 1, /*ctra*/1, 1, 1, 2, 1, 1, 2, /*ctrb*/2, 2, 1, 1, 1, 1, 1, /*limit*/1, 1, 1, 1}; // number of conf
 
 static int ctrlRWMQDC32[ctrlSize] = {/*buf*/1, /*ChTh*/0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /*board*/0, 0, 0, 0, 2, 1, /*irq*/0, 0, 2, 2, 0, 0, 0, /*blt*/0, 0, 0, 1, /*fifo*/1, 0, 2, 0, 0, 0, 0, 0, 2, 1, /*adc*/0, 0, 0, 0, 0, 0, 0, 0, /*delay*/0, 0, 0, 0, /*io*/0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /*pulser*/0, 0, /*rc*/0, 0, 0, 0, 0, 1, /*ctra*/0, 0, 0, 1, 0, 0, 1, /*ctrb*/1, 1, 1, 1, 1, 0, 0, /*limit*/1, 1, 1, 1}; // disable: -1, rw: 0, ro: 1, wo: 2
@@ -267,6 +269,7 @@ static uint32_t regAddrMQDC32[regSize] = {/*buf*/0x0000, /*ChTh*/0x4000, 0x4002,
 static int regRWMQDC32[regSize] = {/*buf*/1, /*ChTh*/0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /*board*/0, 0, 0, 0, 2, 1, /*irq*/0, 0, 2, 2, 0, 0, 0, /*blt*/0, 0, 1, /*fifo*/1, 0, 2, 0, 0, 0, 2, 1, /*adc*/0, 0, 0, 0, 0, 0, /*delay*/0, 0, 0, 0, /*io*/0, 0, 0, 0, 0, 0, 0, 0, /*pulser*/0, 0, /*rc*/0, 0, 0, 0, 0, 1, /*ctra*/0, 1, 1, 0, 0, 1, 1, /*ctrb*/1, 1, 1, 1, 1, 1, 1, 0, /*limit*/1, 1, 1, 1}; // disable: -1, rw: 0, ro: 1, wo: 2
 
 static map<string, vector<string> > mqdc32_ctrl2conf;
+static map<string, vector<int> > mqdc32_ctrl2level;
 static map<string, int> mqdc32_conf2reg;
 static map<string, uintptr_t> mqdc32_conf2mask;
 static vector<uintptr_t> mqdc32_regAddr;
@@ -274,8 +277,10 @@ static vector<int> mqdc32_regRWIdx;
 
 static int setCtrl() {
     mqdc32_ctrl2conf.clear();
+    mqdc32_ctrl2level.clear();
     for(int i=0, j=0; i<ctrlSize; i++, j++) {
         mqdc32_ctrl2conf[ctrlMQDC32[i]] = vector<string>(0);
+        mqdc32_ctrl2level[ctrlMQDC32[i]] = vector<int>(ctrlLevelMQDC32[i],ctrlLevelMQDC32[i]+smBase::MAX_STATES_AMOUNT);
         for(int k=0; k<ctrlSizeMQDC32[i]; k++) {
             mqdc32_ctrl2conf[ctrlMQDC32[i]].push_back(confNameMQDC32[j]);
             j++;
@@ -309,6 +314,7 @@ static int dummy = setCtrl();
 
 mqdc32::mqdc32(const string& n): smBase(n) {
     ctrl2conf = &mqdc32_ctrl2conf;
+    ctrl2level = &mqdc32_ctrl2level;
     conf2reg = &mqdc32_conf2reg;
     conf2mask = &mqdc32_conf2mask;
     regAddr = &mqdc32_regAddr;
@@ -317,6 +323,7 @@ mqdc32::mqdc32(const string& n): smBase(n) {
     vd = (regData*) new regUint16();
     vm = (regData*) new regUint16();
     imgCtrlAddr = 0;
+    stId = STID_Initialized;
 }
 
 mqdc32::~mqdc32() {

@@ -28,7 +28,6 @@ class stateMachine {
     private:
         std::vector< std::pair<std::string, smBase*> > moduleList;
         frameEngine* theEngine;
-        smBase::status stId;
 
         configSet *cfg;
         dataStream *data;

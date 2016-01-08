@@ -106,6 +106,7 @@ class smBase {
 
         std::string otfMsg;
         std::map<std::string, std::vector<std::string> > *ctrl2conf;
+        std::map<std::string, std::vector<int> > *ctrl2level;
         std::map<std::string, int> *conf2reg;
         std::map<std::string, uintptr_t> *conf2mask;
         std::vector<uintptr_t> *regAddr;

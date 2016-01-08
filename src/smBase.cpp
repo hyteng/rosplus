@@ -1,4 +1,5 @@
 #include "smBase.h"
+#include <algorithm>
 
 using std::string;
 using std::stringstream;
@@ -7,15 +8,16 @@ using std::vector;
 
 smBase::smBase(const string& n) {
     name = n;
-    stId = STID_Waiting;
     regSet.clear();
     confSet.clear();
     helpList = NULL;
     ctrl2conf = NULL;
+    ctrl2level = NULL;
     conf2reg = NULL;
     conf2mask = NULL;
     regAddr = NULL;
     regRWIdx = NULL;
+    stId = STID_Waiting;
 }
 
 smBase::~smBase() {
@@ -92,7 +94,7 @@ int smBase::OTFCTRL(string& ret, void* para[]) {
     stringstream result("");
     int res;
 
-    if(ctrl2conf != NULL) {
+    if((ctrl2conf != NULL) && (find((*ctrl2level)[ctrlName].begin(), (*ctrl2level)[ctrlName].end(), stId) != (*ctrl2level)[ctrlName].end())) {
         int io = -1;
         if(rw == "r")
             io = 0;

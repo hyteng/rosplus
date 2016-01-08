@@ -15,7 +15,6 @@ stateMachine::~stateMachine() {
 }
 
 int stateMachine::init() {
-    stId = smBase::STID_Waiting;
     cfg = new configSet();
     data = new dataStream();
     msg = new stateMessager();
@@ -26,7 +25,6 @@ int stateMachine::init() {
     theEngine->setMachine(this);
     theEngine->init(msg, cfg, data, &moduleList);
     moduleList.push_back(std::pair<string, smBase*>("engine", theEngine));
-    stId = smBase::STID_Initialized;
 
     return 1;
 }
@@ -38,8 +36,6 @@ int stateMachine::doAction(const smBase::command& cmId, string& ret) {
     sCmd >> cmd;
     for(unsigned int i=0; i<moduleList.size(); i++) {
         int res = moduleList[i].second->doAction(cmId, ret0="");
-        //if(result == smBase::STID_Invaild || result == smBase::MAX_STATES_AMOUNT) {
-        stId = smBase::status(res);
         if(res == -1)
             return 0;
         ret += moduleList[i].first+"#"+cmd+"#"+ret0+"#"+"$";
