@@ -18,7 +18,6 @@ using std::endl;
 
 
 daq::daq(const string& n): smBase(n) {
-    stId = smBase::STID_Initialized;
 }
 
 daq::~daq() {

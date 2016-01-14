@@ -32,7 +32,6 @@ static uint32_t awValue[3] = {A16, A24, A32}; // A64 is not supported by univers
 static uint32_t dwValue[4] = {D8, D16, D32, D64};
 
 vme::vme(const string& n): smBase(n) {
-    stId = smBase::STID_Initialized;
 }
 
 vme::~vme() {
