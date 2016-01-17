@@ -83,7 +83,7 @@ class smBase {
         virtual int PausedRESU(std::string& ret, void* para[]=NULL) {stId=5;ret="5;";return 5;};
         virtual int SelfTrans(std::string& ret, void* para[]=NULL) {std::stringstream sId;sId<<stId;sId>>ret;ret+=";";return (int)stId;};
         virtual int AnyIMPO(std::string& ret, void* para[]=NULL) {std::stringstream sId;sId<<stId;sId>>ret;ret+=";";return (int)stId;};
-        virtual int AnyEXIT(std::string& ret, void* para[]=NULL) {stId=1;ret="1;";return 1;};
+        virtual int AnyEXIT(std::string& ret, void* para[]=NULL) {stId=0;ret="0;";return 0;};
         virtual int OTFCTRL(std::string& ret, void* para[]=NULL); //{ret="otf";return stId;};
         virtual int RunningCTRL(std::string& ret, void* para[]=NULL) {return OTFCTRL(ret, para);};
         virtual int PausedCTRL(std::string& ret, void* para[]=NULL) {return OTFCTRL(ret, para);};
