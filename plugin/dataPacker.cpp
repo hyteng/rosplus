@@ -149,7 +149,11 @@ void dataPacker::runPack() {
                 break;
             }
 
+            debugMsg << name << "# " << "before pack " << totalPackSize << " data and after pack " << packTranSize << endl;
+            stMsg->stateOut(debugMsg);
+
             //usleep(1000000);
+            packMsg.size = packTranSize;
             int packSend = msgsnd(netMsgQue, &packMsg, sizeof(packMsg)-sizeof(long), 0);
             if(packSend < 0) {
                 packStatus = TASK_ERROR;
@@ -158,7 +162,7 @@ void dataPacker::runPack() {
 
             recSize += totalPackSize;
             sndSize += packTranSize;
-            debugMsg << name << "# " << "read" << recSize << "data and send " << sndSize << endl;
+            debugMsg << name << "# " << "read " << recSize << " data and send " << sndSize << endl;
             stMsg->stateOut(debugMsg);
 
             totalPackSize = 0;
@@ -226,10 +230,10 @@ int dataPacker::packData(unsigned int& packSize) {
             tmpSize = 0;
             pSize = (void*)&tmpSize;
         }
-        debugMsg << name << "# " << "dev " << devList[i] << "before pack " << *(unsigned int*)pSize << ";";
+        debugMsg << name << "# " << "dev " << devList[i] << ": before pack " << *(unsigned int*)pSize << " bytes data;";
         stMsg->stateOut(debugMsg);
         packList[i]->queryInterface("packData", &pSize, (void*)&ret);
-        debugMsg << name << "# " << "dev " << devList[i] << ": after pack " << *(unsigned int*)pSize << "bytes data";
+        debugMsg << name << "# " << "dev " << devList[i] << ": after pack " << *(unsigned int*)pSize << " bytes data";
         stMsg->stateOut(debugMsg);
         tranSize += *(unsigned int*)pSize;
     }

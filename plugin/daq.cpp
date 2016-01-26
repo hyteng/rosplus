@@ -115,8 +115,13 @@ void daq::runDaq() {
 
         if(daqMsg.signal == 2) {
             dataPool->netSetSnap();
-            daqSize = dataPool->netGetSnapSize();
+            //daqSize = dataPool->netGetSnapSize();
+            daqSize = daqMsg.size;
             readSize = daqSize;
+
+            debugMsg << name << "# " << "fetch netMsg " << daqMsg.size << ", daqSize " << daqSize;
+            stMsg->stateOut(debugMsg);
+
             netPtr = dataPool->netGetSnapPtr(0, readSize);
             if(netPtr != NULL) {
                 if(readSize == daqSize) {
@@ -134,10 +139,11 @@ void daq::runDaq() {
             }
             else {
                 daqStatus = TASK_ERROR;
+                dataPool->netPopSnap(daqSize);
                 break;
             }
-            dataPool->netPopSnap(daqSize);
 
+            dataPool->netPopSnap(daqSize);
             continue;
         }
 
@@ -149,7 +155,7 @@ void daq::runDaq() {
     if(daqStatus == TASK_RUN)
         daqStatus = TASK_EXIT;
 
-    debugMsg << name << "# " << "stop thread" << daqStatus;
+    debugMsg << name << "# " << "stop thread " << daqStatus;
     stMsg->stateOut(debugMsg);
 }
 

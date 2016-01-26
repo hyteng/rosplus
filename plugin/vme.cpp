@@ -243,7 +243,7 @@ int vme::startVme() {
 
 int vme::stopVme() {
     t0->detach();
-    sleep(1);
+    //sleep(1);
     runVmeCtrl = TASK_STOP;
     int res;
     triDev->queryInterface("flushData", NULL, &res);
@@ -298,8 +298,8 @@ void vme::runVme() {
         
         genSize += dmaSize;
         sndSize += tranSize;
-        debugMsg << name << "# " << "vme generate " << dmaSize << " bytes data, pool write " << tranSize << " bytes. total gen " << genSize << ", total send " << sndSize << " bytes";
-        stMsg->stateOut(debugMsg);
+        //debugMsg << name << "# " << "vme generate " << dmaSize << " bytes data, pool write " << tranSize << " bytes. total gen " << genSize << ", total send " << sndSize << " bytes";
+        //stMsg->stateOut(debugMsg);
         
         vmeMsg.signal = 2;
         vmeMsg.size = eventTh;

@@ -495,7 +495,8 @@ uintptr_t mqdc32::getBuffAddr() {
 }
 
 uint32_t mqdc32::getEventTh() {
-    return confValue[irqTh];
+    //return 1+confValue[irqTh]*4/EVENTSIZE;
+    return confValue[maxTransfer];
 }
 
 uint32_t mqdc32::getTranSize() {
@@ -503,15 +504,15 @@ uint32_t mqdc32::getTranSize() {
 }
 
 int mqdc32::waitTrigger() {
-    debugMsg << name << "# " << "waiting for trigger";
-    stMsg->stateOut(debugMsg);
+    //debugMsg << name << "# " << "waiting for trigger";
+    //stMsg->stateOut(debugMsg);
     pvme->waitIrq(confValue[irqLevel], confValue[irqVector]);
     // wakeup and print data length
-    uint16_t dataLength;
-    pvme->rw(image, base+MQDC32_DataLength_Offset, &dataLength);
-    dataLength = pvme->swap16(dataLength);
-    debugMsg << name << "# " << "data length " << dataLength;
-    stMsg->stateOut(debugMsg);
+    //uint16_t dataLength;
+    //pvme->rw(image, base+MQDC32_DataLength_Offset, &dataLength);
+    //dataLength = pvme->swap16(dataLength);
+    //debugMsg << name << "# " << "data length " << dataLength;
+    //stMsg->stateOut(debugMsg);
     return 1;
 }
 
@@ -520,14 +521,14 @@ int mqdc32::afterTransfer() {
 }
 
 int mqdc32::ackTrigger() {
-    debugMsg << name << "# " << "acknowledge trigger";
-    stMsg->stateOut(debugMsg);
+    //debugMsg << name << "# " << "acknowledge trigger";
+    //stMsg->stateOut(debugMsg);
     pvme->ww(image, base+MQDC32_ReadoutReset_Offset, 0x0001);
     return 1;
 }
 
 int mqdc32::packData(unsigned int &packSize) {
-    debugMsg << hex;
+    //debugMsg << hex;
 
     unsigned int tmpIdx;
     dataPool->devSetSnap();
@@ -539,8 +540,13 @@ int mqdc32::packData(unsigned int &packSize) {
     for(unsigned int i=0; i<packSize/wordSize; i++,bias+=wordSize) {
         readSize = wordSize;
         p = dataPool->devGetSnapPtr(bias, readSize);
-        if(p == NULL)
+        if(p == NULL) {
+            debugMsg << name << "# " << "can't get snap ptr from dev ring.";
+            stMsg->stateOut(debugMsg);
+            packSize = tranSize;
+            dataPool->devPopSnap(bias);
             return 0;
+        }
         if(readSize < wordSize) {
             for(j=0; j<readSize; j++)
                 v[j] = *((char*)p+j);
@@ -555,11 +561,15 @@ int mqdc32::packData(unsigned int &packSize) {
         }
         //debugMsg << name << "# " << "pack value: " << hex << std::setw(8) << std::setfill('0') << value << endl;
         //stMsg->stateOut(debugMsg);
+
         // header
         if((value&0x000000FF) == 0x00000040) {
             //memset(tmp, 0, EVENTSIZE);
-            if(eventPtrW == -1)
+            if(eventPtrW == -1) {
+                packSize = tranSize;
+                dataPool->devPopSnap(bias+wordSize);
                 return 0;
+            }
             eventSet[eventPtrW][0] = value;
             tmpIdx=1;
             continue;
@@ -583,11 +593,11 @@ int mqdc32::packData(unsigned int &packSize) {
             // copy to idx set
             eventIdx->push(tmpIdx);
             tranSize += tmpIdx*4;
-            debugMsg << name << "# " << "pack data: " << endl;
-            for(unsigned int i=0; i<tmpIdx; i++) {
-                debugMsg << eventSet[eventPtrW][i] << " ";
-            }
-            stMsg->stateOut(debugMsg);
+            //debugMsg << name << "# " << "pack data: " << endl;
+            //for(unsigned int i=0; i<tmpIdx; i++) {
+            //    debugMsg << eventSet[eventPtrW][i] << " ";
+            //}
+            //stMsg->stateOut(debugMsg);
             tmpIdx=0;
             if(eventPtrR == -1)
                 eventPtrR = eventPtrW;
@@ -609,10 +619,12 @@ int mqdc32::packData(unsigned int &packSize) {
     }
 
     unsigned int popSize = dataPool->devPopSnap(packSize);
-    if(popSize != packSize)
+    if(popSize != packSize) {
+        packSize = tranSize;
         return 0;
+    }
 
-    debugMsg << dec;
+    //debugMsg << dec;
 
     packSize = tranSize;
     return 1;
