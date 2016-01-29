@@ -1,5 +1,7 @@
 #define STDCXX_98_HEADERS
 
+
+#include <sys/socket.h>
 #include <snmp_pp/snmp_pp.h>
 #include <iostream>
 #define SYSDESCR "1.3.6.1.2.1.1.1.0"    // Object ID for System Descriptor

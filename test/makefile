@@ -1,7 +1,7 @@
 CC          = g++ -Wall -g -O2 -std=c++11
-LN	    = g++ -lstdc++ -Wall -lsnmp++
+LN	    = g++ -lstdc++ -Wall
 INCLUDE	    = /user/local/include
-LIBS	    = -L /usr/local/lib
+LIBS	    = -L/usr/local/lib -lsnmp++
 PROGS       = snmp
 
 %.o: %.cpp
