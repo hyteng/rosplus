@@ -7,6 +7,9 @@
 #include <vector>
 #include "vmelib.h"
 
+//#include "snmp_pp.h"
+//#define SYSDESCR "1.3.6.1.2.1.1.1.0"
+
 class regUint16 :public regData {
     public:
         virtual void setValueS(std::stringstream& ss) {ss>>v;};
