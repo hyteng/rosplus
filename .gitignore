@@ -30,6 +30,7 @@ cscope.*
 bin/
 lib/
 universeII/test/mqdctool
+test/snmp
 !.gitignore
 !.c
 !.h

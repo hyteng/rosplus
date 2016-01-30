@@ -4,7 +4,8 @@
 #include <sys/socket.h>
 #include <snmp_pp/snmp_pp.h>
 #include <iostream>
-#define SYSDESCR "1.3.6.1.2.1.1.1.0"    // Object ID for System Descriptor
+//#define SYSDESCR "1.3.6.1.2.1.1.1.0"    // Object ID for System Descriptor
+#define SYSDESCR "1.3.6.1.4.1.19947.1.1.1.0"
 
 using namespace std;
 #ifdef SNMP_PP_NAMESPACE                                                        
@@ -21,20 +22,24 @@ int main() {
     Pdu pdu;    // SNMP++ PDU
 
     //-------[ Construct a SNMP++ SNMP Object ]---------------------------------------
-    Snmp snmp( status);    // Create a SNMP++ session 创建一个新的snmp对象，
+    Snmp snmp(status);    // Create a SNMP++ session 创建一个新的snmp对象，
     //第一个参数表示创建状态，0表示成功
-    if ( status != SNMP_CLASS_SUCCESS) {    // check creation status
+    if(status != SNMP_CLASS_SUCCESS) {    // check creation status
         cout << snmp.error_msg(status);    // if fail, print error string
-        return 1; }
+        return 1; 
+    }
 
     //-------[ Invoke a SNMP++ Get ]-------------------------------------------------------
     //invoke的意思是requests help or protection(from a deity)
     pdu += vb;    // add the variable binding
-    if ((status = snmp.get(pdu, ctarget)) != SNMP_CLASS_SUCCESS)
+    if((status = snmp.get(pdu, ctarget)) != SNMP_CLASS_SUCCESS)
         cout << snmp.error_msg(status);
     else {
         pdu.get_vb(vb,0);    // extract the variable binding
-        cout << "System Descriptor = "<< vb.get_printable_value(); }    // print out
+        int v0;
+        cout << vb.get_value(v0) << endl;
+        cout << "System Descriptor = "<< vb.get_printable_value() << ". " << v0 << endl;
+    }    //print out
     Snmp::socket_cleanup(); //socket_cleanup()静态成员函数，释放被上面函数初始化的winsocket的资源
 
     return 1;

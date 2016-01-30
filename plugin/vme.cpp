@@ -242,12 +242,12 @@ int vme::startVme() {
 }
 
 int vme::stopVme() {
-    t0->detach();
+    //t0->detach();
     //sleep(1);
     runVmeCtrl = TASK_STOP;
     int res;
     triDev->queryInterface("flushData", NULL, &res);
-    //t0->join();
+    t0->join();
     return 1;
 }
 
