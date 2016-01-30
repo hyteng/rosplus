@@ -29,6 +29,7 @@ int main() {
         return 1; 
     }
 
+    /*
     //-------[ Invoke a SNMP++ Get ]-------------------------------------------------------
     //invoke的意思是requests help or protection(from a deity)
     pdu += vb;    // add the variable binding
@@ -40,7 +41,31 @@ int main() {
         cout << vb.get_value(v0) << endl;
         cout << "System Descriptor = "<< vb.get_printable_value() << ". " << v0 << endl;
     }    //print out
-    Snmp::socket_cleanup(); //socket_cleanup()静态成员函数，释放被上面函数初始化的winsocket的资源
+    */
+
+    vb.set_oid("1.3.6.1.4.1.19947.1");// get next starting seed
+    pdu += vb;// add vb to the pdu
+
+    string oidLevel;
+    int len = std::string("1.3.6.1.4.1.19947.1.7.6.0").length();
+    //cout << len << ", " << std::string("1.3.6.1.4.1.19947.1.7.6.0").substr(0,len) << endl;
+    status = SNMP_CLASS_SUCCESS;
+    while(status == SNMP_CLASS_SUCCESS) {
+        if((status = snmp.get_next(pdu, ctarget)) == SNMP_CLASS_SUCCESS) {
+            pdu.get_vb(vb,0);                               // extract the vb
+            oidLevel = std::string(vb.get_printable_oid());
+            if(oidLevel.length() >= len)
+                if(oidLevel.substr(0,len)=="1.3.6.1.4.1.19947.1.7.6.0")
+                    break;
+            cout << "Mib Object = " << vb.get_printable_oid() << endl;
+            cout << "Mib Value = " << vb.get_printable_value() << endl;
+            pdu.set_vb(vb,0);                               // use last vb as the next one
+        }
+        else
+            cout << "SNMP++ Error = " << snmp.error_msg(status);
+    }
+
+    //Snmp::socket_cleanup(); //socket_cleanup()静态成员函数，释放被上面函数初始化的winsocket的资源
 
     return 1;
 }

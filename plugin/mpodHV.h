@@ -7,6 +7,11 @@
 #include <vector>
 #include "vmelib.h"
 
+
+#define STDCXX_98_HEADERS
+#include <sys/socket.h>
+#include <snmp_pp/snmp_pp.h>
+
 //#include "snmp_pp.h"
 //#define SYSDESCR "1.3.6.1.2.1.1.1.0"
 
@@ -50,25 +55,12 @@ class mpodHV :public smBase {
         virtual int unmaskRegData(regData& data, regData& mask);
 
     private:
-        uintptr_t getBuffAddr();
         uint32_t getEventTh();
-        uint32_t getTranSize();
-        int waitTrigger();
-        int afterTransfer();
-        int ackTrigger();
-        int packData(unsigned int &packSize);
-        int packDataTest(unsigned int& packSize);
-        int fillEvent(unsigned int &packSize);
-        int flushData();
 
-        int configAdc();
-        int releaseAdc();
-        int prepAdc();
-        int finishAdc();
-        int startAdc();
-        int stopAdc();
-        int enableAdc();
-        int disableAdc();
+        int configMPod();
+        int releaseMPod();
+        int prepMPod();
+        int finishMPod();
         int accessRegNormal(const regAddrType addr, const int rw, regType* data);
 
         VMEBridge *pvme;
