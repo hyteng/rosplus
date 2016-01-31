@@ -1,9 +1,8 @@
 #define STDCXX_98_HEADERS
-
-
 #include <sys/socket.h>
-#include <snmp_pp/snmp_pp.h>
 #include <iostream>
+#include <snmp_pp/snmp_pp.h>
+
 //#define SYSDESCR "1.3.6.1.2.1.1.1.0"    // Object ID for System Descriptor
 #define SYSDESCR "1.3.6.1.4.1.19947.1.1.1.0"
 
@@ -14,7 +13,7 @@ using namespace Snmp_pp;
 
 int main() {
 
-    Snmp::socket_startup(); //socket_startup()静态成员函数，初始化Winsocket的相关函数
+    //Snmp::socket_startup(); //socket_startup()静态成员函数，初始化Winsocket的相关函数
     int status;    // return status      
     CTarget ctarget((IpAddress)"192.168.1.100");    // SNMP++ v1 target
     //使用一个Address对象构造一个Ctarget对象
@@ -59,6 +58,13 @@ int main() {
                     break;
             cout << "Mib Object = " << vb.get_printable_oid() << endl;
             cout << "Mib Value = " << vb.get_printable_value() << endl;
+            oidLevel = std::string(vb.get_printable_oid());
+            if(oidLevel.substr(0,len+3) == "1.3.6.1.4.1.19947.1.3.2.1.10") {
+                //OctetStr hv(vb.get_printable_value());
+                OctetStr hv;
+                vb.get_value(hv);
+                cout << "hv: " << hv.get_printable() << endl;
+            }
             pdu.set_vb(vb,0);                               // use last vb as the next one
         }
         else

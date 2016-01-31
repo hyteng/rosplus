@@ -7,6 +7,8 @@
 using namespace Snmp_pp;                                                        
 #endif
 
+#define SYSDESCR "1.3.6.1.2.1.1.1.0"    // Object ID for System Descriptor
+
 using std::string;
 using std::stringstream;
 using std::map;
@@ -203,3 +205,45 @@ int mpodHV::unmaskRegData(regData& data, regData& mask) {
     data.setValueP(&mData);
     return 1;
 }
+
+int mpodHV::configMPod() {
+
+    CTarget ctarget((IpAddress)"192.168.1.100");
+
+    int status;
+    snmp = new Snmp(status);    // create a SNMP++ session 
+    if(status != SNMP_CLASS_SUCCESS) {    // check creation status
+        cout << snmp->error_msg(status);    // if fail, print error string
+        return 0; 
+    }
+
+    vb.set_oid("1.3.6.1.4.1.19947.1");// get next starting seed
+    pdu += vb;// add vb to the pdu
+
+    string oidLevel;
+    int len = std::string("1.3.6.1.4.1.19947.1.7.6.0").length();
+    status = SNMP_CLASS_SUCCESS;
+    while(status == SNMP_CLASS_SUCCESS) {
+        if((status = snmp->get_next(pdu, ctarget)) == SNMP_CLASS_SUCCESS) {
+            pdu.get_vb(vb,0);
+            oidLevel = std::string(vb.get_printable_oid());
+            if(oidLevel.length() >= len)
+                if(oidLevel.substr(0,len)=="1.3.6.1.4.1.19947.1.7.6.0")
+                    break;
+            cout << "Mib Object = " << vb.get_printable_oid() << endl;
+            cout << "Mib Value = " << vb.get_printable_value() << endl;
+            pdu.set_vb(vb,0);
+        }
+        else
+            cout << "SNMP++ Error = " << snmp->error_msg(status);
+    }
+
+    return 1;
+}
+
+int releaseMPod() {
+
+    delete snmp;
+    return 1
+}
+

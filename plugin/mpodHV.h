@@ -12,7 +12,6 @@
 #include <sys/socket.h>
 #include <snmp_pp/snmp_pp.h>
 
-//#include "snmp_pp.h"
 //#define SYSDESCR "1.3.6.1.2.1.1.1.0"
 
 class regUint16 :public regData {
@@ -28,7 +27,7 @@ class regUint16 :public regData {
 
 //class mpodHV;
 //typedef uint32_t (mpodHV::* mpodHVFunc)();
-#define MPODHVEVENTUINTSIZE 18
+#define MPODHVEVENTUINTSIZE 1
 
 class mpodHV :public smBase {
     public:
@@ -63,14 +62,10 @@ class mpodHV :public smBase {
         int finishMPod();
         int accessRegNormal(const regAddrType addr, const int rw, regType* data);
 
-        VMEBridge *pvme;
-
-        int image;
-        uint32_t base, length; // 32bit VME address
+        Snmp::Snmp* snmp;
+        Snmp::Vb vb();
+        Snmp::Pdu pdu;
         uint32_t regValue[80], confValue[100]; //reg is 16bit, use uint32 and cut later
-        mpodHVEvent eventSet;
-        int eventPtrR, eventPtrW;
-        std::queue<unsigned int> *eventIdx;
         char v[4];
         bool sendData;
 };
