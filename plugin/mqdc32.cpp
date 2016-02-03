@@ -528,7 +528,7 @@ int mqdc32::ackTrigger() {
 }
 
 int mqdc32::packData(unsigned int &packSize) {
-    //debugMsg << hex;
+    debugMsg << hex;
 
     unsigned int tmpIdx;
     dataPool->devSetSnap();
@@ -624,7 +624,7 @@ int mqdc32::packData(unsigned int &packSize) {
         return 0;
     }
 
-    //debugMsg << dec;
+    debugMsg << dec;
 
     packSize = tranSize;
     return 1;
@@ -801,10 +801,12 @@ int mqdc32::finishAdc() {
 int mqdc32::startAdc() {
     // first disable adc
     disableAdc();
+    // reset counters
+    pvme->ww(image, base+MQDC32_CountReset_Offset, pvme->swap16((uint16_t)0x0003));
     // clear data
-    pvme->ww(image, base+MQDC32_FIFOReset_Offset, pvme->swap16((uint16_t)0x0001));
+    pvme->ww(image, base+MQDC32_FIFOReset_Offset, pvme->swap16((uint16_t)0x0000));
     // clear Irq and Berr
-    pvme->ww(image, base+MQDC32_ReadoutReset_Offset, pvme->swap16((uint16_t)0x0001));
+    pvme->ww(image, base+MQDC32_ReadoutReset_Offset, pvme->swap16((uint16_t)0x0000));
     // enable adc
     enableAdc();
 
