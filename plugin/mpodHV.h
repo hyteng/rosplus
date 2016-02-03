@@ -14,7 +14,7 @@
 
 //#define SYSDESCR "1.3.6.1.2.1.1.1.0"
 
-class regUint16 :public regData {
+class regSnmp :public regData {
     public:
         virtual void setValueS(std::stringstream& ss) {ss>>v;};
         virtual void setValueP(const void* p) {v=*(const uint16_t*)p;};
@@ -31,9 +31,8 @@ class regUint16 :public regData {
 
 class mpodHV :public smBase {
     public:
-        typedef uint32_t regAddrType;
-        typedef uint16_t regType;
-        typedef uint32_t (*mpodHVEvent)[MPODHVEVENTUINTSIZE];
+        typedef string regAddrType;
+        typedef Snmp_pp::Vb regType;
 
         mpodHV(const std::string& n);
         ~mpodHV();
@@ -48,7 +47,6 @@ class mpodHV :public smBase {
         virtual int ReadySTOP(std::string& ret, void* para[]=NULL);
         virtual int ReadySATR(std::string& ret, void* para[]=NULL);
         virtual int RunningSPTR(std::string& ret, void* para[]=NULL);
-        virtual int PausedSPTR(std::string& ret, void* para[]=NULL);
         virtual int accessReg(const int idx, const int rw, regData& data);
         virtual int maskRegData(regData& data, regData& mask);
         virtual int unmaskRegData(regData& data, regData& mask);
@@ -56,15 +54,16 @@ class mpodHV :public smBase {
     private:
         uint32_t getEventTh();
 
-        int configMPod();
+        int configMPod(std::string& ret);
         int releaseMPod();
         int prepMPod();
         int finishMPod();
         int accessRegNormal(const regAddrType addr, const int rw, regType* data);
+        int fillEvent(unsigned int &packSize);
 
-        Snmp::Snmp* snmp;
-        Snmp::Vb vb();
-        Snmp::Pdu pdu;
+        Snmp_pp::Snmp *snmp;
+        Snmp_pp::Vb vb;
+        Snmp_pp::Pdu pdu;
         uint32_t regValue[80], confValue[100]; //reg is 16bit, use uint32 and cut later
         char v[4];
         bool sendData;

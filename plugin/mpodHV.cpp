@@ -20,6 +20,7 @@ using std::dec;
 
 
 static map<string, vector<string> > mpodHV_ctrl2conf;
+static map<string, vector<int> > mpodHV_ctrl2level;
 static map<string, int> mpodHV_conf2reg;
 static map<string, uintptr_t> mpodHV_conf2mask;
 static vector<uintptr_t> mpodHV_regAddr;
@@ -27,37 +28,20 @@ static vector<int> mpodHV_regRWIdx;
 
 static int setCtrl() {
     mpodHV_ctrl2conf.clear();
-    for(int i=0,j=0; i<ctrlSize; i++, j++) {
-        mpodHV_ctrl2conf[ctrl1785[i]] = vector<string>(0);
-        mpodHV_ctrl2conf[ctrl1785[i]].push_back(confName1785[j]);
-        
-        if(i==ctrlReg+ctrlBitSet1-1)
-            j+=ctrlBitSet1;
-
-        if(i>=ctrlReg+ctrlBitSet1+ctrlCtrl1 && i<ctrlReg+ctrlBitSet1+ctrlCtrl1+ctrlBitSet2)
-            mpodHV_ctrl2conf[ctrl1785[i]].push_back(confName1785[j+ctrlBitSet2]);
-        if(i==ctrlReg+ctrlBitSet1+ctrlCtrl1+ctrlBitSet2-1)
-            j+=ctrlBitSet2;
+    mpodHV_ctrl2level.clear();
+    for(int i=0,j=0; i<100; i++, j++) {
     }
 
     mpodHV_conf2reg.clear();
     mpodHV_conf2mask.clear();
-    for(int i=0, j=0; i<confSize; i++,j++) {
-        if(i>=confReg && i<confReg+confBitSet1)
-            j = confReg;
-
-        mpodHV_conf2reg[confName1785[i]] = j;
-        mpodHV_conf2mask[confName1785[i]] = (uintptr_t)(&confMask1785[i]);
+    for(int i=0, j=0; i<100; i++,j++) {
     }
 
     mpodHV_regAddr.clear();
     mpodHV_regRWIdx.clear();
-    for(int i=0; i<regSize; i++) {
-        mpodHV_regAddr.push_back((uintptr_t)(&regAddr1785[i]));
-        int rw = 0;
-        if(i>=regRW+regWO+regBitSet)
-            rw = 1;
-        mpodHV_regRWIdx.push_back(rw);
+    for(int i=0; i<100; i++) {
+        mpodHV_regAddr.push_back((uintptr_t)(i));
+        mpodHV_regRWIdx.push_back(0);
     }
 
     return 1;
@@ -74,8 +58,8 @@ mpodHV::mpodHV(const string& n): smBase(n) {
     regAddr = &mpodHV_regAddr;
     regRWIdx = &mpodHV_regRWIdx;
 
-    vd = (regData*) new regUint16();
-    vm = (regData*) new regUint16();
+    vd = (regData*) new regSnmp();
+    vm = (regData*) new regSnmp();
 }
 
 mpodHV::~mpodHV() {
@@ -144,31 +128,8 @@ int mpodHV::RunningSPTR(std::string& ret, void* para[]) {
     return smBase::RunningSPTR(ret, para);
 }
 
-int mpodHV::RunningPAUS(std::string& ret, void* para[]) {
-    debugMsg << name << "# " << "RunningPAUS";
-    stMsg->stateOut(debugMsg);
-    return smBase::RunningPAUS(ret, para);
-}
-
-int mpodHV::PausedSPTR(std::string& ret, void* para[]) {
-    debugMsg << name << "# " << "PausedSPTR";
-    stMsg->stateOut(debugMsg);
-    return smBase::PausedSPTR(ret, para);
-}
-
-int mpodHV::PausedRESU(std::string& ret, void* para[]) {
-    debugMsg << name << "# " << "PausedRESU";
-    stMsg->stateOut(debugMsg);
-    return smBase::PausedRESU(ret, para);
-}
-
 int mpodHV::accessReg(const int idx, const int rw, regData& data) {
     int res;
-    if(idx<0 || idx>=regSize || rw<0 || rw>1 || data.getValueP()==NULL )
-        return 0;
-
-    if((*regRWIdx)[idx] != 0 && (*regRWIdx)[idx] != rw+1)
-        return 0;
 
     regAddrType addr = *(regAddrType*)((*regAddr)[idx]);
     
@@ -179,14 +140,6 @@ int mpodHV::accessReg(const int idx, const int rw, regData& data) {
 int mpodHV::maskRegData(regData& data, regData& mask) {
     regType mData = *(regType*)(data.getValueP());
     regType mTest = *(regType*)(mask.getValueP());
-    int shift = 16;
-    for(int i=0;i<16;i++) {
-        if((mTest>>i)%2 != 0) {
-            shift = i;
-            break;
-        }
-    }
-    mData = (mData<<shift)&mTest;
     data.setValueP(&mData);
     return 1;
 }
@@ -194,19 +147,11 @@ int mpodHV::maskRegData(regData& data, regData& mask) {
 int mpodHV::unmaskRegData(regData& data, regData& mask) {
     regType mData = *(regType*)(data.getValueP());
     regType mTest = *(regType*)(mask.getValueP());
-    int shift = 16;
-    for(int i=0;i<16;i++) {
-        if((mTest>>i)%2 != 0) {
-            shift = i;
-            break;
-        }
-    }
-    mData = (mData&mTest)>>shift;
     data.setValueP(&mData);
     return 1;
 }
 
-int mpodHV::configMPod() {
+int mpodHV::configMPod(string& ret) {
 
     CTarget ctarget((IpAddress)"192.168.1.100");
 
@@ -241,9 +186,24 @@ int mpodHV::configMPod() {
     return 1;
 }
 
-int releaseMPod() {
-
+int mpodHV::releaseMPod() {
     delete snmp;
-    return 1
+    return 1;
 }
 
+int mpodHV::prepMPod() {
+    return 1;
+}
+
+int mpodHV::finishMPod() {
+    return 1;
+}
+
+int mpodHV::accessRegNormal(const regAddrType addr, const int rw, regType* data) {
+    return 1;
+}
+
+int mpodHV::fillEvent(unsigned int &packSize) {
+    packSize = 0;
+    return 1;
+}

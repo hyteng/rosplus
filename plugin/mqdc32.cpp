@@ -593,11 +593,11 @@ int mqdc32::packData(unsigned int &packSize) {
             // copy to idx set
             eventIdx->push(tmpIdx);
             tranSize += tmpIdx*4;
-            //debugMsg << name << "# " << "pack data: " << endl;
-            //for(unsigned int i=0; i<tmpIdx; i++) {
-            //    debugMsg << eventSet[eventPtrW][i] << " ";
-            //}
-            //stMsg->stateOut(debugMsg);
+            debugMsg << name << "# " << "pack data: " << endl;
+            for(unsigned int i=0; i<tmpIdx; i++) {
+                debugMsg << eventSet[eventPtrW][i] << " ";
+            }
+            stMsg->stateOut(debugMsg);
             tmpIdx=0;
             if(eventPtrR == -1)
                 eventPtrR = eventPtrW;
