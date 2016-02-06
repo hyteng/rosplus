@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <string.h>
 #include <iomanip>
+#include <unistd.h>
 
 using std::string;
 using std::stringstream;
@@ -595,7 +596,7 @@ int mqdc32::packData(unsigned int &packSize) {
             tranSize += tmpIdx*4;
             debugMsg << name << "# " << "pack data: " << endl;
             for(unsigned int i=0; i<tmpIdx; i++) {
-                debugMsg << eventSet[eventPtrW][i] << " ";
+                debugMsg << setw(8) << setfill('0') << eventSet[eventPtrW][i] << " ";
             }
             stMsg->stateOut(debugMsg);
             tmpIdx=0;
@@ -803,10 +804,13 @@ int mqdc32::startAdc() {
     disableAdc();
     // reset counters
     pvme->ww(image, base+MQDC32_CountReset_Offset, pvme->swap16((uint16_t)0x0003));
+    usleep(1000);
     // clear data
     pvme->ww(image, base+MQDC32_FIFOReset_Offset, pvme->swap16((uint16_t)0x0000));
+    usleep(1000);
     // clear Irq and Berr
     pvme->ww(image, base+MQDC32_ReadoutReset_Offset, pvme->swap16((uint16_t)0x0000));
+    usleep(1000);
     // enable adc
     enableAdc();
 
@@ -816,12 +820,14 @@ int mqdc32::startAdc() {
 int mqdc32::stopAdc() {
     // disable adc
     disableAdc();
+    usleep(1000);
     return 1;
 }
 
 int mqdc32::enableAdc() {
     // set startAcq
     pvme->ww(image, base+MQDC32_StartAcq_Offset, pvme->swap16((uint16_t)0x0001));
+    usleep(1000);
     return 1;
 }
 
