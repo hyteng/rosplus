@@ -137,13 +137,13 @@ void daq::runDaq() {
             netPtr = dataPool->netGetSnapPtr(0, readSize);
             if(netPtr != NULL) {
                 if(readSize == daqSize) {
-                    //outFile.write((const char*)netPtr, daqSize);
+                    outFile.write((const char*)netPtr, daqSize);
                 }
                 else {
-                    //outFile.write((const char*)netPtr, readSize);
+                    outFile.write((const char*)netPtr, readSize);
                     restSize = daqSize - readSize;
                     netPtr = dataPool->netGetSnapPtr(readSize, restSize);
-                    //outFile.write((const char*)netPtr, restSize);
+                    outFile.write((const char*)netPtr, restSize);
                 }
                 recSize += daqSize;
 
