@@ -133,8 +133,8 @@ void dataPacker::runPack() {
             break;
         }
 
-        debugMsg << name << "# " << "fetch devMsg " << packMsg.size;
-        stMsg->stateOut(debugMsg);
+        //debugMsg << name << "# " << "fetch devMsg " << packMsg.size;
+        //stMsg->stateOut(debugMsg);
         if(packMsg.signal == 1) {
             totalPackSize += packMsg.size;
             dataSize.push_back(packMsg.size);
@@ -149,8 +149,8 @@ void dataPacker::runPack() {
                 break;
             }
 
-            debugMsg << name << "# " << "before pack " << totalPackSize << " data and after pack " << packTranSize << endl;
-            stMsg->stateOut(debugMsg);
+            //debugMsg << name << "# " << "before pack " << totalPackSize << " data and after pack " << packTranSize << endl;
+            //stMsg->stateOut(debugMsg);
 
             //usleep(1000000);
             packMsg.size = packTranSize;
@@ -162,8 +162,8 @@ void dataPacker::runPack() {
 
             recSize += totalPackSize;
             sndSize += packTranSize;
-            debugMsg << name << "# " << "read " << recSize << " data and send " << sndSize << endl;
-            stMsg->stateOut(debugMsg);
+            //debugMsg << name << "# " << "read " << recSize << " data and send " << sndSize << endl;
+            //stMsg->stateOut(debugMsg);
 
             totalPackSize = 0;
             dataSize.clear();
@@ -191,7 +191,7 @@ void dataPacker::runPack() {
     if(packStatus == TASK_RUN)
         packStatus = TASK_EXIT;
 
-    debugMsg << name << "# " << "stop thread" << packStatus;
+    debugMsg << name << "# " << "stop thread " << packStatus;
     stMsg->stateOut(debugMsg);
 }
 
@@ -230,11 +230,11 @@ int dataPacker::packData(unsigned int& packSize) {
             tmpSize = 0;
             pSize = (void*)&tmpSize;
         }
-        debugMsg << name << "# " << "dev " << devList[i] << ": before pack " << *(unsigned int*)pSize << " bytes data;";
-        stMsg->stateOut(debugMsg);
+        //debugMsg << name << "# " << "dev " << devList[i] << ": before pack " << *(unsigned int*)pSize << " bytes data;";
+        //stMsg->stateOut(debugMsg);
         packList[i]->queryInterface("packData", &pSize, (void*)&ret);
-        debugMsg << name << "# " << "dev " << devList[i] << ": after pack " << *(unsigned int*)pSize << " bytes data";
-        stMsg->stateOut(debugMsg);
+        //debugMsg << name << "# " << "dev " << devList[i] << ": after pack " << *(unsigned int*)pSize << " bytes data";
+        //stMsg->stateOut(debugMsg);
         tranSize += *(unsigned int*)pSize;
     }
     // device in packList could be more than device in vme module, since some device need not to transfer data through DMA, which are arranged to the end of packing sequence
@@ -242,12 +242,23 @@ int dataPacker::packData(unsigned int& packSize) {
     for(int i=0; i<eventTh; i++) {
         fillEvent(tmpSize);
         tranSize += tmpSize;
+        if(tmpSize != eventHeadSize) {
+            debugMsg << name << "# " << " fill event error! fill " << *(unsigned int*)pSize << " bytes.";
+            stMsg->stateOut(debugMsg);
+            return 0;
+        }
+        int res = 1;
         pSize = (void*)&tmpSize;
         for(int j=0; j<listSize; j++) {
-            packList[j]->queryInterface("fillEvent", &pSize, (void*)&ret);
+            res = packList[j]->queryInterface("fillEvent", &pSize, (void*)&ret);
             //debugMsg << name << "# " << "dev: " << devList[j] << " fill " << *(unsigned int*)pSize << "bytes data to a event";
             //stMsg->stateOut(debugMsg);
             tranSize += *(unsigned int*)pSize;
+            if(res == 0) {
+                debugMsg << name << "# " << "dev: " << devList[j] << " fill event error! fill " << *(unsigned int*)pSize << " bytes.";
+                stMsg->stateOut(debugMsg);
+                return 0;
+            }
         }
     }
     packSize = tranSize;
@@ -286,8 +297,7 @@ int dataPacker::packDataTest(unsigned int& packSize) {
 }
 
 int dataPacker::fillEvent(unsigned int& packSize) {
-    packSize = eventHeadSize;
-    dataPool->netWrite(pHead, packSize);
+    packSize = dataPool->netWrite(pHead, eventHeadSize);
     return 1;
 }
 

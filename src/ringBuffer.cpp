@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h> //for memcpy
 #include <stdint.h>
+#include <iostream>
 
 using std::string;
 
@@ -267,8 +268,10 @@ void* ringBuffer::getSnapPtr(const unsigned int& nBias, unsigned int& nLength) {
     unsigned int virtualSize0 = nBias;
     unsigned int virtualSize1 = nBias + nLength;
     p0 = checkSnapRead(virtualSize1);
-    if(p0 == NULL)
+    if(p0 == NULL) {
+        //std::cout << "ringBuffer does not have enough snap capacity " << virtualSize1 << std::endl;
         return p0;
+    }
 
     if(virtualSize1 == (nBias+nLength))
         return (void*)((char*)p0+nBias);
@@ -369,6 +372,10 @@ unsigned int ringBuffer::afterWrite(const unsigned int& nBytes) {
             }
         }
     }
+
+    //if(pWrite == NULL)
+        //std::cout << "ringBuffer full." << std::endl;
+
     return writeSize;
 }
 

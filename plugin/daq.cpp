@@ -16,6 +16,8 @@ using std::endl;
 #define TASK_EXIT 0
 #define TASK_ERROR 2
 
+static string runHead = "RUN#";
+static const void* pHead = runHead.c_str();
 
 daq::daq(const string& n): smBase(n) {
 }
@@ -77,6 +79,7 @@ int daq::configDaq() {
 int daq::prepDaq() {
     netMsgQue = dataPool->getNetMsgQue();
     outFile.open(fileName, std::ios::out|std::ios::binary|std::ios::trunc);
+    outFile.write((const char*)pHead, 4);
     return 1;
 }
 
@@ -105,8 +108,11 @@ void daq::runDaq() {
     unsigned int readSize, restSize;
     unsigned long recSize = 0;
     void* netPtr = NULL;
+    unsigned long dCount = 0;
     while(1) {
         if((msgrcv(netMsgQue, &daqMsg, sizeof(daqMsg), 0, 0)) < 0) {
+            debugMsg << name << "# " << "could not get msg quene: " << daqMsg.size;
+            stMsg->stateOut(debugMsg);
             daqStatus = TASK_ERROR;
             break;
         }
@@ -114,32 +120,44 @@ void daq::runDaq() {
         //stMsg->stateOut(debugMsg);
 
         if(daqMsg.signal == 2) {
-            dataPool->netSetSnap();
+            if(!dataPool->netSetSnap()) {
+                debugMsg << name << "# " << " could not set snap status.";
+                stMsg->stateOut(debugMsg);
+                daqStatus = TASK_ERROR;
+                break;
+            }
+            
             //daqSize = dataPool->netGetSnapSize();
             daqSize = daqMsg.size;
             readSize = daqSize;
 
-            debugMsg << name << "# " << "fetch netMsg " << daqMsg.size << ", daqSize " << daqSize;
-            stMsg->stateOut(debugMsg);
+            //debugMsg << name << "# " << "fetch netMsg " << daqMsg.size << ", daqSize " << daqSize;
+            //stMsg->stateOut(debugMsg);
 
             netPtr = dataPool->netGetSnapPtr(0, readSize);
             if(netPtr != NULL) {
                 if(readSize == daqSize) {
-                    outFile.write((const char*)netPtr, daqSize);
+                    //outFile.write((const char*)netPtr, daqSize);
                 }
                 else {
-                    outFile.write((const char*)netPtr, readSize);
+                    //outFile.write((const char*)netPtr, readSize);
                     restSize = daqSize - readSize;
                     netPtr = dataPool->netGetSnapPtr(readSize, restSize);
-                    outFile.write((const char*)netPtr, restSize);
+                    //outFile.write((const char*)netPtr, restSize);
                 }
                 recSize += daqSize;
-                debugMsg << name << "# " << "save " << recSize << "data";
-                stMsg->stateOut(debugMsg);
+
+                dCount++;
+                if(dCount%200==0)
+                    std::cout << name << "# " << "save " << recSize << " bytes data." << std::endl;
+                //debugMsg << name << "# " << "save " << recSize << " bytes data";
+                //stMsg->stateOut(debugMsg);
             }
             else {
                 daqStatus = TASK_ERROR;
                 dataPool->netPopSnap(daqSize);
+                debugMsg << name << "# " << "could not get snap PTR of netRing: " << readSize;
+                stMsg->stateOut(debugMsg);
                 break;
             }
 

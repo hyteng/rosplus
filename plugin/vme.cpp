@@ -283,13 +283,18 @@ void vme::runVme() {
 
         tranSize = 0;
         dmaSize = 0;
+        unsigned int fillSize;
         for(unsigned int i=0; i<listSize; i++) {
             //cout << "vme data: " << endl;
             //uint32_t* ptr = (uint32_t*)(dmaBase+offsetList[i]);
             //for(unsigned int j=0; j<sizeList[i]/4;j++)
             //    cout << hex << "0x" << setw(8) << setfill('0') << *ptr++ << ", ";
             //cout << endl;
-            tranSize += dataPool->devWrite((void*)(dmaBase+offsetList[i]), sizeList[i], 1);
+            fillSize = dataPool->devWrite((void*)(dmaBase+offsetList[i]), sizeList[i], 1);
+            if(fillSize != sizeList[i]) {
+                vmeStatus = TASK_ERROR;
+            }
+            tranSize += fillSize;
             dmaSize += sizeList[i];
             devList[i]->queryInterface("afterTransfer", NULL, &res);
         }
@@ -304,7 +309,7 @@ void vme::runVme() {
         vmeMsg.signal = 2;
         vmeMsg.size = eventTh;
         int eventSend = msgsnd(devMsgQue, &vmeMsg, sizeof(vmeMsg)-sizeof(long), 0);
-        if(eventSend < 0) {
+        if(eventSend < 0 || vmeStatus == TASK_ERROR) {
             vmeStatus = TASK_ERROR;
             break;
         }
@@ -319,7 +324,7 @@ void vme::runVme() {
     if(vmeStatus == TASK_RUN)
         vmeStatus = TASK_EXIT;
 
-    debugMsg << name << "# " << "vme stop thread" << vmeStatus << endl;
+    debugMsg << name << "# " << "vme stop thread " << vmeStatus << endl;
     stMsg->stateOut(debugMsg);
     
     return;

@@ -507,7 +507,7 @@ uint32_t mqdc32::getTranSize() {
 int mqdc32::waitTrigger() {
     //debugMsg << name << "# " << "waiting for trigger";
     //stMsg->stateOut(debugMsg);
-    pvme->waitIrq(confValue[irqLevel], confValue[irqVector]);
+    //pvme->waitIrq(confValue[irqLevel], confValue[irqVector]);
     // wakeup and print data length
     //uint16_t dataLength;
     //pvme->rw(image, base+MQDC32_DataLength_Offset, &dataLength);
@@ -594,11 +594,11 @@ int mqdc32::packData(unsigned int &packSize) {
             // copy to idx set
             eventIdx->push(tmpIdx);
             tranSize += tmpIdx*4;
-            debugMsg << name << "# " << "pack data: " << endl;
-            for(unsigned int i=0; i<tmpIdx; i++) {
-                debugMsg << setw(8) << setfill('0') << eventSet[eventPtrW][i] << " ";
-            }
-            stMsg->stateOut(debugMsg);
+            //debugMsg << name << "# " << "pack data: " << endl;
+            //for(unsigned int i=0; i<tmpIdx; i++) {
+            //    debugMsg << setw(8) << setfill('0') << eventSet[eventPtrW][i] << " ";
+            //}
+            //stMsg->stateOut(debugMsg);
             tmpIdx=0;
             if(eventPtrR == -1)
                 eventPtrR = eventPtrW;
@@ -606,8 +606,8 @@ int mqdc32::packData(unsigned int &packSize) {
             if(eventPtrW==confValue[maxTransfer]*2)
                 eventPtrW = 0;
             if(eventPtrW == eventPtrR) {
-                debugMsg << name << "# " << "event pack buffer full";
-                stMsg->stateOut(debugMsg);
+                //debugMsg << name << "# " << "event pack buffer full";
+                //stMsg->stateOut(debugMsg);
                 eventPtrW = -1;
             }
             continue;
@@ -634,10 +634,15 @@ int mqdc32::packData(unsigned int &packSize) {
 int mqdc32::fillEvent(unsigned int &packSize) {
     if(eventPtrR==-1 || eventIdx->size()==0) {
         packSize = 0;
-        return 0;
+        return 1;
     }
     packSize = eventIdx->front() * 4;
-    dataPool->netWrite(&eventSet[eventPtrR][0], packSize);
+    int res = 1;
+    unsigned tranSize = dataPool->netWrite(&eventSet[eventPtrR][0], packSize);
+    if(tranSize != packSize) {
+        packSize = tranSize;
+        res = 0;
+    }
     eventIdx->pop();
     if(eventPtrW == -1)
         eventPtrW = eventPtrR;
@@ -645,11 +650,11 @@ int mqdc32::fillEvent(unsigned int &packSize) {
     if(eventPtrR == confValue[maxTransfer]*2)
         eventPtrR = 0;
     if(eventPtrW == eventPtrR) {
-        debugMsg << name << "# " << "event pack buffer empty";
-        stMsg->stateOut(debugMsg);
+        //debugMsg << name << "# " << "event pack buffer empty";
+        //stMsg->stateOut(debugMsg);
         eventPtrR = -1;
     }
-    return 1;
+    return res;
 }
 
 int mqdc32::flushData() {

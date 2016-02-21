@@ -29,6 +29,7 @@ cscope.*
 *.out
 bin/
 lib/
+data/
 universeII/test/mqdctool
 test/snmp
 !.gitignore
