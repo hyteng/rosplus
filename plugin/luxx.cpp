@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <string.h>
 #include <unistd.h>
+#include <pthread.h>
 #include <sys/ioctl.h>
 #include <sys/file.h>
 
@@ -114,6 +115,12 @@ int luxx::RunningSPTR(std::string& ret, void* para[]) {
     return smBase::RunningSPTR(ret, para);
 }
 
+int luxx::PausedSPTR(std::string& ret, void* para[]) {
+    debugMsg << name << "# " << "PausedSPTR";
+    stMsg->stateOut(debugMsg);
+    return smBase::PausedSPTR(ret, para);
+}
+
 int luxx::accessReg(const int idx, const int rw, regData& data) {
     int res;
     regAddrType addr = *(regAddrType*)((*regAddr)[idx]);
@@ -137,16 +144,16 @@ int luxx::unmaskRegData(regData& data, regData& mask) {
 
 // 初始化串口设备并进行原有设置的保存
 int luxx::readyTTY() {
-    ptty = (TTY_INFO *)malloc(sizeof(TTY_INFO));
+    ptty = (TTY_INFO *)new TTY_INFO;
     if(ptty == NULL)
         return 1;
     printf("open tty \n");
-    memset(ptty, 0, sizeof(TTY_INFO));
-    pthread_mutex_init(&ptty->mt, NULL);
+    //memset(ptty, 0, sizeof(TTY_INFO));
+    pthread_mutex_init(&(ptty->mt), NULL);
     ptty->name = "/dev/tty"+ttyName;
-    printf("open %s \n", ptty->name.c_str());
+    printf("open %s \n", (ptty->name).c_str());
     // 打开并且设置串口
-    ptty->fd = open(ptty->name.c_str(), O_RDWR | O_NOCTTY |O_NDELAY);
+    ptty->fd = open((ptty->name).c_str(), O_RDWR | O_NOCTTY |O_NDELAY);
     if(ptty->fd <0) {
         free(ptty);
         return 1;
@@ -163,7 +170,7 @@ int luxx::cleanTTY() {
         tcsetattr(ptty->fd, TCSANOW,&ptty->otm);
         close(ptty->fd);
         ptty->fd = -1;
-        free(ptty);
+        delete ptty;
         ptty = NULL;
     }
     return 0;
@@ -378,6 +385,7 @@ int luxx::setTTY(int speed, int databits, int parity, int stopbits) {
 
 int luxx::configLuxx(std::string& ret) {
 
+    ttyName = "USB0";
     readyTTY();
     if(ptty == NULL) {
         printf("readyTTY(0) error\n");
@@ -430,10 +438,30 @@ int luxx::releaseLuxx() {
 }
 
 int luxx::prepLuxx() {
+    char answer[100];   
+    sendnTTY("?POn\r", 5);
+    recvnTTY(answer, 6);
+    printf("LD mode: %s\n", answer);
+
+    usleep(1000000);
+
+    sendnTTY("?LOn\r", 5);
+    recvnTTY(answer, 6);
+    printf("LD mode: %s\n", answer);
     return 1;
 }
 
 int luxx::finishLuxx() {
+    char answer[100];
+    sendnTTY("?LOf\r", 5);
+    recvnTTY(answer, 6);
+    printf("LD mode: %s\n", answer);
+
+    usleep(1000000);
+
+    sendnTTY("?POf\r", 5);
+    recvnTTY(answer, 6);
+    printf("LD mode: %s\n", answer);
     return 1;
 }
 
@@ -444,4 +472,13 @@ int luxx::accessRegNormal(const regAddrType addr, const int rw, regType* data) {
 int luxx::fillEvent(unsigned int &packSize) {
     packSize = 0;
     return 1;
+}
+
+extern "C" smBase* create(const string& n) {
+    smBase* pModule = new luxx(n);
+    return pModule;
+}
+
+extern "C" void destroy(smBase* pModule) {
+    delete pModule;
 }

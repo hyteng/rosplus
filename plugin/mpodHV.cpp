@@ -207,3 +207,12 @@ int mpodHV::fillEvent(unsigned int &packSize) {
     packSize = 0;
     return 1;
 }
+
+extern "C" smBase* create(const string& n) {
+    smBase* pModule = new mpodHV(n);
+    return pModule;
+}
+
+extern "C" void destroy(smBase* pModule) {
+    delete pModule;
+}
