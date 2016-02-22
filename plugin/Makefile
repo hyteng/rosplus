@@ -94,6 +94,10 @@ ldmTA.so: ldmTA.o
 	$(CC)  $(LINKOPT) -shared -o $@ $< $(addprefix -L,$(LIBDIR)) $(addprefix -l,$(LIBS))
 	mv ldmTA.so ../lib/
 
+luxx.so: luxx.o
+	$(CC)  $(LINKOPT) -shared -o $@ $< $(addprefix -L,$(LIBDIR)) $(addprefix -l,$(LIBS))
+	mv luxx.so ../lib/
+
 #$(EXECUTABLE) : $(OBJS)
 #	$(CC)  $(LINKOPT) -shared -o $(EXECUTABLE) $(OBJS) $(addprefix -L,$(LIBDIR)) $(addprefix -l,$(LIBS))
 #	mv $(EXECUTABLE) ../lib/
