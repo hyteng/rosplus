@@ -227,6 +227,8 @@ int vme::prepVme() {
     debugMsg << dec;
 
     devMsgQue = dataPool->getDevMsgQue();
+    dataPool->devClear();
+
     return 1;
 }
 

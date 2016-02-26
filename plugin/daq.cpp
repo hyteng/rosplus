@@ -78,6 +78,9 @@ int daq::configDaq() {
 
 int daq::prepDaq() {
     netMsgQue = dataPool->getNetMsgQue();
+    dataPool->netClear();
+
+    outFile.close();
     outFile.open(fileName, std::ios::out|std::ios::binary|std::ios::trunc);
     outFile.write((const char*)pHead, 4);
     return 1;

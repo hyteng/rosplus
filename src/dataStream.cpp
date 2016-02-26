@@ -77,6 +77,11 @@ int dataStream::getNetMsgQue() {
     return netMsgQue;
 }
 
+int dataStream::devClear() {
+    std::unique_lock<std::mutex> lock(devMutex);
+    return devRing->clear();
+}
+
 unsigned int dataStream::devWrite(const void* addr, const unsigned int& nBytes, int sendMsg) {
     std::unique_lock<std::mutex> lock(devMutex);
 
@@ -122,6 +127,11 @@ unsigned int dataStream::devPopSnap(const unsigned int& nBytes) {
     unsigned int readSize = devRing->popSnap(nBytes);
     totalDevSize -= readSize;
     return readSize;
+}
+
+int dataStream::netClear() {
+    std::unique_lock<std::mutex> lock(netMutex);
+    return netRing->clear();
 }
 
 unsigned int dataStream::netWrite(const void* addr, const unsigned int& nBytes, int sendMsg) {

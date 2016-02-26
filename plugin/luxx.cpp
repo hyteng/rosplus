@@ -15,6 +15,14 @@ using std::endl;
 using std::hex;
 using std::dec;
 
+#define confSize 1
+static string confNameLUXX[confSize] = {/*switch*/"switch"};
+
+#define confSetSize 1
+static uint16_t confDefaultIdxLUXX[confSetSize] = {0};
+static uint16_t confDefaultValueLUXX[confSetSize] = {/*switch*/0};
+
+
 
 static map<string, vector<string> > luxx_ctrl2conf;
 static map<string, vector<int> > luxx_ctrl2level;
@@ -183,33 +191,33 @@ int luxx::setTTYSpeed(int speed) {
     ptty->ntm.c_cflag = /*CS8 |*/ CLOCAL | CREAD;
 
     switch(speed) {
-    case 300:
-        ptty->ntm.c_cflag |= B300;
-        break;
-    case 1200:
-        ptty->ntm.c_cflag |= B1200;
-        break;
-    case 2400:
-        ptty->ntm.c_cflag |= B2400;
-        break;
-    case 4800:
-        ptty->ntm.c_cflag |= B4800;
-        break;
-    case 9600:
-        ptty->ntm.c_cflag |= B9600;
-        break;
-    case 19200:
-        ptty->ntm.c_cflag |= B19200;
-        break;
-    case 38400:
-        ptty->ntm.c_cflag |= B38400;
-        break;
-    case 57600:
-        ptty->ntm.c_cflag |= B57600;
-        break;
-    case 115200:
-        ptty->ntm.c_cflag |= B115200;
-        break;
+        case 300:
+            ptty->ntm.c_cflag |= B300;
+            break;
+        case 1200:
+            ptty->ntm.c_cflag |= B1200;
+            break;
+        case 2400:
+            ptty->ntm.c_cflag |= B2400;
+            break;
+        case 4800:
+            ptty->ntm.c_cflag |= B4800;
+            break;
+        case 9600:
+            ptty->ntm.c_cflag |= B9600;
+            break;
+        case 19200:
+            ptty->ntm.c_cflag |= B19200;
+            break;
+        case 38400:
+            ptty->ntm.c_cflag |= B38400;
+            break;
+        case 57600:
+            ptty->ntm.c_cflag |= B57600;
+            break;
+        case 115200:
+            ptty->ntm.c_cflag |= B115200;
+            break;
     }
     ptty->ntm.c_iflag = IGNPAR;
     ptty->ntm.c_oflag = 0;
@@ -239,56 +247,56 @@ int luxx::setTTYParity(int databits, int parity, int stopbits) {
     printf("setting tty databits: %d\n", databits);
     ptty->ntm.c_cflag &= ~CSIZE;
     switch(databits) { //设置数据位数
-    case 7:
-        ptty->ntm.c_cflag |= CS7;
-        break;
-    case 8:
-        ptty->ntm.c_cflag |= CS8;
-        break;
-    default:
-        printf("Unsupported data size\n");
-        return 5;
+        case 7:
+            ptty->ntm.c_cflag |= CS7;
+            break;
+        case 8:
+            ptty->ntm.c_cflag |= CS8;
+            break;
+        default:
+            printf("Unsupported data size\n");
+            return 5;
     }
 
     printf("setting tty parity: %d\n", parity);
     switch(parity) { // 设置奇偶校验位数
-    //case n:
-    case 0:
-        ptty->ntm.c_cflag &= ~PARENB; /* Clear parity enable */
-        ptty->ntm.c_iflag &= ~INPCK; /* Enable parity checking */
-        break;
-    //case o:
-    case 1:
-        ptty->ntm.c_cflag |= (PARODD|PARENB); /* 设置为奇效验*/
-        ptty->ntm.c_iflag |= INPCK; /* Disnable parity checking */
-        break;
-    //case e:
-    case 2:
-        ptty->ntm.c_cflag |= PARENB; /* Enable parity */
-        ptty->ntm.c_cflag &= ~PARODD; /* 转换为偶效验*/
-        ptty->ntm.c_iflag |= INPCK; /* Disnable parity checking */
-        break;
-    //case S:
-    case 3: /*as no parity*/
-        ptty->ntm.c_cflag &= ~PARENB;
-        ptty->ntm.c_cflag &= ~CSTOPB;
-        break;
-    default:
-        printf("Unsupported parity\n");
-        return 2;
+        //case n:
+        case 0:
+            ptty->ntm.c_cflag &= ~PARENB; /* Clear parity enable */
+            ptty->ntm.c_iflag &= ~INPCK; /* Enable parity checking */
+            break;
+            //case o:
+        case 1:
+            ptty->ntm.c_cflag |= (PARODD|PARENB); /* 设置为奇效验*/
+            ptty->ntm.c_iflag |= INPCK; /* Disnable parity checking */
+            break;
+            //case e:
+        case 2:
+            ptty->ntm.c_cflag |= PARENB; /* Enable parity */
+            ptty->ntm.c_cflag &= ~PARODD; /* 转换为偶效验*/
+            ptty->ntm.c_iflag |= INPCK; /* Disnable parity checking */
+            break;
+            //case S:
+        case 3: /*as no parity*/
+            ptty->ntm.c_cflag &= ~PARENB;
+            ptty->ntm.c_cflag &= ~CSTOPB;
+            break;
+        default:
+            printf("Unsupported parity\n");
+            return 2;
     }
     // 设置停止位
     printf("setting tty stopbits: %d\n", stopbits);
     switch (stopbits) {
-    case 1:
-        ptty->ntm.c_cflag &= ~CSTOPB;
-        break;
-    case 2:
-        ptty->ntm.c_cflag |= CSTOPB;
-        break;
-    default:
-        printf("Unsupported stop bits\n");
-        return 3;
+        case 1:
+            ptty->ntm.c_cflag &= ~CSTOPB;
+            break;
+        case 2:
+            ptty->ntm.c_cflag |= CSTOPB;
+            break;
+        default:
+            printf("Unsupported stop bits\n");
+            return 3;
     }
 
     ptty->ntm.c_lflag = 0;
@@ -385,6 +393,31 @@ int luxx::setTTY(int speed, int databits, int parity, int stopbits) {
 
 int luxx::configLuxx(std::string& ret) {
 
+    uint32_t confTemp;
+    regUint16 data, mask;
+    regSet.clear();
+    int res;
+    for(int i=0; i<confSetSize; i++) {
+        int confIdx = confDefaultIdxLUXX[i];
+        if((res=cfgInfo->infoGetUint("config."+name+"."+confNameLUXX[confIdx], confTemp)) != 1)
+            confValue[confIdx] = confDefaultValueLUXX[i];
+        else 
+            confValue[confIdx] = confTemp;
+        //int regIdx = (*conf2reg)[confNameLUXX[confIdx]];
+        //debugMsg << name << "# " << "confIdx " << confIdx << ", regIdx " << regIdx << ", confValue " << confValue[confIdx];
+        //stMsg->stateOut(debugMsg);
+        //data.setValueP(&confValue[confIdx]);
+        //mask.setValueP(&confMaskLUXX[confIdx]);
+        //maskRegData(data, mask);
+        //regValue[regIdx] = (regValue[regIdx] & (~confMaskLUXX[confIdx])) | (*(uint16_t*)data.getValueP());
+        //debugMsg << name << "# " << "regIdx " << regIdx << ", regValue " << regValue[regIdx];
+        //stMsg->stateOut(debugMsg);
+        //if(find(regSet.begin(), regSet.end(), regIdx) == regSet.end())
+        //regSet.push_back(regIdx);
+    }
+    if(confValue[0] == 0)
+        return 1;
+
     ttyName = "USB0";
     readyTTY();
     if(ptty == NULL) {
@@ -395,11 +428,11 @@ int luxx::configLuxx(std::string& ret) {
     setTTY(57600, 8, 0, 1);
 
     char answer[100];
-    
+
     sendnTTY("?GOM\r", 5);
     recvnTTY(answer, 9);
     printf("LD mode: %s\n", answer);
-    
+
     sendnTTY("?LOf\r", 5);
     recvnTTY(answer, 6);
     printf("LD mode: %s\n", answer);
@@ -439,29 +472,35 @@ int luxx::releaseLuxx() {
 
 int luxx::prepLuxx() {
     char answer[100];   
-    sendnTTY("?POn\r", 5);
-    recvnTTY(answer, 6);
-    printf("LD mode: %s\n", answer);
 
-    usleep(1000000);
+    if(confValue[0] == 1) {
+        sendnTTY("?POn\r", 5);
+        recvnTTY(answer, 6);
+        printf("LD mode: %s\n", answer);
 
-    sendnTTY("?LOn\r", 5);
-    recvnTTY(answer, 6);
-    printf("LD mode: %s\n", answer);
+        usleep(1000000);
+
+        sendnTTY("?LOn\r", 5);
+        recvnTTY(answer, 6);
+        printf("LD mode: %s\n", answer);
+    }
+
     return 1;
 }
 
 int luxx::finishLuxx() {
-    char answer[100];
-    sendnTTY("?LOf\r", 5);
-    recvnTTY(answer, 6);
-    printf("LD mode: %s\n", answer);
+    if(confValue[0] == 1) {
+        char answer[100];
+        sendnTTY("?LOf\r", 5);
+        recvnTTY(answer, 6);
+        printf("LD mode: %s\n", answer);
 
-    usleep(1000000);
+        usleep(1000000);
 
-    sendnTTY("?POf\r", 5);
-    recvnTTY(answer, 6);
-    printf("LD mode: %s\n", answer);
+        sendnTTY("?POf\r", 5);
+        recvnTTY(answer, 6);
+        printf("LD mode: %s\n", answer);
+    }
     return 1;
 }
 

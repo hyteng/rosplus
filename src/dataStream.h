@@ -22,6 +22,7 @@ class dataStream {
         int getDevMsgQue();
         int getNetMsgQue();
 
+        int devClear();
         unsigned int devWrite(const void* addr, const unsigned int& nBytes, int sendMsg=1); // default sending message
         int devSetSnap();
         unsigned int devGetSnapSize();
@@ -30,6 +31,7 @@ class dataStream {
         void* devGetSnapPtr(const unsigned int& nBias, unsigned int& nBytes);
         unsigned int devPopSnap(const unsigned int& nBytes);
 
+        int netClear();
         unsigned int netWrite(const void* addr, const unsigned int& nBytes, int sendMsg=0); // default not sending message
         int netSetSnap();
         unsigned int netGetSnapSize();

@@ -1,21 +1,21 @@
 /*
-    Definition of class VMEBridge
-    Copyright (C) 2008 Andreas Ehmanns <ehmanns@iskp.uni-bonn.de>
- 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
+   Definition of class VMEBridge
+   Copyright (C) 2008 Andreas Ehmanns <ehmanns@iskp.uni-bonn.de>
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 2 of the License, or
+   (at your option) any later version.
 
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*/
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+   */
 
 #ifndef VMELIB_H
 #define VMELIB_H
@@ -61,138 +61,134 @@ using namespace std;
 
 class VMEBridge
 {
-  private:
-    static const unsigned int slave_base_addr[];
-    int vme_handle[18], uni_handle, dma_handle;
+    private:
+        static const unsigned int slave_base_addr[];
+        int vme_handle[18], uni_handle, dma_handle;
 
-    unsigned int listPtr, dma_ctl;
-    unsigned int vmeBaseAddr[8];
-    uintptr_t vmeImageBase[18], dmaImageBase;
-    unsigned int vmeImageSize[18], dmaImageSize, dmaBufSize, dmaMaxBuf;
-     vector < int >usedLists;
+        unsigned int listPtr, dma_ctl;
+        unsigned int vmeBaseAddr[8];
+        uintptr_t vmeImageBase[18], dmaImageBase;
+        unsigned int vmeImageSize[18], dmaImageSize, dmaBufSize, dmaMaxBuf;
+        vector < int >usedLists;
 
-    int there(unsigned int addr, unsigned int mode);
-    int checkIrqParamter(unsigned int level, unsigned int statusID);
-    int checkMbxNr(int mailbox);
-    int checkDmaParam(unsigned int count, unsigned int bufNr);
-    uintptr_t getAddr(int, int);
-    int vmemap(int, unsigned int, unsigned int, unsigned int, int);
+        int there(unsigned int addr, unsigned int mode);
+        int checkIrqParamter(unsigned int level, unsigned int statusID);
+        int checkMbxNr(int mailbox);
+        int checkDmaParam(unsigned int count, unsigned int bufNr);
+        uintptr_t getAddr(int, int);
+        int vmemap(int, unsigned int, unsigned int, unsigned int, int);
 
-  public:
-    typedef uint32_t vmeAddr;
-    VMEBridge();
-    virtual ~ VMEBridge();
+    public:
+        static VMEBridge* getInstance() {if(!instance){instance=new VMEBridge;};return instance;};
+        VMEBridge(VMEBridge const& other) = delete;
+        void operator=(VMEBridge const& other)  = delete;
 
-// image related function
+        typedef uint32_t vmeAddr;
+        VMEBridge();
+        virtual ~ VMEBridge();
 
-    int getImage(unsigned int base, unsigned int size,
-                 int vas, int vdw, int ms);
-    void releaseImage(int image);
-    uintptr_t getPciBaseAddr(int image);
+        // image related function
 
-// Options
+        int getImage(unsigned int base, unsigned int size, int vas, int vdw, int ms);
+        void releaseImage(int image);
+        uintptr_t getPciBaseAddr(int image);
 
-    void setOption(int image, unsigned int opt);
+        // Options
 
-// IRQ
+        void setOption(int image, unsigned int opt);
 
-    int setupIrq(int image, unsigned int irqLevel, unsigned int statusID,
-                 unsigned int addrSt, unsigned int valSt,
-                 unsigned int addrCl, unsigned int valCl);
-    int freeIrq(int image, unsigned int irqLevel, unsigned int statusID);
-    int waitIrq(unsigned int irqLevel, unsigned int statusID);
-    int waitIrq(unsigned int irqLevel, unsigned int statusID,
-                unsigned long timeout);
-    int generateVmeIrq(unsigned int irqLevel, unsigned int statusID);
+        // IRQ
 
-// Mailbox use
+        int setupIrq(int image, unsigned int irqLevel, unsigned int statusID, unsigned int addrSt, unsigned int valSt, unsigned int addrCl, unsigned int valCl);
+        int freeIrq(int image, unsigned int irqLevel, unsigned int statusID);
+        int waitIrq(unsigned int irqLevel, unsigned int statusID);
+        int waitIrq(unsigned int irqLevel, unsigned int statusID, unsigned long timeout);
+        int generateVmeIrq(unsigned int irqLevel, unsigned int statusID);
 
-    int setupMBX(int mailbox);
-    unsigned int waitMBX(int mailbox, unsigned int timeout);
-    unsigned int waitMBX(int mailbox);
-    int releaseMBX(int mailbox);
+        // Mailbox use
 
-// DMA
+        int setupMBX(int mailbox);
+        unsigned int waitMBX(int mailbox, unsigned int timeout);
+        unsigned int waitMBX(int mailbox);
+        int releaseMBX(int mailbox);
 
-    uintptr_t requestDMA(void);
-    uintptr_t requestDMA(int);
-    void releaseDMA(void);
-    int DMAread(unsigned int source, unsigned int count, int vas, int vdw);
-    int DMAread(unsigned int source, unsigned int count, int vas, int vdw,
-                unsigned int bufNr);
-    int DMAwrite(unsigned int dest, unsigned int count, int vas, int vdw);
-    int DMAwrite(unsigned int dest, unsigned int count, int vas, int vdw,
-                 unsigned int bufNr);
+        // DMA
 
-// DMA linked list operations
+        uintptr_t requestDMA(void);
+        uintptr_t requestDMA(int);
+        void releaseDMA(void);
+        int DMAread(unsigned int source, unsigned int count, int vas, int vdw);
+        int DMAread(unsigned int source, unsigned int count, int vas, int vdw, unsigned int bufNr);
+        int DMAwrite(unsigned int dest, unsigned int count, int vas, int vdw);
+        int DMAwrite(unsigned int dest, unsigned int count, int vas, int vdw, unsigned int bufNr);
 
-    int newCmdPktList(void);
-    int delCmdPktList(int list);
-    unsigned int addCmdPkt(int list, int write, unsigned int vmeAddr,
-                           int size, int vas, int vdw);
-    int execCmdPktList(int list);
+        // DMA linked list operations
 
-// Read/Write access to VME resources, data size 1,2,4 byte(s)
+        int newCmdPktList(void);
+        int delCmdPktList(int list);
+        unsigned int addCmdPkt(int list, int write, unsigned int vmeAddr, int size, int vas, int vdw);
+        int execCmdPktList(int list);
 
-    int rl(int image, uint32_t addr, unsigned int *data);
-    int wl(int image, unsigned int addr, unsigned int *data);
-    int wl(int image, unsigned int addr, unsigned int data);
+        // Read/Write access to VME resources, data size 1,2,4 byte(s)
 
-    int rw(int image, unsigned int addr, unsigned short *data);
-    int ww(int image, unsigned int addr, unsigned short *data);
-    int ww(int image, unsigned int addr, unsigned short data);
+        int rl(int image, uint32_t addr, unsigned int *data);
+        int wl(int image, unsigned int addr, unsigned int *data);
+        int wl(int image, unsigned int addr, unsigned int data);
 
-    int rb(int image, unsigned int addr, unsigned char *data);
-    int wb(int image, unsigned int addr, unsigned char *data);
-    int wb(int image, unsigned int addr, unsigned char data);
+        int rw(int image, unsigned int addr, unsigned short *data);
+        int ww(int image, unsigned int addr, unsigned short *data);
+        int ww(int image, unsigned int addr, unsigned short data);
 
-// Block read/write functions
+        int rb(int image, unsigned int addr, unsigned char *data);
+        int wb(int image, unsigned int addr, unsigned char *data);
+        int wb(int image, unsigned int addr, unsigned char data);
 
-    int rl(int image, unsigned int addr, unsigned int *data, int size);
-    int wl(int image, unsigned int addr, unsigned int *data, int size);
+        // Block read/write functions
 
-    int rw(int image, unsigned int addr, unsigned short *data, int size);
-    int ww(int image, unsigned int addr, unsigned short *data, int size);
+        int rl(int image, unsigned int addr, unsigned int *data, int size);
+        int wl(int image, unsigned int addr, unsigned int *data, int size);
 
-    int rb(int image, unsigned int addr, unsigned char *data, int size);
-    int wb(int image, unsigned int addr, unsigned char *data, int size);
+        int rw(int image, unsigned int addr, unsigned short *data, int size);
+        int ww(int image, unsigned int addr, unsigned short *data, int size);
 
-    int testBerr();
-    int there(unsigned int addr);
-    int there8(unsigned int addr);
-    int there16(unsigned int addr);
-    int there32(unsigned int addr);
+        int rb(int image, unsigned int addr, unsigned char *data, int size);
+        int wb(int image, unsigned int addr, unsigned char *data, int size);
 
-// Access to Universe II Register (for use of unsupported features)
+        int testBerr();
+        int there(unsigned int addr);
+        int there8(unsigned int addr);
+        int there16(unsigned int addr);
+        int there32(unsigned int addr);
 
-    unsigned int readUniReg(int);
-    void writeUniReg(int, unsigned int);
+        // Access to Universe II Register (for use of unsupported features)
 
-    int resetDriver();
-    void vmeSysReset();
+        unsigned int readUniReg(int);
+        void writeUniReg(int, unsigned int);
 
-    int bridge_error;
+        int resetDriver();
+        void vmeSysReset();
 
-    uint32_t swap32(const uint32_t &v) {uint32_t t=((v&0xFF000000)>>24)|((v&0x00FF0000)>>8)|((v&0x0000FF00)<<8)|((v&0x000000FF)<<24);return t;};
-    uint16_t swap16(const uint16_t &v) {uint16_t t=((v&0xFF00)>>8)|((v&0x00FF)<<8);return t;};
+        int bridge_error;
 
-  protected:   // logging streams
+        uint32_t swap32(const uint32_t &v) {uint32_t t=((v&0xFF000000)>>24)|((v&0x00FF0000)>>8)|((v&0x0000FF00)<<8)|((v&0x000000FF)<<24);return t;};
+        uint16_t swap16(const uint16_t &v) {uint16_t t=((v&0xFF00)>>8)|((v&0x00FF)<<8);return t;};
 
-    ostream * Std;
-    ostream *Err;
+    protected:   // logging streams
+        ostream * Std;
+        ostream *Err;
 
-  public:
+    public:
+        virtual void setErrorlog(ostream * log) {
+            Err = log;
+        }
 
-     virtual void setErrorlog(ostream * log)
-    {
-        Err = log;
-    }
+        virtual void setStdlog(ostream * log) {
+            Std = log;
+        }
 
-    virtual void setStdlog(ostream * log)
-    {
-        Std = log;
-    }
-
+    private:
+        static VMEBridge* instance;
+        int refCount;
 };
 
 #endif

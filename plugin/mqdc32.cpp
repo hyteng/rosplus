@@ -507,7 +507,7 @@ uint32_t mqdc32::getTranSize() {
 int mqdc32::waitTrigger() {
     //debugMsg << name << "# " << "waiting for trigger";
     //stMsg->stateOut(debugMsg);
-    //pvme->waitIrq(confValue[irqLevel], confValue[irqVector]);
+    pvme->waitIrq(confValue[irqLevel], confValue[irqVector]);
     // wakeup and print data length
     //uint16_t dataLength;
     //pvme->rw(image, base+MQDC32_DataLength_Offset, &dataLength);
@@ -560,7 +560,7 @@ int mqdc32::packData(unsigned int &packSize) {
         else {
             value = (unsigned int)*(uint32_t*)p;
         }
-        //debugMsg << name << "# " << "pack value: " << hex << std::setw(8) << std::setfill('0') << value << endl;
+        //debugMsg << name << "# " << "pack value " << dec << i << "th:" << hex << std::setw(8) << std::setfill('0') << value << endl;
         //stMsg->stateOut(debugMsg);
 
         // header

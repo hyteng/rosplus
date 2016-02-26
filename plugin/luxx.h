@@ -86,6 +86,7 @@ class luxx :public smBase {
         // control setting
         int mode, autoP, autoS;
         double power;
+        uint32_t regValue[10], confValue[10];
         // status
         int status, powerLevel, powerOn, laserOn;
 };
