@@ -133,8 +133,8 @@ void dataPacker::runPack() {
             break;
         }
 
-        debugMsg << name << "# " << "fetch devMsg " << packMsg.size;
-        stMsg->stateOut(debugMsg);
+        //debugMsg << name << "# " << "fetch devMsg " << packMsg.size;
+        //stMsg->stateOut(debugMsg);
         if(packMsg.signal == 1) {
             totalPackSize += packMsg.size;
             dataSize.push_back(packMsg.size);
@@ -233,8 +233,8 @@ int dataPacker::packData(unsigned int& packSize) {
         //debugMsg << name << "# " << "dev " << devList[i] << ": before pack " << *(unsigned int*)pSize << " bytes data;";
         //stMsg->stateOut(debugMsg);
         packList[i]->queryInterface("packData", &pSize, (void*)&ret);
-        debugMsg << name << "# " << "dev " << devList[i] << ": after pack " << *(unsigned int*)pSize << " bytes data";
-        stMsg->stateOut(debugMsg);
+        //debugMsg << name << "# " << "dev " << devList[i] << ": after pack " << *(unsigned int*)pSize << " bytes data";
+        //stMsg->stateOut(debugMsg);
         tranSize += *(unsigned int*)pSize;
     }
     // device in packList could be more than device in vme module, since some device need not to transfer data through DMA, which are arranged to the end of packing sequence

@@ -64,6 +64,7 @@ int vme::LoadedUNLD(string& ret, void* para[]) {
     debugMsg << name << "# " << "LoadedUNLD";
     stMsg->stateOut(debugMsg);
     delete pvme;
+    pvme = NULL;
     return smBase::LoadedUNLD(ret, para);
 }
 

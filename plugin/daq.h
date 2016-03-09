@@ -36,7 +36,8 @@ class daq :public smBase {
         streamMsg daqMsg;
         std::thread *t0, *ts;
 
-        std::string fileName;
+        int fileIdx;
+        std::string fileName, theFileName;
         std::fstream outFile;
 };
 

@@ -783,24 +783,32 @@ int mqdc32::releaseAdc() {
 }
 
 int mqdc32::prepAdc() {
-    if(eventSet != NULL)
+    if(eventSet != NULL) {
         delete [] eventSet;
+        eventSet = NULL:
+    }
     eventSet = new uint32_t[confValue[maxTransfer]*2][MQDC32EVENTUINTSIZE];
     eventPtrW = 0;
     eventPtrR = -1;
-    if(eventIdx != NULL)
+    if(eventIdx != NULL) {
         delete eventIdx;
+        eventIdx = NULL;
+    }
     eventIdx = new std::queue<unsigned int>;
     return 1;
 }
 
 int mqdc32::finishAdc() {
-    if(eventSet != NULL)
+    if(eventSet != NULL) {
         delete [] eventSet;
+        eventSet = NULL;
+    }
     eventPtrW = 0;
     eventPtrR = -1;
-    if(eventIdx != NULL)
+    if(eventIdx != NULL) {
         delete eventIdx;
+        eventIdx = NULL;
+    }
     return 1;
 }
 

@@ -31,6 +31,7 @@ int configSet::infoRelease() {
     if(isCreated == true) {
         pInfoMap->clear();
         delete pInfoMap;
+        pInfoMap = NULL;
     }
     isCreated = false;
 

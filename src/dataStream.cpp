@@ -66,7 +66,9 @@ dataStream::~dataStream() {
     devRing->release();
     netRing->release();
     delete devRing;
+    devRing = NULL;
     delete netRing;
+    netRing = NULL;
 }
 
 int dataStream::getDevMsgQue() {

@@ -68,11 +68,12 @@ int daq::PausedSPTR(std::string& ret, void* para[]) {
 }
 
 int daq::configDaq() {
-    fileName = "data_sample.txt";
+    fileName = "data_sample";
     if(!cfgInfo->infoGetString("config."+name+".fileName", fileName)) {
         debugMsg << name << "# " << "config: could not get config."+name+".fileName";
         stMsg->stateOut(debugMsg);
     }
+    fileIdx = 0;
     return 1;
 }
 
@@ -80,8 +81,12 @@ int daq::prepDaq() {
     netMsgQue = dataPool->getNetMsgQue();
     dataPool->netClear();
 
+    fileIdx++;
+    std::stringstream sIdx;
+    sIdx << fileIdx;
+    theFileName = fileName + sIdx.str() + ".txt";
     outFile.close();
-    outFile.open(fileName, std::ios::out|std::ios::binary|std::ios::trunc);
+    outFile.open(theFileName, std::ios::out|std::ios::binary|std::ios::trunc);
     outFile.write((const char*)pHead, 4);
     return 1;
 }

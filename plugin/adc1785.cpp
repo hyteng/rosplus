@@ -885,24 +885,32 @@ int adc1785::releaseAdc() {
 }
 
 int adc1785::prepAdc() {
-    if(eventSet != NULL)
+    if(eventSet != NULL) {
         delete [] eventSet;
+        eventSet = NULL;
+    }
     eventSet = new uint32_t[confValue[eventTh]*2][ADC1785EVENTUINTSIZE];
     eventPtrW = 0;
     eventPtrR = -1;
-    if(eventIdx != NULL)
+    if(eventIdx != NULL) {
         delete eventIdx;
+        eventIdx = NULL;
+    }
     eventIdx = new std::queue<unsigned int>;
     return 1;
 }
 
 int adc1785::finishAdc() {
-    if(eventSet != NULL)
+    if(eventSet != NULL) {
         delete [] eventSet;
+        eventSet = NULL;
+    }
     eventPtrW = 0;
     eventPtrR = -1;
-    if(eventIdx != NULL)
+    if(eventIdx != NULL) {
         delete eventIdx;
+        eventIdx = NULL;
+    }
     return 1;
 }
 
