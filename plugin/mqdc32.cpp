@@ -785,7 +785,7 @@ int mqdc32::releaseAdc() {
 int mqdc32::prepAdc() {
     if(eventSet != NULL) {
         delete [] eventSet;
-        eventSet = NULL:
+        eventSet = NULL;
     }
     eventSet = new uint32_t[confValue[maxTransfer]*2][MQDC32EVENTUINTSIZE];
     eventPtrW = 0;

@@ -28,6 +28,7 @@ int main(int argc, const char *argv[]) {
     std::string pos;
     for(int i=0; i<testNumber; i++) {
         std::cout << "pls set mechanical platform distination: ";
+        std::cin.sync();
         std::cin >> pos;
 
         runDAQ();
@@ -48,10 +49,11 @@ int runDAQ() {
     sleep(1);
     cmd = smBase::CMID_SATR;
     machine.doAction(cmd, ret);
-    sleep(16);
+    sleep(5);
     cmd = smBase::CMID_SPTR;
     machine.doAction(cmd, ret);
     sleep(1);
     cmd = smBase::CMID_STOP;
     machine.doAction(cmd, ret);
+    sleep(1);
 }
