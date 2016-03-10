@@ -568,6 +568,8 @@ int mqdc32::packData(unsigned int &packSize) {
             //memset(tmp, 0, EVENTSIZE);
             if(eventPtrW == -1) {
                 packSize = tranSize;
+                debugMsg << name << "# " << "event pack buffer full and could not fill new event";
+                stMsg->stateOut(debugMsg);
                 dataPool->devPopSnap(bias+wordSize);
                 return 0;
             }

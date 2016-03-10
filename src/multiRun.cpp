@@ -10,10 +10,10 @@ int runDAQ();
 
 int main(int argc, const char *argv[]) {
 
-    int testNumber = 1;
-    if(argc == 1)
-        testNumber = atoi(argv[0]);
-
+    int runNumber = 1;
+    if(argc == 2)
+        runNumber = atoi(argv[1]);
+    std::cout << "runNumber: " << runNumber << std::endl;
     machine.init();
     std::string ret;
 
@@ -26,10 +26,10 @@ int main(int argc, const char *argv[]) {
     sleep(1);
 
     std::string pos;
-    for(int i=0; i<testNumber; i++) {
-        std::cout << "pls set mechanical platform distination: ";
-        std::cin.sync();
-        std::cin >> pos;
+    for(int i=0; i<runNumber; i++) {
+        //std::cout << "pls set mechanical platform distination: ";
+        //std::cin.sync();
+        //std::cin >> pos;
 
         runDAQ();
     }
@@ -49,10 +49,10 @@ int runDAQ() {
     sleep(1);
     cmd = smBase::CMID_SATR;
     machine.doAction(cmd, ret);
-    sleep(5);
+    sleep(12);
     cmd = smBase::CMID_SPTR;
     machine.doAction(cmd, ret);
-    sleep(1);
+    sleep(4);
     cmd = smBase::CMID_STOP;
     machine.doAction(cmd, ret);
     sleep(1);

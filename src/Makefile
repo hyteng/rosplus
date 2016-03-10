@@ -11,7 +11,7 @@
 # command line of course, if you prefer to do it that way.
 #
 #
-EXECUTABLE := multitest	# 可执行文件名
+EXECUTABLE := multiRun # 可执行文件名
 LIBDIR:=              # 静态库目录
 LIBS :=               # 静态库文件名
 INCLUDES:=.           # 头文件目录
