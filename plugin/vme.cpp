@@ -220,7 +220,7 @@ int vme::prepVme() {
         offsetList.resize(listSize, 0);
         for(unsigned int i=0; i<listSize;i++) {
             offsetList[i] = pvme->addCmdPkt(listNumber, 0, buffList[i], sizeList[i], awList[i], dwList[i]);
-            debugMsg << name << "# " << "add cmd packet list, idx " << i << ", buff addr " << buffList[i] << ", tranSize " << sizeList[i] << ", aw " << awList[i] << ", dw " << dwList[i];
+            debugMsg << name << "# " << "add cmd packet list, idx " << i << ", buff addr " << buffList[i] << ", tranSize " << sizeList[i] << ", aw " << awList[i] << ", dw " << dwList[i] << ", offset " << offsetList[i];
             stMsg->stateOut(debugMsg);
         }
     }
@@ -288,8 +288,8 @@ void vme::runVme() {
         dmaSize = 0;
         unsigned int fillSize;
         for(unsigned int i=0; i<listSize; i++) {
-            cout << "vme data: " << endl;
-            //uint32_t* ptr = (uint32_t*)(dmaBase+offsetList[i]); ptr++;
+            //cout << "vme data: " << endl;
+            //uint32_t* ptr = (uint32_t*)(dmaBase+offsetList[i]);ptr+=4;
             //for(unsigned int j=0; j<sizeList[i]/4;j++)
             //    cout << hex << "0x" << setw(8) << setfill('0') << *ptr++ << ", ";
             //cout << endl;

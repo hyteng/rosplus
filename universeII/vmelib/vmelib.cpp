@@ -695,6 +695,7 @@ int VMEBridge::newCmdPktList(void) {
         return -1;
     }
 
+    listPtr[list] = 0;
     usedLists.push_back(list);
     return list;
 }
@@ -712,6 +713,8 @@ int VMEBridge::delCmdPktList(int list) {
     }
 
     ioctl(uni_handle, IOCTL_DEL_DCL, list);
+
+    listPtr[list] = 0;
 
     for (it = usedLists.begin(); it != usedLists.end(); it++)
         if (*it == list) {
@@ -748,9 +751,9 @@ unsigned int VMEBridge::addCmdPkt(int list, int write, unsigned int vmeAddr,
         *Err << "Can't add Command Packet to list " << list << "!\n";
         return 0xFFFFFFFF;
     }
-    listPtr += size + offset;
+    listPtr[list] += size + offset;
 
-    return listPtr - size;
+    return listPtr[list] - size;
 }
 
 
@@ -1020,7 +1023,7 @@ VMEBridge::VMEBridge(void)
     Err = &cerr;
 
     bridge_error = 0;
-    listPtr = 0;
+    //listPtr = 0;
 
     uni_handle = open("/dev/vme_ctl", O_RDWR, 0);
     if (uni_handle < 1) {

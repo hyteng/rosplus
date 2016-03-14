@@ -65,7 +65,7 @@ class VMEBridge
         static const unsigned int slave_base_addr[];
         int vme_handle[18], uni_handle, dma_handle;
 
-        unsigned int listPtr, dma_ctl;
+        unsigned int listPtr[256], dma_ctl;
         unsigned int vmeBaseAddr[8];
         uintptr_t vmeImageBase[18], dmaImageBase;
         unsigned int vmeImageSize[18], dmaImageSize, dmaBufSize, dmaMaxBuf;
