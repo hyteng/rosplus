@@ -27,9 +27,9 @@ int main(int argc, const char *argv[]) {
 
     std::string pos;
     for(int i=0; i<runNumber; i++) {
-        //std::cout << "pls set mechanical platform distination: ";
-        //std::cin.sync();
-        //std::cin >> pos;
+        std::cout << "pls set mechanical platform distination(fake): ";
+        std::cin.sync();
+        std::cin >> pos;
 
         runDAQ();
     }
