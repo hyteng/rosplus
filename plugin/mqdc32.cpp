@@ -796,6 +796,8 @@ int mqdc32::prepAdc() {
         delete [] eventSet;
         eventSet = NULL;
     }
+    debugMsg << name << "# " << "buffer depth " << confValue[maxTransfer]*2;
+    stMsg->stateOut(debugMsg);
     eventSet = new uint32_t[confValue[maxTransfer]*2][MQDC32EVENTUINTSIZE];
     eventPtrW = 0;
     eventPtrR = -1;

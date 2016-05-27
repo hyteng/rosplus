@@ -288,11 +288,11 @@ void vme::runVme() {
         dmaSize = 0;
         unsigned int fillSize;
         for(unsigned int i=0; i<listSize; i++) {
-            cout << "vme data: " << endl;
-            uint32_t* ptr = (uint32_t*)(dmaBase+offsetList[i]);
-            for(unsigned int j=0; j<sizeList[i]*cbltList[i]/4;j++)
-                cout << hex << "0x" << setw(8) << setfill('0') << *ptr++ << ", ";
-            cout << endl;
+            //cout << "vme data: " << endl;
+            //uint32_t* ptr = (uint32_t*)(dmaBase+offsetList[i]);
+            //for(unsigned int j=0; j<sizeList[i]*cbltList[i]/4;j++)
+            //    cout << hex << "0x" << setw(8) << setfill('0') << *ptr++ << ", ";
+            //cout << endl;
             
             for(unsigned int j=0; j<cbltList[i];j++) {
                 fillSize = dataPool->devWrite((void*)(dmaBase+offsetList[i]+j*sizeList[i]), sizeList[i], 1);
