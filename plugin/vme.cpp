@@ -219,8 +219,8 @@ int vme::prepVme() {
         offsetList.clear();
         offsetList.resize(listSize, 0);
         for(unsigned int i=0; i<listSize;i++) {
-            offsetList[i] = pvme->addCmdPkt(listNumber, 0, buffList[i], sizeList[i], awList[i], dwList[i]);
-            debugMsg << name << "# " << "add cmd packet list, idx " << i << ", buff addr " << buffList[i] << ", tranSize " << sizeList[i] << ", aw " << awList[i] << ", dw " << dwList[i] << ", offset " << offsetList[i];
+            offsetList[i] = pvme->addCmdPkt(listNumber, 0, buffList[i], sizeList[i]*cbltList[i], awList[i], dwList[i]);
+            debugMsg << name << "# " << "add cmd packet list, idx " << i << ", buff addr " << buffList[i] << ", tranSize " << sizeList[i]*cbltList[i] << ", aw " << awList[i] << ", dw " << dwList[i] << ", offset " << offsetList[i];
             stMsg->stateOut(debugMsg);
         }
     }
@@ -288,17 +288,20 @@ void vme::runVme() {
         dmaSize = 0;
         unsigned int fillSize;
         for(unsigned int i=0; i<listSize; i++) {
-            //cout << "vme data: " << endl;
-            //uint32_t* ptr = (uint32_t*)(dmaBase+offsetList[i]);ptr+=4;
-            //for(unsigned int j=0; j<sizeList[i]/4;j++)
-            //    cout << hex << "0x" << setw(8) << setfill('0') << *ptr++ << ", ";
-            //cout << endl;
-            fillSize = dataPool->devWrite((void*)(dmaBase+offsetList[i]), sizeList[i], 1);
-            if(fillSize != sizeList[i]) {
-                vmeStatus = TASK_ERROR;
+            cout << "vme data: " << endl;
+            uint32_t* ptr = (uint32_t*)(dmaBase+offsetList[i]);
+            for(unsigned int j=0; j<sizeList[i]*cbltList[i]/4;j++)
+                cout << hex << "0x" << setw(8) << setfill('0') << *ptr++ << ", ";
+            cout << endl;
+            
+            for(unsigned int j=0; j<cbltList[i];j++) {
+                fillSize = dataPool->devWrite((void*)(dmaBase+offsetList[i]+j*sizeList[i]), sizeList[i], 1);
+                if(fillSize != sizeList[i]) {
+                    vmeStatus = TASK_ERROR;
+                }
+                tranSize += fillSize;
+                dmaSize += sizeList[i];
             }
-            tranSize += fillSize;
-            dmaSize += sizeList[i];
             devList[i]->queryInterface("afterTransfer", NULL, &res);
         }
         
@@ -347,12 +350,13 @@ std::vector<string>& vme::getNameList() {
 
 unsigned int vme::devStringSplit(const string& dList) {
     stringstream sList(dList);
-    string idx, dev, addr, size, aw, dw;
-    uint32_t tSize, tAW, tDW;
+    string idx, dev, size, cblt, aw, dw;
+    uint32_t tSize, tCBLT, tAW, tDW;
     debugMsg << name << "# " << "vme take device list" << dList << endl;
     stMsg->stateOut(debugMsg);
     nameList.clear();
     sizeList.clear();
+    cbltList.clear();
     awList.clear();
     dwList.clear();
     listSize = 0;
@@ -363,14 +367,19 @@ unsigned int vme::devStringSplit(const string& dList) {
         stringstream sIdx(idx);
         getline(sIdx, dev, ',');
         getline(sIdx, size, ',');
+        getline(sIdx, cblt, ',');
         getline(sIdx, aw, ',');
         getline(sIdx, dw, ',');
 
-        debugMsg << name << "# " << "dev link: " << dev << ", " << size << ", " << aw << ", " << dw <<endl;
+        debugMsg << name << "# " << "dev link: " << dev << ", " << cblt << ", " << aw << ", " << dw <<endl;
         stMsg->stateOut(debugMsg);
 
+        //tSize = 0; // tSize is set to 0 and will be change by getTransferSize() calling
         stringstream sSize(size);
         sSize >> tSize;
+
+        stringstream sCBLT(cblt);
+        sCBLT >> tCBLT;
         
         if(aw == "A16")
             tAW = awValue[0];
@@ -392,11 +401,12 @@ unsigned int vme::devStringSplit(const string& dList) {
         else
             tDW = dwValue[2]; // default
 
-        debugMsg << name << "# " << "dev link: " << dev << ", " << tSize << ", " << tAW << ", " << tDW <<endl;
+        debugMsg << name << "# " << "dev link: " << dev << ", " << tSize << ", " << tCBLT << ", " << tAW << ", " << tDW <<endl;
         stMsg->stateOut(debugMsg);
         
         nameList.push_back(dev);
         sizeList.push_back(tSize);
+        cbltList.push_back(tCBLT);
         awList.push_back(tAW);
         dwList.push_back(tDW);
     }

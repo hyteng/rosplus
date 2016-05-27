@@ -133,8 +133,8 @@ void dataPacker::runPack() {
             break;
         }
 
-        //debugMsg << name << "# " << "fetch devMsg " << packMsg.size;
-        //stMsg->stateOut(debugMsg);
+        debugMsg << name << "# " << "fetch devMsg " << packMsg.size;
+        stMsg->stateOut(debugMsg);
         if(packMsg.signal == 1) {
             totalPackSize += packMsg.size;
             dataSize.push_back(packMsg.size);

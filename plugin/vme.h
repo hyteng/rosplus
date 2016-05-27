@@ -53,10 +53,10 @@ class vme :public smBase {
         std::vector<smBase*> devList;
         std::vector<vmeAddr> buffList;
         std::vector<uint32_t> sizeList; // since the vme has a limit of 256 words on blt
+        std::vector<uint32_t> cbltList;
         std::vector<uint32_t> awList;
         std::vector<uint32_t> dwList;
         std::vector<uintptr_t> offsetList;
-
         
         unsigned int dmaNumber;
         unsigned int dmaSize, tranSize;

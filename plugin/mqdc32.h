@@ -73,7 +73,7 @@ class mqdc32 :public smBase {
 
         int image;
         uint32_t base, length, imgCtrlAddr;
-        uint16_t confValue[200], regValue[200]; //reg is 16bit, use uint32 and cut later
+        uint32_t confValue[200], regValue[200]; //reg is 16bit, use uint32 and cut later
 
         std::mutex semMutex;
 

@@ -249,9 +249,9 @@ static int ctrlSizeMQDC32[ctrlSize] = {/*buf*/1, /*ChTh*/1, 1, 1, 1, 1, 1, 1, 1,
 static int ctrlRWMQDC32[ctrlSize] = {/*buf*/1, /*ChTh*/0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /*board*/0, 0, 0, 0, 2, 1, /*irq*/0, 0, 2, 2, 0, 0, 0, /*blt*/0, 0, 0, 1, /*fifo*/1, 0, 2, 0, 0, 0, 0, 0, 2, 1, /*adc*/0, 0, 0, 0, 0, 0, 0, 0, /*delay*/0, 0, 0, 0, /*io*/0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /*pulser*/0, 0, /*rc*/0, 0, 0, 0, 0, 1, /*ctra*/0, 0, 0, 1, 0, 0, 1, /*ctrb*/1, 1, 1, 1, 1, 0, 0, /*limit*/1, 1, 1, 1}; // disable: -1, rw: 0, ro: 1, wo: 2
 
 //#define confSize 116
-#define confSetSize 76
+#define confSetSize 78
 
-enum MQDC32Conf {/*buf*/buffer=0, /*ChTh*/Ch00Th, Ch01Th, Ch02Th, Ch03Th, Ch04Th, Ch05Th, Ch06Th, Ch07Th, Ch08Th, Ch09Th, Ch10Th, Ch11Th, Ch12Th, Ch13Th, Ch14Th, Ch15Th, Ch16Th, Ch17Th, Ch18Th, Ch19Th, Ch20Th, Ch21Th, Ch22Th, Ch23Th, Ch24Th, Ch25Th, Ch26Th, Ch27Th, Ch28Th, Ch29Th, Ch30Th, Ch31Th, /*board*/addrSource, addrReg, moduleId, fastVme, softReset, firmware, /*irq*/irqLevel, irqVector, irqTest, irqReset, irqTh, maxTransfer, irqWithdraw, /*blt*/cbltCtrl, mcstctrl, cbltAddr, mcstAddr, /*fifo*/dataLength, dataFormat, readoutReset, multiEvent, skipBerr, countUnit, markType, startAcq, fifoReset, dataReady, /*adc*/bankConnect, switchPull0, switchPull1, shiftBank0, shiftBank1, slideScale, overFlow, disableTh, /*delay*/limitBank0, limitBank1, expDelay0, expDelay1, /*io*/inputCouple0, inputCouple1, BLR, terGate0, terGate1, terReset, terBank0, terBank1, eclGate1Osc, eclFCReset, gateSelect, nimGate1Osc, nimFCReset, nimBusy, /*pulser*/pulserSt, pulserDac, /*rc*/rcBusNo, rcModNum, rcOpCode, rcAddr, rcData, rcSt, /*ctra*/ctraReset, ctrbReset, extReset, eventCounterLow, eventCounterHigh, tsSource, tsDivisor, tsCounterLow, tsCounterHigh, /*ctrb*/adcTimeLow, adcTimeHigh, gate1TimeLow, gate1TimeHigh, time0, time1, time2, stopCounterB, stopCounterA, /*limit*/limit0High, limit0Low, limit1High, limit1Low, confSize};
+enum MQDC32Conf {/*buf*/buffer=0, /*ChTh*/Ch00Th, Ch01Th, Ch02Th, Ch03Th, Ch04Th, Ch05Th, Ch06Th, Ch07Th, Ch08Th, Ch09Th, Ch10Th, Ch11Th, Ch12Th, Ch13Th, Ch14Th, Ch15Th, Ch16Th, Ch17Th, Ch18Th, Ch19Th, Ch20Th, Ch21Th, Ch22Th, Ch23Th, Ch24Th, Ch25Th, Ch26Th, Ch27Th, Ch28Th, Ch29Th, Ch30Th, Ch31Th, /*board*/addrSource, addrReg, moduleId, fastVme, softReset, firmware, /*irq*/irqLevel, irqVector, irqTest, irqReset, irqTh, maxTransfer, irqWithdraw, /*blt*/cbltCtrl, mcstCtrl, cbltAddr, mcstAddr, /*fifo*/dataLength, dataFormat, readoutReset, multiEvent, skipBerr, countUnit, markType, startAcq, fifoReset, dataReady, /*adc*/bankConnect, switchPull0, switchPull1, shiftBank0, shiftBank1, slideScale, overFlow, disableTh, /*delay*/limitBank0, limitBank1, expDelay0, expDelay1, /*io*/inputCouple0, inputCouple1, BLR, terGate0, terGate1, terReset, terBank0, terBank1, eclGate1Osc, eclFCReset, gateSelect, nimGate1Osc, nimFCReset, nimBusy, /*pulser*/pulserSt, pulserDac, /*rc*/rcBusNo, rcModNum, rcOpCode, rcAddr, rcData, rcSt, /*ctra*/ctraReset, ctrbReset, extReset, eventCounterLow, eventCounterHigh, tsSource, tsDivisor, tsCounterLow, tsCounterHigh, /*ctrb*/adcTimeLow, adcTimeHigh, gate1TimeLow, gate1TimeHigh, time0, time1, time2, stopCounterB, stopCounterA, /*limit*/limit0High, limit0Low, limit1High, limit1Low, confSize};
 
 static string confNameMQDC32[confSize] = {/*buf*/"buffer", /*ChTh*/"Ch00Th", "Ch01Th", "Ch02Th", "Ch03Th", "Ch04Th", "Ch05Th", "Ch06Th", "Ch07Th", "Ch08Th", "Ch09Th", "Ch10Th", "Ch11Th", "Ch12Th", "Ch13Th", "Ch14Th", "Ch15Th", "Ch16Th", "Ch17Th", "Ch18Th", "Ch19Th", "Ch20Th", "Ch21Th", "Ch22Th", "Ch23Th", "Ch24Th", "Ch25Th", "Ch26Th", "Ch27Th", "Ch28Th", "Ch29Th", "Ch30Th", "Ch31Th", /*board*/"addrSource", "addrReg", "moduleId", "fastVme", "softReset", "firmware", /*irq*/"irqLevel", "irqVector", "irqTest", "irqReset", "irqTh", "maxTransfer", "irqWithdraw", /*blt*/"cbltCtrl", "mcstCtrl", "cbltAddr", "mcstAddr", /*fifo*/"dataLength", "dataFormat", "readoutReset", "multiEvent", "skipBerr", "countUnit", "markType", "startAcq", "fifoReset", "dataReady", /*adc*/"bankConnect", "switchPull0", "switchPull1", "shiftBank0", "shiftBank1", "slideScale", "overFlow", "disableTh", /*delay*/"limitBank0", "limitBank1", "expDelay0", "expDelay1", /*io*/"inputCouple0", "inputCouple1", "BLR", "terGate0", "terGate1", "terReset", "terBank0", "terBank1", "eclGate1Osc", "eclFCReset", "gateSelect", "nimGate1Osc", "nimFCReset", "nimBusy", /*pulser*/"pulserSt", "pulserDac", /*rc*/"rcBusNo", "rcModNum", "rcOpCode", "rcAddr", "rcData", "rcSt", /*ctra*/"ctraReset", "ctrbReset", "extReset", "eventCounterLow", "eventCounterHigh", "tsSource", "tsDivisor", "tsCounterLow", "tsCounterHigh", /*ctrb*/"adcTimeLow", "adcTimeHigh", "gate1TimeLow", "gate1TimeHigh", "time0", "time1", "time2", "stopCounterB", "stopCounterA", /*limit*/"limit0High", "limit0Low", "limit1High", "limit1Low"};
 
@@ -259,15 +259,15 @@ static uint16_t confMaskMQDC32[confSize] = {/*buf*/0xFFFF, /*ChTh*/0x1FFF, 0x1FF
 
 static int confDuplicMQDC32[14] = {47, 54, 55, 61, 62, 73, 74, 76, 77, 78, 79, 95, 96, 111};
 
-static int confDefaultIdxMQDC32[confSetSize] = {/*ChTh*/1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, /*board*/35, 36, /*irq*/39, 40, 43, 44, /*blt*/46, 47, /*fifo*/53, 54, 55, 56, /*adc*/60, 61, 62, 65, 66, 67, /*delay*/68, 69, 70, 71, /*io*/72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, /*pulser*/86, 87, /*rc*//*ctra*/99, 100, /*ctrb*//*limit*/112, 113, 114, 115};
+static int confDefaultIdxMQDC32[confSetSize] = {/*ChTh*/1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, /*board*/35, 36, /*irq*/39, 40, 43, 44, /*blt*/46, 47, 48, 49, /*fifo*/53, 54, 55, 56, /*adc*/60, 61, 62, 65, 66, 67, /*delay*/68, 69, 70, 71, /*io*/72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, /*pulser*/86, 87, /*rc*//*ctra*/99, 100, /*ctrb*//*limit*/112, 113, 114, 115};
 
-static uint16_t confDefaultValueMQDC32[confSetSize] = {/*ChTh*/0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /*board*/0xFF, 0, /*irq*/7, 0x00FE, 100, 4, /*blt*/0x0002, 0x0002, /*fifo*/3, 1, 1, 0, /*adc*/0, 0, 0, 0, 0, 0, /*delay*/255, 255, 0, 0, /*io*/0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, /*pulser*/0, 32, /*rc*//*ctra*/0, 0x0001, /*ctrb*//*limit*/32, 0, 16, 0};
+static uint16_t confDefaultValueMQDC32[confSetSize] = {/*ChTh*/0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /*board*/0xFF, 0, /*irq*/7, 0x00FE, 100, 4, /*blt*/0x0002, 0x0002, 0xAA, 0xBB, /*fifo*/3, 1, 1, 0, /*adc*/0, 0, 0, 0, 0, 0, /*delay*/255, 255, 0, 0, /*io*/0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, /*pulser*/0, 32, /*rc*//*ctra*/0, 0x0001, /*ctrb*//*limit*/32, 0, 16, 0};
 
 #define regSize 102
 
 static uint32_t regAddrMQDC32[regSize] = {/*buf*/0x0000, /*ChTh*/0x4000, 0x4002, 0x4004, 0x4006, 0x4008, 0x400A, 0x400C, 0x400E, 0x4010, 0x4012, 0x4014, 0x4016, 0x4018, 0x401A, 0x401C, 0x401E, 0x4020, 0x4022, 0x4024, 0x4026, 0x4028, 0x402A, 0x402C, 0x402E, 0x4030, 0x4032, 0x4034, 0x4036, 0x4038, 0x403A, 0x403C, 0x403E, /*board*/0x6000, 0x6002, 0x6004, 0x6006, 0x6008, 0x600E, /*irq*/0x6010, 0x6012, 0x6014, 0x6016, 0x6018, 0x601A, 0x601C, /*blt*/0x6020, 0x6022, 0x6024, /*fifo*/0x6030, 0x6032, 0x6034, 0x6036, 0x6038, 0x603A, 0x603C, 0x603E, /*adc*/0x6040, 0x6044, 0x6046, 0x6048, 0x604A, 0x604C, /*delay*/0x6050, 0x6052, 0x6054, 0x6056, /*io*/0x6060, 0x6062, 0x6064, 0x6066, 0x6068, 0x606A, 0x606C, 0x606E, /*pluser*/0x6070, 0x6072, /*rc*/0x6080, 0x6082, 0x6084, 0x6086, 0x6088, 0x608A, /*ctra*/0x6090, 0x6092, 0x6094, 0x6096, 0x6098, 0x609C, 0x609E, /*ctrb*/0x60A0, 0x60A2, 0x60A4, 0x60A6, 0x60A8, 0x60AA, 0x60AC, 0x60AE, /*limit*/0x60B0, 0x60B2, 0x60B4, 0x60B6};
 
-static int regRWMQDC32[regSize] = {/*buf*/1, /*ChTh*/0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /*board*/0, 0, 0, 0, 2, 1, /*irq*/0, 0, 2, 2, 0, 0, 0, /*blt*/0, 0, 1, /*fifo*/1, 0, 2, 0, 0, 0, 2, 1, /*adc*/0, 0, 0, 0, 0, 0, /*delay*/0, 0, 0, 0, /*io*/0, 0, 0, 0, 0, 0, 0, 0, /*pulser*/0, 0, /*rc*/0, 0, 0, 0, 0, 1, /*ctra*/0, 1, 1, 0, 0, 1, 1, /*ctrb*/1, 1, 1, 1, 1, 1, 1, 0, /*limit*/1, 1, 1, 1}; // disable: -1, rw: 0, ro: 1, wo: 2
+static int regRWMQDC32[regSize] = {/*buf*/1, /*ChTh*/0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /*board*/0, 0, 0, 0, 2, 1, /*irq*/0, 0, 2, 2, 0, 0, 0, /*blt*/0, 0, 0, /*fifo*/1, 0, 2, 0, 0, 0, 2, 1, /*adc*/0, 0, 0, 0, 0, 0, /*delay*/0, 0, 0, 0, /*io*/0, 0, 0, 0, 0, 0, 0, 0, /*pulser*/0, 0, /*rc*/0, 0, 0, 0, 0, 1, /*ctra*/0, 1, 1, 0, 0, 1, 1, /*ctrb*/1, 1, 1, 1, 1, 1, 1, 0, /*limit*/1, 1, 1, 1}; // disable: -1, rw: 0, ro: 1, wo: 2
 
 static map<string, vector<string> > mqdc32_ctrl2conf;
 static map<string, vector<int> > mqdc32_ctrl2level;
@@ -455,6 +455,9 @@ int mqdc32::accessReg(const int idx, const int rw, regData& data) {
     if((*regRWIdx)[idx] != 0 && (*regRWIdx)[idx] != rw+1)
         return 0;
 
+    if(rw==0 && confValue[mcstCtrl]==0x0000)
+        return 0;
+
     regAddrType addr = *(regAddrType*)((*regAddr)[idx]);
     
     res = accessRegNormal(addr, rw, (regType*)data.getValueP());
@@ -492,6 +495,8 @@ int mqdc32::unmaskRegData(regData& data, regData& mask) {
 }
 
 uintptr_t mqdc32::getBuffAddr() {
+    if(confValue[mcstCtrl] == 0x0000) // empty bit for identifying the mcst device
+        return confValue[cbltAddr]<<24;
     return base;
 }
 
@@ -764,13 +769,15 @@ int mqdc32::configAdc(string& ret) {
         }
         debugMsg << name << "# " << "regAddr " << *(regAddrType*)((*regAddr)[regSet[i]]);
         stMsg->stateOut(debugMsg);
-        pvme->rw(image, base+(*(regAddrType*)((*regAddr)[regSet[i]])), &testReg);
-        debugMsg << name << "# " << "regIdx " << regSet[i] << ", read " << pvme->swap16(testReg);
-        stMsg->stateOut(debugMsg);
+        if(confValue[mcstCtrl] != 0x0000) {// mcst device is virtual and only write
+            pvme->rw(image, base+(*(regAddrType*)((*regAddr)[regSet[i]])), &testReg);
+            debugMsg << name << "# " << "regIdx " << regSet[i] << ", read " << pvme->swap16(testReg);
+            stMsg->stateOut(debugMsg);
+        }
     }
 
     // setup vme irq
-    if(confValue[irqLevel]>0 && confValue[irqLevel]<=7)
+    if(confValue[irqLevel]>0 && confValue[irqLevel]<=7 && confValue[mcstCtrl]!=0x0002)
         pvme->setupIrq(image, confValue[irqLevel], confValue[irqVector], 0, 0, 0, 0);
 
     debugMsg << dec;
@@ -817,15 +824,17 @@ int mqdc32::finishAdc() {
 int mqdc32::startAdc() {
     // first disable adc
     disableAdc();
-    // reset counters
-    pvme->ww(image, base+MQDC32_CountReset_Offset, pvme->swap16((uint16_t)0x0003));
-    usleep(1000);
-    // clear data
-    pvme->ww(image, base+MQDC32_FIFOReset_Offset, pvme->swap16((uint16_t)0x0000));
-    usleep(1000);
-    // clear Irq and Berr
-    pvme->ww(image, base+MQDC32_ReadoutReset_Offset, pvme->swap16((uint16_t)0x0000));
-    usleep(1000);
+    if(confValue[mcstCtrl] != 0x0002) {
+        // reset counters
+        pvme->ww(image, base+MQDC32_CountReset_Offset, pvme->swap16((uint16_t)0x0003));
+        usleep(1000);
+        // clear data
+        pvme->ww(image, base+MQDC32_FIFOReset_Offset, pvme->swap16((uint16_t)0x0000));
+        usleep(1000);
+        // clear Irq and Berr
+        pvme->ww(image, base+MQDC32_ReadoutReset_Offset, pvme->swap16((uint16_t)0x0000));
+        usleep(1000);
+    }
     // enable adc
     enableAdc();
 
@@ -841,14 +850,18 @@ int mqdc32::stopAdc() {
 
 int mqdc32::enableAdc() {
     // set startAcq
-    pvme->ww(image, base+MQDC32_StartAcq_Offset, pvme->swap16((uint16_t)0x0001));
-    usleep(1000);
+    if(confValue[mcstCtrl] != 0x0002) {
+        pvme->ww(image, base+MQDC32_StartAcq_Offset, pvme->swap16((uint16_t)0x0001));
+        usleep(1000);
+    }
     return 1;
 }
 
 int mqdc32::disableAdc() {
     // unset startAcq
-    pvme->ww(image, base+MQDC32_StartAcq_Offset, pvme->swap16((uint16_t)0x0000));
+    if(confValue[mcstCtrl] != 0x0002) {
+        pvme->ww(image, base+MQDC32_StartAcq_Offset, pvme->swap16((uint16_t)0x0000));
+    }
     return 1;
 }
 
