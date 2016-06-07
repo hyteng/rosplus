@@ -16,8 +16,8 @@
 3	config.vme1-mqdc32-mcst.vmeModeName	vme0
 0	config.vme1-mqdc32-mcst.irqLevel	7
 0	config.vme1-mqdc32-mcst.irqVector	0xFE
-0	config.vme1-mqdc32-mcst.irqTh	160
-0	config.vme1-mqdc32-mcst.maxTransfer	6
+0	config.vme1-mqdc32-mcst.irqTh	3400
+0	config.vme1-mqdc32-mcst.maxTransfer	100
 0	config.vme1-mqdc32-mcst.cbltCtrl	0x00
 0	config.vme1-mqdc32-mcst.mcstCtrl	0x00
 0	config.vme1-mqdc32-mcst.cbltAddr	0xAA
@@ -65,8 +65,8 @@
 0	config.vme1-mqdc32-0.fastVme	0xFA
 0	config.vme1-mqdc32-0.irqLevel	7
 0	config.vme1-mqdc32-0.irqVector	0xFE
-0	config.vme1-mqdc32-0.irqTh	160
-0	config.vme1-mqdc32-0.maxTransfer	5
+0	config.vme1-mqdc32-0.irqTh	3400
+0	config.vme1-mqdc32-0.maxTransfer	100
 0	config.vme1-mqdc32-0.cbltCtrl	0x22
 0	config.vme1-mqdc32-0.mcstCtrl	0x02
 0	config.vme1-mqdc32-0.cbltAddr	0xAA
@@ -146,10 +146,10 @@
 0	config.vme1-mqdc32-1.fastVme	0xFA
 0	config.vme1-mqdc32-1.irqLevel	7
 0	config.vme1-mqdc32-1.irqVector	0xFE
-0	config.vme1-mqdc32-1.irqTh	160
-0	config.vme1-mqdc32-1.maxTransfer	5
+0	config.vme1-mqdc32-1.irqTh	3400
+0	config.vme1-mqdc32-1.maxTransfer	100
 0	config.vme1-mqdc32-1.cbltCtrl	0x0A
-0	config.vme1-mqdc32-1.mcstctrl	0x02
+0	config.vme1-mqdc32-1.mcstCtrl	0x02
 0	config.vme1-mqdc32-1.cbltAddr	0xAA
 0	config.vme1-mqdc32-1.mcstAddr	0xBB
 0	config.vme1-mqdc32-1.multiEvent	3
