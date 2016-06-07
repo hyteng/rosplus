@@ -72,7 +72,7 @@
 0	config.vme1-adc1785-0.emptyProg	0
 0	config.vme1-adc1785-0.slideSub	0
 0	config.vme1-adc1785-0.allTrigger	1
-0	config.vme1-mqdc32-0.base	0xDD000000
+0	config.vme1-mqdc32-0.base	0xD0000000
 0	config.vme1-mqdc32-0.length	0x40000
 3	config.vme1-mqdc32-0.vmeModeName	vme0
 0	config.vme1-mqdc32-0.Ch00Th	0x0
@@ -151,4 +151,4 @@
 0	config.vme1-mqdc32-0.limit0Low	0
 0	config.vme1-mqdc32-0.limit1High	16
 0	config.vme1-mqdc32-0.limit1Low	0
-0   config.luxx0.switch 0
+0	config.luxx0.switch	0

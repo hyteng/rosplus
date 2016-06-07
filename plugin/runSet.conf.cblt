@@ -26,7 +26,7 @@
 0	config.vme1-mqdc32-mcst.skipBerr	1
 0	config.vme1-mqdc32-mcst.countUnit	1
 0	config.vme1-mqdc32-mcst.markType	0
-0	config.vme1-mqdc32-0.base	0xDD000000
+0	config.vme1-mqdc32-0.base	0xD0000000
 0	config.vme1-mqdc32-0.length	0x40000
 3	config.vme1-mqdc32-0.vmeModeName	vme0
 0	config.vme1-mqdc32-0.Ch00Th	0x0
@@ -107,7 +107,7 @@
 0	config.vme1-mqdc32-0.limit0Low	0
 0	config.vme1-mqdc32-0.limit1High	16
 0	config.vme1-mqdc32-0.limit1Low	0
-0	config.vme1-mqdc32-1.base	0xDD100000
+0	config.vme1-mqdc32-1.base	0xD1000000
 0	config.vme1-mqdc32-1.length	0x40000
 3	config.vme1-mqdc32-1.vmeModeName	vme0
 0	config.vme1-mqdc32-1.Ch00Th	0x0
