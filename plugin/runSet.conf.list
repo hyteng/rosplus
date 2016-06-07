@@ -8,7 +8,7 @@
 0	config.vme0.dmaNumber	1
 0	config.vme0.dmaSize	72
 3	config.vme0.triggerDevice	vme1-mqdc32-0
-3	config.vme0.linkList	vme1-mqdc32-0,576,A32,D64;
+3	config.vme0.linkList	vme1-mqdc32-0,576,1,A32,D64;
 3	config.dataPacker0.vmeDev	vme0
 3	config.dataPacker0.packList	vme1-mqdc32-0;
 3	config.vme1-adc1785-0.vmeModeName	vme0
