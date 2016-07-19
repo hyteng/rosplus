@@ -41,5 +41,9 @@ test/snmp
 !.conf
 !.wxg
 !.conf
-
-
+ioc/configure/O.*/
+ioc/rosApp/Db/O.*/
+ioc/rosApp/src/O.*/
+ioc/db/
+ioc/dbd/
+ioc/iocBoot/iocros/envPaths
