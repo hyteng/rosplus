@@ -2,14 +2,10 @@ ExtraInput = Ignore;
 ReplyTimeout = 100;
 #Terminator = LF;
 #
-cmd {
-    out "\$1";
-        #wait 100;
-    }
 getInput {
         #out "%(\$2:IN\$1:Units_RBV.VAL)s","RDG? ","%(\$2:OUT\$1:Cntrl_RBV.VAL)s";
         in "%s";
     }
 setOutput {
-        out "RDCF","%(\$1.VAL)s";
+        out "%(\$1.VAL)s";
     }

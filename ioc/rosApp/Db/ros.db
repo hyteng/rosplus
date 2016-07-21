@@ -1,72 +1,9 @@
-grecord (ao, "$(P)ROS:$(Q):CTRL:EXIT") {
-  field (DTYP, "stream")
-  field (PREC, "2")
-  field (OUT, "@ros.proto cmd(EXIT) $(PORT) $(ADDR)")
-  field (FLNK, "$(P)ROS:$(Q):CMDBACK")
-}
-grecord (ao, "$(P)ROS:$(Q):CTRL:STOP") {
-  field (DTYP, "stream")
-  field (PREC, "2")
-  field (OUT, "@ros.proto cmd(STOP) $(PORT) $(ADDR)")
-  field (FLNK, "$(P)ROS:$(Q):CMDBACK")
-}
-grecord (ao, "$(P)ROS:$(Q):CTRL:SPTR") {
-  field (DTYP, "stream")
-  field (PREC, "2")
-  field (OUT, "@ros.proto cmd(SPTR) $(PORT) $(ADDR)")
-  field (FLNK, "$(P)ROS:$(Q):CMDBACK")
-}
-grecord (ao, "$(P)ROS:$(Q):CTRL:UNCF") {
-  field (DTYP, "stream")
-  field (PREC, "2")
-  field (OUT, "@ros.proto cmd(UNCF) $(PORT) $(ADDR)")
-  field (FLNK, "$(P)ROS:$(Q):CMDBACK")
-}
-grecord (ao, "$(P)ROS:$(Q):CTRL:UNLD") {
-  field (DTYP, "stream")
-  field (PREC, "2")
-  field (OUT, "@ros.proto cmd(UNLD) $(PORT) $(ADDR)")
-  field (FLNK, "$(P)ROS:$(Q):CMDBACK")
-}
-grecord (ao, "$(P)ROS:$(Q):CTRL:CONF") {
-  field (DTYP, "stream")
-  field (PREC, "2")
-  field (OUT, "@ros.proto cmd(CONF) $(PORT) $(ADDR)")
-  field (FLNK, "$(P)ROS:$(Q):CMDBACK")
-}
-grecord (ao, "$(P)ROS:$(Q):CTRL:LOAD") {
-  field (DTYP, "stream")
-  field (PREC, "2")
-  field (OUT, "@ros.proto cmd(LOAD) $(PORT) $(ADDR)")
-  field (FLNK, "$(P)ROS:$(Q):CMDBACK")
-}
-grecord (ao, "$(P)ROS:$(Q):CTRL:PREP") {
-  field (DTYP, "stream")
-  field (PREC, "2")
-  field (OUT, "@ros.proto cmd(PREP) $(PORT) $(ADDR)")
-  field (FLNK, "$(P)ROS:$(Q):CMDBACK")
-}
-grecord (ao, "$(P)ROS:$(Q):CTRL:SATR") {
-  field (DTYP, "stream")
-  field (PREC, "2")
-  field (OUT, "@ros.proto cmd(SATR) $(PORT) $(ADDR)")
-  field (FLNK, "$(P)ROS:$(Q):CMDBACK")
-}
-grecord (ao, "$(P)ROS:$(Q):CTRL:STAT") {
-  field (DTYP, "stream")
-  field (PREC, "2")
-  field (OUT, "@ros.proto cmd(STAT) $(PORT) $(ADDR)")
-  field (FLNK, "$(P)ROS:$(Q):REQSTAT") 
-}
 grecord(stringin,"$(P)ROS:$(Q):CMDBACK") {
         field(DTYP, "stream")
         field(INP, "@ros.proto getInput $(PORT) $(ADDR)")
 }
-grecord(stringin,"$(P)ROS:$(Q):REQSTAT") {
+grecord(stringout,"$(P)ROS:$(Q):CTRL") {
         field(DTYP, "stream")
-        field(INP, "@ros.proto getInput $(PORT) $(ADDR)")
-}
-grecord(stringout,"$(P)ROS:$(Q):RDCF") {
-        field(DTYP, "stream")
-        field(OUT, "@ros.proto setOutput($(P)ROS:$(Q):RDCF) $(PORT) $(ADDR)")
+        field(OUT, "@ros.proto setOutput($(P)ROS:$(Q):CTRL) $(PORT) $(ADDR)")
+        field (FLNK, "$(P)ROS:$(Q):CMDBACK")
 }

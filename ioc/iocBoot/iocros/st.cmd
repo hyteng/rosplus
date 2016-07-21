@@ -16,9 +16,9 @@ dbLoadTemplate "db/user.substitutions"
 dbLoadRecords "db/dbSubExample.db", "user=hyteng"
 
 dbLoadRecords("$(TOP)/db/ros.db", "P=ABC:,Q=TC1,PORT=rosIP,ADDR=0")
-drvAsynIPPortConfigure("rosIP", "127.0.0.1:4000", 0, 0, 0)
-asynOctetSetInputEos("rosIP",0,"\n")
-asynOctetSetOutputEos("rosIP",0,"\n")
+drvAsynIPPortConfigure("rosIP", "127.0.0.1:4002", 0, 0, 0)
+asynOctetSetInputEos("rosIP",0,"\0")
+asynOctetSetOutputEos("rosIP",0,"\0")
 
 epicsEnvSet ("STREAM_PROTOCOL_PATH", "$(TOP)/rosApp/Db")
 
