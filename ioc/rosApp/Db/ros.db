@@ -1,9 +1,10 @@
 grecord(stringin,"$(P)ROS:$(Q):CMDBACK") {
         field(DTYP, "stream")
-        field(INP, "@ros.proto getInput $(PORT) $(ADDR)")
+        field(SCAN, "I/O Intr")
+        field(INP, "@ros.proto getInput($(P)ROS:$(Q):CMDBACK) $(PORT) $(ADDR)")
 }
 grecord(stringout,"$(P)ROS:$(Q):CTRL") {
         field(DTYP, "stream")
         field(OUT, "@ros.proto setOutput($(P)ROS:$(Q):CTRL) $(PORT) $(ADDR)")
-        field (FLNK, "$(P)ROS:$(Q):CMDBACK")
+        field(FLNK, "$(P)ROS:$(Q):CMDBACK")
 }
