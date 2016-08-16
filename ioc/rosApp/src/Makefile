@@ -38,6 +38,7 @@ ros_SRCS_vxWorks += -nil-
 # Finally link to the EPICS Base libraries
 ros_LIBS += $(EPICS_BASE_IOC_LIBS)
 ros_LIBS += calc
+ros_LIBS += seq
 ros_LIBS += asyn
 ros_LIBS += stream
 ros_LIBS += streamSynApps

@@ -203,12 +203,15 @@ int dataPacker::packStringSplit(const string& pList) {
     devList.clear();
     listSize = 0;
     while(getline(sList, dev, ';')) {
+        /*
+        // cblt mode use different vmeList and packList so it should not check the devices.
         if(listSize < vmeSize && dev != vmeList[listSize]) {
             debugMsg << name << "# " << "vme list do not contain the device" << dev << endl;
             devList.clear();
             listSize = 0;
             break;
         }
+        */
         devList.push_back(dev);
         listSize++;
         debugMsg << name << "# " << "dev link " << listSize << ", " << dev << endl;
