@@ -13,6 +13,7 @@
 #define CTRLPORT 4002
 #define BACKLOG 10
 #define MAXMSG 256
+#define ackCtrl 0
 
 using std::string;
 using std::stringstream;
@@ -198,7 +199,7 @@ int stateMessager::controlRun(int socketMsg) {
             break;
 
         //cout << retMsg << endl;
-        sendCtrl(retMsg);
+        if(ackCtrl) sendCtrl(retMsg);
         retMsg = "";
 
         //lock.unlock();
