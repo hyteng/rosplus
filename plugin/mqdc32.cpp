@@ -296,7 +296,7 @@ static int setCtrl() {
             j--;
         mqdc32_conf2reg[confNameMQDC32[i]] = j;
         mqdc32_conf2mask[confNameMQDC32[i]] = (uintptr_t)(&confMaskMQDC32[i]);
-        cout << hex << "mqdc32# " << "confName " << confNameMQDC32[i] << ", regAddr " << regAddrMQDC32[j] << dec << endl;
+        //cout << hex << "mqdc32# " << "confName " << confNameMQDC32[i] << ", regAddr " << regAddrMQDC32[j] << dec << endl;
     }
 
     mqdc32_regAddr.clear();

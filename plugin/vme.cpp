@@ -128,17 +128,17 @@ int vme::configVme() {
     MISC_CTL = pvme->readUniReg(0x404);
     MAST_CTL = pvme->readUniReg(0x400);
     LSI0_CTL = pvme->readUniReg(0x100);
-    debugMsg << name << "# " << "PCI_CSR: " << PCI_CSR << ", MISC_CTL: " << MISC_CTL << ", MAST_CTL: " << MAST_CTL << ", LSI0_CTL: " << LSI0_CTL;
-    stMsg->stateOut(debugMsg);
+    //debugMsg << name << "# " << "PCI_CSR: " << PCI_CSR << ", MISC_CTL: " << MISC_CTL << ", MAST_CTL: " << MAST_CTL << ", LSI0_CTL: " << LSI0_CTL;
+    //stMsg->stateOut(debugMsg);
     if(PCI_CSR&0xF9000000)
         pvme->writeUniReg(0x004, 0xF9000007);
     PCI_CSR = pvme->readUniReg(0x004);
     MISC_CTL = pvme->readUniReg(0x404);
     MAST_CTL = pvme->readUniReg(0x400);
     LSI0_CTL = pvme->readUniReg(0x100);
-    debugMsg << name << "# " << "UniverseII Register after writing 0xF9000007 to register 0x004:" << endl;
-    debugMsg << name << "# " << "PCI_CSR: " << PCI_CSR << ", MISC_CTL: " << MISC_CTL << ", MAST_CTL: " << MAST_CTL << ", LSI0_CTL: " << LSI0_CTL;
-    stMsg->stateOut(debugMsg);
+    //debugMsg << name << "# " << "UniverseII Register after writing 0xF9000007 to register 0x004:" << endl;
+    //debugMsg << name << "# " << "PCI_CSR: " << PCI_CSR << ", MISC_CTL: " << MISC_CTL << ", MAST_CTL: " << MAST_CTL << ", LSI0_CTL: " << LSI0_CTL;
+    //stMsg->stateOut(debugMsg);
 
     if((res=cfgInfo->infoGetUint("config."+name+".dmaNumber", dmaNumber)) != 1) {
         debugMsg << name << "# " << "config."+name+".dmaNumber not found.";
@@ -178,8 +178,8 @@ int vme::prepVme() {
                 triDev = iter->second;
                 if(!triDev->queryInterface("getEventTh", NULL, (void*)&eventTh))
                     return 0;
-                debugMsg << name << "# " << "helper get " << triggerDevice << " and get " << eventTh << " eventTh";
-                stMsg->stateOut(debugMsg);
+                //debugMsg << name << "# " << "helper get " << triggerDevice << " and get " << eventTh << " eventTh";
+                //stMsg->stateOut(debugMsg);
             }
         }
     }
@@ -211,8 +211,8 @@ int vme::prepVme() {
     }
     
     listNumber = pvme->newCmdPktList();
-    debugMsg << name << "# " << "add cmd packet list number " << listNumber;
-    stMsg->stateOut(debugMsg);
+    //debugMsg << name << "# " << "add cmd packet list number " << listNumber;
+    //stMsg->stateOut(debugMsg);
     if(listNumber < 0 || listNumber > 255)
         return 0;
     else {
@@ -220,8 +220,8 @@ int vme::prepVme() {
         offsetList.resize(listSize, 0);
         for(unsigned int i=0; i<listSize;i++) {
             offsetList[i] = pvme->addCmdPkt(listNumber, 0, buffList[i], sizeList[i]*cbltList[i], awList[i], dwList[i]);
-            debugMsg << name << "# " << "add cmd packet list, idx " << i << ", buff addr " << buffList[i] << ", tranSize " << sizeList[i]*cbltList[i] << ", aw " << awList[i] << ", dw " << dwList[i] << ", offset " << offsetList[i];
-            stMsg->stateOut(debugMsg);
+            //debugMsg << name << "# " << "add cmd packet list, idx " << i << ", buff addr " << buffList[i] << ", tranSize " << sizeList[i]*cbltList[i] << ", aw " << awList[i] << ", dw " << dwList[i] << ", offset " << offsetList[i];
+            //stMsg->stateOut(debugMsg);
         }
     }
 
@@ -331,8 +331,8 @@ void vme::runVme() {
     if(vmeStatus == TASK_RUN)
         vmeStatus = TASK_EXIT;
 
-    debugMsg << name << "# " << "vme stop thread " << vmeStatus << endl;
-    stMsg->stateOut(debugMsg);
+    //debugMsg << name << "# " << "vme stop thread " << vmeStatus << endl;
+    //stMsg->stateOut(debugMsg);
     
     return;
 }
@@ -353,8 +353,8 @@ unsigned int vme::devStringSplit(const string& dList) {
     stringstream sList(dList);
     string idx, dev, size, cblt, aw, dw;
     uint32_t tSize, tCBLT, tAW, tDW;
-    debugMsg << name << "# " << "vme take device list" << dList << endl;
-    stMsg->stateOut(debugMsg);
+    //debugMsg << name << "# " << "vme take device list" << dList << endl;
+    //stMsg->stateOut(debugMsg);
     nameList.clear();
     sizeList.clear();
     cbltList.clear();
@@ -363,8 +363,8 @@ unsigned int vme::devStringSplit(const string& dList) {
     listSize = 0;
     while(getline(sList, idx, ';')) {
         listSize++;
-        debugMsg << name << "# " << "dev link " << listSize << ", " << idx << endl;
-        stMsg->stateOut(debugMsg);
+        //debugMsg << name << "# " << "dev link " << listSize << ", " << idx << endl;
+        //stMsg->stateOut(debugMsg);
         stringstream sIdx(idx);
         getline(sIdx, dev, ',');
         getline(sIdx, size, ',');
@@ -372,8 +372,8 @@ unsigned int vme::devStringSplit(const string& dList) {
         getline(sIdx, aw, ',');
         getline(sIdx, dw, ',');
 
-        debugMsg << name << "# " << "dev link: " << dev << ", " << cblt << ", " << aw << ", " << dw <<endl;
-        stMsg->stateOut(debugMsg);
+        //debugMsg << name << "# " << "dev link: " << dev << ", " << cblt << ", " << aw << ", " << dw <<endl;
+        //stMsg->stateOut(debugMsg);
 
         //tSize = 0; // tSize is set to 0 and will be change by getTransferSize() calling
         stringstream sSize(size);
@@ -402,8 +402,8 @@ unsigned int vme::devStringSplit(const string& dList) {
         else
             tDW = dwValue[2]; // default
 
-        debugMsg << name << "# " << "dev link: " << dev << ", " << tSize << ", " << tCBLT << ", " << tAW << ", " << tDW <<endl;
-        stMsg->stateOut(debugMsg);
+        //debugMsg << name << "# " << "dev link: " << dev << ", " << tSize << ", " << tCBLT << ", " << tAW << ", " << tDW <<endl;
+        //stMsg->stateOut(debugMsg);
         
         nameList.push_back(dev);
         sizeList.push_back(tSize);
