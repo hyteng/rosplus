@@ -46,7 +46,7 @@ void smBase::init(stateMessager* msg, configSet* cfg, dataStream* data, const st
     actions[CMID_LOAD][STID_Loaded] = &smBase::SelfTrans;
     actions[CMID_UNLD][STID_Loaded] = &smBase::LoadedUNLD;
     actions[CMID_CONF][STID_Loaded] = &smBase::LoadedCONF;
-    actions[CMID_CONF][STID_Configured] = &smBase::LoadedCONF;
+    actions[CMID_CONF][STID_Configured] = &smBase::SelfTrans;
     actions[CMID_UNCF][STID_Configured] = &smBase::ConfiguredUNCF;
     actions[CMID_STOP][STID_Configured] = &smBase::SelfTrans;
     actions[CMID_PREP][STID_Configured] = &smBase::ConfiguredPREP;
