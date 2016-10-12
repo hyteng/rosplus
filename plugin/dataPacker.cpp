@@ -31,29 +31,29 @@ dataPacker::~dataPacker() {
 }
 
 int dataPacker::ConfiguredPREP(std::string& ret, void* para[]) {
-    debugMsg << name << "# " << "ConfiguredPREP";
-    stMsg->stateOut(debugMsg);
+    //debugMsg << name << "# " << "ConfiguredPREP";
+    //stMsg->stateOut(debugMsg);
     prepPacker();
     return smBase::ConfiguredPREP(ret, para);
 }
 
 int dataPacker::ReadySATR(std::string& ret, void* para[]) {
-    debugMsg << name << "# " << "ReadySATR";
-    stMsg->stateOut(debugMsg);
+    //debugMsg << name << "# " << "ReadySATR";
+    //stMsg->stateOut(debugMsg);
     startPacker();
     return smBase::ReadySATR(ret, para);
 }
 
 int dataPacker::RunningSPTR(std::string& ret, void* para[]) {
-    debugMsg << name << "# " << "RunningSPTR";
-    stMsg->stateOut(debugMsg);
+    //debugMsg << name << "# " << "RunningSPTR";
+    //stMsg->stateOut(debugMsg);
     stopPacker();
     return smBase::RunningSPTR(ret, para);
 }
 
 int dataPacker::PausedSPTR(std::string& ret, void* para[]) {
-    debugMsg << name << "# " << "PausedSPTR";
-    stMsg->stateOut(debugMsg);
+    //debugMsg << name << "# " << "PausedSPTR";
+    //stMsg->stateOut(debugMsg);
     stopPacker();
     return smBase::PausedSPTR(ret, para);
 }
@@ -65,8 +65,8 @@ int dataPacker::prepPacker() {
 
     vmeDev = NULL;
     if((res=cfgInfo->infoGetString("config."+name+".vmeDev", vmeDevice)) == 1) {
-        debugMsg << name << "# " << "helper get " << vmeDevice;
-        stMsg->stateOut(debugMsg);
+        //debugMsg << name << "# " << "helper get " << vmeDevice;
+        //stMsg->stateOut(debugMsg);
         for(iter=helpList->begin(); iter!=helpList->end(); iter++) {
             if(iter->first == vmeDevice) {
                 vmeDev = iter->second;
@@ -74,8 +74,8 @@ int dataPacker::prepPacker() {
                 if(!vmeDev->queryInterface("getNameList", NULL, (void*)&vmeList))
                     return 0;
                 vmeSize = vmeList.size();
-                debugMsg << name << "# " << "helper get " << vmeDevice << " and get " << vmeSize << " from its devList.";
-                stMsg->stateOut(debugMsg);
+                //debugMsg << name << "# " << "helper get " << vmeDevice << " and get " << vmeSize << " from its devList.";
+                //stMsg->stateOut(debugMsg);
             }
         }
     }
@@ -185,21 +185,21 @@ void dataPacker::runPack() {
         packStatus = TASK_ERROR;
     }
 
-    debugMsg << name << "# " << "send stop to netMsg and return " << stopSend;
-    stMsg->stateOut(debugMsg);
+    //debugMsg << name << "# " << "send stop to netMsg and return " << stopSend;
+    //stMsg->stateOut(debugMsg);
 
     if(packStatus == TASK_RUN)
         packStatus = TASK_EXIT;
 
-    debugMsg << name << "# " << "stop thread " << packStatus;
-    stMsg->stateOut(debugMsg);
+    //debugMsg << name << "# " << "stop thread " << packStatus;
+    //stMsg->stateOut(debugMsg);
 }
 
 int dataPacker::packStringSplit(const string& pList) {
     stringstream sList(pList);
     string dev;
-    debugMsg << name << "# " << "vme take device list" << pList << endl;
-    stMsg->stateOut(debugMsg);
+    //debugMsg << name << "# " << "vme take device list" << pList << endl;
+    //stMsg->stateOut(debugMsg);
     devList.clear();
     listSize = 0;
     while(getline(sList, dev, ';')) {
@@ -214,8 +214,8 @@ int dataPacker::packStringSplit(const string& pList) {
         */
         devList.push_back(dev);
         listSize++;
-        debugMsg << name << "# " << "dev link " << listSize << ", " << dev << endl;
-        stMsg->stateOut(debugMsg);
+        //debugMsg << name << "# " << "dev link " << listSize << ", " << dev << endl;
+        //stMsg->stateOut(debugMsg);
     }
     return listSize;
 }

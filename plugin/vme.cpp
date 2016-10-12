@@ -54,66 +54,66 @@ int vme::queryInterface(const string& funcName, void* para[], void* ret) {
 }
 
 int vme::InitializedLOAD(string& ret, void* para[]) {
-    debugMsg << name << "# " << "InitializedLOAD";
-    stMsg->stateOut(debugMsg); 
+    //debugMsg << name << "# " << "InitializedLOAD";
+    //stMsg->stateOut(debugMsg); 
     pvme = new VMEBridge;
     return smBase::InitializedLOAD(ret, para);
 }
 
 int vme::LoadedUNLD(string& ret, void* para[]) {
-    debugMsg << name << "# " << "LoadedUNLD";
-    stMsg->stateOut(debugMsg);
+    //debugMsg << name << "# " << "LoadedUNLD";
+    //stMsg->stateOut(debugMsg);
     delete pvme;
     pvme = NULL;
     return smBase::LoadedUNLD(ret, para);
 }
 
 int vme::LoadedCONF(string& ret, void* para[]) {
-    debugMsg << name << "# " << "LoadedCONF";
-    stMsg->stateOut(debugMsg);
+    //debugMsg << name << "# " << "LoadedCONF";
+    //stMsg->stateOut(debugMsg);
     configVme();
     return smBase::LoadedCONF(ret, para);
 }
 
 int vme::ConfiguredUNCF(string& ret, void* para[]) {
-    debugMsg << name << "# " << "ConfiguredUNCF";
-    stMsg->stateOut(debugMsg);
+    //debugMsg << name << "# " << "ConfiguredUNCF";
+    //stMsg->stateOut(debugMsg);
     releaseVme();
     return smBase::ConfiguredUNCF(ret, para);
 }
 
 int vme::ConfiguredPREP(string& ret, void* para[]) {
-    debugMsg << name << "# " << "ConfiguredPREP";
-    stMsg->stateOut(debugMsg);
+    //debugMsg << name << "# " << "ConfiguredPREP";
+    //stMsg->stateOut(debugMsg);
     if(!prepVme())
         return -1;
     return smBase::ConfiguredPREP(ret, para);
 }
 
 int vme::ReadySTOP(string& ret, void* para[]) {
-    debugMsg << name << "# " << "ReadySTOP";
-    stMsg->stateOut(debugMsg);
+    //debugMsg << name << "# " << "ReadySTOP";
+    //stMsg->stateOut(debugMsg);
     finishVme();
     return smBase::ReadySTOP(ret, para);
 }
 
 int vme::ReadySATR(string& ret, void* para[]) {
-    debugMsg << name << "# " << "ReadySATR";
-    stMsg->stateOut(debugMsg);
+    //debugMsg << name << "# " << "ReadySATR";
+    //stMsg->stateOut(debugMsg);
     startVme();
     return smBase::ReadySATR(ret, para);
 }
 
 int vme::RunningSPTR(string& ret, void* para[]) {
-    debugMsg << name << "# " << "RunningSPTR";
-    stMsg->stateOut(debugMsg);
+    //debugMsg << name << "# " << "RunningSPTR";
+    //stMsg->stateOut(debugMsg);
     stopVme();
     return smBase::RunningSPTR(ret, para);
 }
 
 int vme::PausedSPTR(string& ret, void* para[]) {
-    debugMsg << name << "# " << "PausedSPTR";
-    stMsg->stateOut(debugMsg);
+    //debugMsg << name << "# " << "PausedSPTR";
+    //stMsg->stateOut(debugMsg);
     stopVme();
     return smBase::PausedSPTR(ret, para);
 }
@@ -248,9 +248,10 @@ int vme::stopVme() {
     //t0->detach();
     //sleep(1);
     runVmeCtrl = TASK_STOP;
+    t0->join();
+    // first stop the reading, then flush data?
     int res;
     triDev->queryInterface("flushData", NULL, &res);
-    t0->join();
     return 1;
 }
 

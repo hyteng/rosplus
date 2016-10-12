@@ -26,43 +26,43 @@ daq::~daq() {
 }
 
 int daq::LoadedCONF(std::string& ret, void* para[]) {
-    debugMsg << name << "# " << "LoadedCONF";
-    stMsg->stateOut(debugMsg);
+    //debugMsg << name << "# " << "LoadedCONF";
+    //stMsg->stateOut(debugMsg);
     configDaq();
     return smBase::LoadedCONF(ret, para);
 }
 
 int daq::ConfiguredPREP(std::string& ret, void* para[]) {
-    debugMsg << name << "# " << "ConfiguredPREP";
-    stMsg->stateOut(debugMsg);
+    //debugMsg << name << "# " << "ConfiguredPREP";
+    //stMsg->stateOut(debugMsg);
     prepDaq();
     return smBase::ConfiguredPREP(ret, para);
 }
 
 int daq::ReadySTOP(std::string& ret, void* para[]) {
-    debugMsg << name << "# " << "ReadySTOP";
-    stMsg->stateOut(debugMsg);
+    //debugMsg << name << "# " << "ReadySTOP";
+    //stMsg->stateOut(debugMsg);
     finishDaq();
     return smBase::ReadySTOP(ret, para);
 }
 
 int daq::ReadySATR(std::string& ret, void* para[]) {
-    debugMsg << name << "# " << "ReadySATR";
-    stMsg->stateOut(debugMsg);
+    //debugMsg << name << "# " << "ReadySATR";
+    //stMsg->stateOut(debugMsg);
     startDaq();
     return smBase::ReadySATR(ret, para);
 }
 
 int daq::RunningSPTR(std::string& ret, void* para[]) {
-    debugMsg << name << "# " << "RunningSPTR";
-    stMsg->stateOut(debugMsg);
+    //debugMsg << name << "# " << "RunningSPTR";
+    //stMsg->stateOut(debugMsg);
     stopDaq();
     return smBase::RunningSPTR(ret, para);
 }
 
 int daq::PausedSPTR(std::string& ret, void* para[]) {
-    debugMsg << name << "# " << "PausedSPTR";
-    stMsg->stateOut(debugMsg);
+    //debugMsg << name << "# " << "PausedSPTR";
+    //stMsg->stateOut(debugMsg);
     stopDaq();
     return smBase::PausedSPTR(ret, para);
 }
@@ -156,10 +156,12 @@ void daq::runDaq() {
                 recSize += daqSize;
 
                 dCount++;
-                if(dCount%200==0)
-                    std::cout << name << "# " << "save " << recSize << " bytes data." << std::endl;
-                //debugMsg << name << "# " << "save " << recSize << " bytes data";
-                //stMsg->stateOut(debugMsg);
+                if(dCount%200==0) {
+                    debugMsg << name << "# " << "save " << recSize << " bytes data";
+                    stMsg->stateOut(debugMsg);
+                }
+                debugMsg << name << "# " << "save " << recSize << " bytes data";
+                stMsg->stateOut(debugMsg);
             }
             else {
                 daqStatus = TASK_ERROR;
@@ -181,8 +183,8 @@ void daq::runDaq() {
     if(daqStatus == TASK_RUN)
         daqStatus = TASK_EXIT;
 
-    debugMsg << name << "# " << "stop thread " << daqStatus;
-    stMsg->stateOut(debugMsg);
+    //debugMsg << name << "# " << "stop thread " << daqStatus;
+    //stMsg->stateOut(debugMsg);
 }
 
 extern "C" smBase* create(const string& n) {

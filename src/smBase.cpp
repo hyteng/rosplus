@@ -71,7 +71,7 @@ void smBase::init(stateMessager* msg, configSet* cfg, dataStream* data, const st
 
 int smBase::doAction(command cmId, string& ret, void* para[]) {
     int res;
-    debugMsg << name << "# doAction";
+    debugMsg << name << "# doAction" << (int)cmId;
     stMsg->stateOut(debugMsg);
     res = (this->*actions[cmId][stId])(ret, para);
     if (res == -1) {

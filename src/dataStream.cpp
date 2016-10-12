@@ -8,7 +8,7 @@
 extern int errno;
 using std::string;
 
-#define RINGSIZE 10000000
+#define RINGSIZE 20000000
 
 /*
 struct streamMsg {

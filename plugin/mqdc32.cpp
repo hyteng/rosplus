@@ -370,20 +370,20 @@ int mqdc32::queryInterface(const std::string& funcName, void* para[], void* ret)
 }
 
 int mqdc32::InitializedLOAD(std::string& ret, void* para[]) {
-    debugMsg << name << "# " << "InitializedLOAD";
-    stMsg->stateOut(debugMsg);
+    //debugMsg << name << "# " << "InitializedLOAD";
+    //stMsg->stateOut(debugMsg);
     return smBase::InitializedLOAD(ret, para);
 }
 
 int mqdc32::LoadedUNLD(std::string& ret, void* para[]) {
-    debugMsg << name << "# " << "LoadedUNLD";
-    stMsg->stateOut(debugMsg);
+    //debugMsg << name << "# " << "LoadedUNLD";
+    //stMsg->stateOut(debugMsg);
     return smBase::LoadedUNLD(ret, para);
 }
 
 int mqdc32::LoadedCONF(std::string& ret, void* para[]) {
-    debugMsg << name << "# " << "LoadedCONF";
-    stMsg->stateOut(debugMsg);
+    //debugMsg << name << "# " << "LoadedCONF";
+    //stMsg->stateOut(debugMsg);
     if(!configAdc(ret))
         return -1;
     ret = "3;"+ret;
@@ -392,57 +392,57 @@ int mqdc32::LoadedCONF(std::string& ret, void* para[]) {
 }
 
 int mqdc32::ConfiguredUNCF(std::string& ret, void* para[]) {
-    debugMsg << name << "# " << "ConfiguredUNCF";
-    stMsg->stateOut(debugMsg);
+    //debugMsg << name << "# " << "ConfiguredUNCF";
+    //stMsg->stateOut(debugMsg);
     releaseAdc();
     return smBase::ConfiguredUNCF(ret, para);
 }
 
 int mqdc32::ConfiguredPREP(std::string& ret, void* para[]) {
-    debugMsg << name << "# " << "ConfiguredPREP";
-    stMsg->stateOut(debugMsg);
+    //debugMsg << name << "# " << "ConfiguredPREP";
+    //stMsg->stateOut(debugMsg);
     prepAdc();
     return smBase::ConfiguredPREP(ret, para);
 }
 
 int mqdc32::ReadySTOP(std::string& ret, void* para[]) {
-    debugMsg << name << "# " << "ReadySTOP";
-    stMsg->stateOut(debugMsg);
+    //debugMsg << name << "# " << "ReadySTOP";
+    //stMsg->stateOut(debugMsg);
     finishAdc();
     return smBase::ReadySTOP(ret, para);
 }
 
 int mqdc32::ReadySATR(std::string& ret, void* para[]) {
-    debugMsg << name << "# " << "ReadySATR";
-    stMsg->stateOut(debugMsg);
+    //debugMsg << name << "# " << "ReadySATR";
+    //stMsg->stateOut(debugMsg);
     startAdc();
     return smBase::ReadySATR(ret, para);
 }
 
 int mqdc32::RunningSPTR(std::string& ret, void* para[]) {
-    debugMsg << name << "# " << "RunningSPTR";
-    stMsg->stateOut(debugMsg);
+    //debugMsg << name << "# " << "RunningSPTR";
+    //stMsg->stateOut(debugMsg);
     stopAdc();
     return smBase::RunningSPTR(ret, para);
 }
 
 int mqdc32::RunningPAUS(std::string& ret, void* para[]) {
-    debugMsg << name << "# " << "RunningPAUS";
-    stMsg->stateOut(debugMsg);
+    //debugMsg << name << "# " << "RunningPAUS";
+    //stMsg->stateOut(debugMsg);
     disableAdc();
     return smBase::RunningPAUS(ret, para);
 }
 
 int mqdc32::PausedSPTR(std::string& ret, void* para[]) {
-    debugMsg << name << "# " << "PausedSPTR";
-    stMsg->stateOut(debugMsg);
+    //debugMsg << name << "# " << "PausedSPTR";
+    //stMsg->stateOut(debugMsg);
     stopAdc();
     return smBase::PausedSPTR(ret, para);
 }
 
 int mqdc32::PausedRESU(std::string& ret, void* para[]) {
-    debugMsg << name << "# " << "PausedRESU";
-    stMsg->stateOut(debugMsg);
+    //debugMsg << name << "# " << "PausedRESU";
+    //stMsg->stateOut(debugMsg);
     enableAdc();
     return smBase::PausedRESU(ret, para);
 }
@@ -706,8 +706,8 @@ int mqdc32::configAdc(string& ret) {
     }
 
     image = pvme->getImage(base, length, A32, D16, MASTER);
-    debugMsg << name << "# " << "get image number " << image;
-    stMsg->stateOut(debugMsg);
+    //debugMsg << name << "# " << "get image number " << image;
+    //stMsg->stateOut(debugMsg);
 
     if(image < MIN_IMAGE || image > MAX_IMAGE)
         return 0;
@@ -726,14 +726,14 @@ int mqdc32::configAdc(string& ret) {
         else 
             confValue[confIdx] = confTemp;
         int regIdx = (*conf2reg)[confNameMQDC32[confIdx]];
-        debugMsg << name << "# " << "confIdx " << confIdx << ", regIdx " << regIdx << ", confValue " << confValue[confIdx];
-        stMsg->stateOut(debugMsg);
+        //debugMsg << name << "# " << "confIdx " << confIdx << ", regIdx " << regIdx << ", confValue " << confValue[confIdx];
+        //stMsg->stateOut(debugMsg);
         data.setValueP(&confValue[confIdx]);
         mask.setValueP(&confMaskMQDC32[confIdx]);
         maskRegData(data, mask);
         regValue[regIdx] = (regValue[regIdx] & (~confMaskMQDC32[confIdx])) | (*(uint16_t*)data.getValueP());
-        debugMsg << name << "# " << "regIdx " << regIdx << ", regValue " << regValue[regIdx];
-        stMsg->stateOut(debugMsg);
+        //debugMsg << name << "# " << "regIdx " << regIdx << ", regValue " << regValue[regIdx];
+        //stMsg->stateOut(debugMsg);
         if(find(regSet.begin(), regSet.end(), regIdx) == regSet.end())
             regSet.push_back(regIdx);
     }
@@ -761,18 +761,18 @@ int mqdc32::configAdc(string& ret) {
     uint16_t testReg;
     for(unsigned int i=0; i<regSet.size(); i++) {
         data.setValueP(&regValue[regSet[i]]);
-        debugMsg << name << "# " << "regIdx " << regSet[i] << ", data " << *(uint16_t*)data.getValueP();
-        stMsg->stateOut(debugMsg);
+        //debugMsg << name << "# " << "regIdx " << regSet[i] << ", data " << *(uint16_t*)data.getValueP();
+        //stMsg->stateOut(debugMsg);
         if((res=accessReg(regSet[i], rw, data)) != 0) {
             debugMsg << name << "# " << "config."+name+".register" << regSet[i] << " set with accident !";
             stMsg->stateOut(debugMsg);
         }
-        debugMsg << name << "# " << "regAddr " << *(regAddrType*)((*regAddr)[regSet[i]]);
-        stMsg->stateOut(debugMsg);
+        //debugMsg << name << "# " << "regAddr " << *(regAddrType*)((*regAddr)[regSet[i]]);
+        //stMsg->stateOut(debugMsg);
         if(confValue[mcstCtrl] != 0x0000) {// mcst device is virtual and only write
             pvme->rw(image, base+(*(regAddrType*)((*regAddr)[regSet[i]])), &testReg);
-            debugMsg << name << "# " << "regIdx " << regSet[i] << ", read " << pvme->swap16(testReg);
-            stMsg->stateOut(debugMsg);
+            //debugMsg << name << "# " << "regIdx " << regSet[i] << ", read " << pvme->swap16(testReg);
+            //stMsg->stateOut(debugMsg);
         }
     }
 
@@ -796,8 +796,8 @@ int mqdc32::prepAdc() {
         delete [] eventSet;
         eventSet = NULL;
     }
-    debugMsg << name << "# " << "buffer depth " << confValue[maxTransfer]*2;
-    stMsg->stateOut(debugMsg);
+    //debugMsg << name << "# " << "buffer depth " << confValue[maxTransfer]*2;
+    //stMsg->stateOut(debugMsg);
     eventSet = new uint32_t[confValue[maxTransfer]*2][MQDC32EVENTUINTSIZE];
     eventPtrW = 0;
     eventPtrR = -1;
