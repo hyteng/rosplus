@@ -13,7 +13,7 @@ ros_registerRecordDeviceDriver pdbbase
 
 ## Load record instances
 dbLoadTemplate "db/user.substitutions"
-dbLoadRecords "db/dbSubExample.db", "user=hyteng"
+#dbLoadRecords "db/dbSubExample.db", "user=hyteng"
 
 dbLoadRecords("$(TOP)/db/ros.db", "P=ABC:,Q=TC1,PORT=rosIP,ADDR=0")
 drvAsynIPPortConfigure("rosIP", "127.0.0.1:4002", 0, 0, 0)

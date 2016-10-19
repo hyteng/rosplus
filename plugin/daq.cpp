@@ -156,12 +156,10 @@ void daq::runDaq() {
                 recSize += daqSize;
 
                 dCount++;
-                if(dCount%200==0) {
+                if(dCount%100==0) {
                     debugMsg << name << "# " << "save " << recSize << " bytes data";
                     stMsg->stateOut(debugMsg);
                 }
-                debugMsg << name << "# " << "save " << recSize << " bytes data";
-                stMsg->stateOut(debugMsg);
             }
             else {
                 daqStatus = TASK_ERROR;
