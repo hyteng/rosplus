@@ -459,7 +459,7 @@ int mqdc32::accessReg(const int idx, const int rw, regData& data) {
         return 0;
 
     regAddrType addr = *(regAddrType*)((*regAddr)[idx]);
-    
+
     res = accessRegNormal(addr, rw, (regType*)data.getValueP());
     return res;
 }
@@ -610,7 +610,7 @@ int mqdc32::packData(unsigned int &packSize) {
             if(eventPtrR == -1)
                 eventPtrR = eventPtrW;
             eventPtrW++;
-            if(eventPtrW==confValue[maxTransfer]*2)
+            if(eventPtrW == (int)confValue[maxTransfer]*2)
                 eventPtrW = 0;
             if(eventPtrW == eventPtrR) {
                 //debugMsg << name << "# " << "event pack buffer full";
@@ -654,7 +654,7 @@ int mqdc32::fillEvent(unsigned int &packSize) {
     if(eventPtrW == -1)
         eventPtrW = eventPtrR;
     eventPtrR++;
-    if(eventPtrR == confValue[maxTransfer]*2)
+    if(eventPtrR == (int)confValue[maxTransfer]*2)
         eventPtrR = 0;
     if(eventPtrW == eventPtrR) {
         //debugMsg << name << "# " << "event pack buffer empty";
@@ -711,43 +711,58 @@ int mqdc32::configAdc(string& ret) {
 
     if(image < MIN_IMAGE || image > MAX_IMAGE)
         return 0;
-    //imgCtrlAddr = 0x100;
-    //void* para0 = (void*)&image;
-    //if(vmeCtrl->queryInterface("getImgCtrl", (void**)&para0, (void*)&imgCtrlAddr) != 1)
-        //return 0;
 
     uint32_t confTemp;
     regUint16 data, mask;
     regSet.clear();
-    for(int i=0; i<confSetSize; i++) {
-        int confIdx = confDefaultIdxMQDC32[i];
-        if((res=cfgInfo->infoGetUint("config."+name+"."+confNameMQDC32[confIdx], confTemp)) != 1)
-            confValue[confIdx] = confDefaultValueMQDC32[i];
-        else 
-            confValue[confIdx] = confTemp;
-        int regIdx = (*conf2reg)[confNameMQDC32[confIdx]];
-        //debugMsg << name << "# " << "confIdx " << confIdx << ", regIdx " << regIdx << ", confValue " << confValue[confIdx];
-        //stMsg->stateOut(debugMsg);
-        data.setValueP(&confValue[confIdx]);
-        mask.setValueP(&confMaskMQDC32[confIdx]);
-        maskRegData(data, mask);
-        regValue[regIdx] = (regValue[regIdx] & (~confMaskMQDC32[confIdx])) | (*(uint16_t*)data.getValueP());
-        //debugMsg << name << "# " << "regIdx " << regIdx << ", regValue " << regValue[regIdx];
-        //stMsg->stateOut(debugMsg);
-        if(find(regSet.begin(), regSet.end(), regIdx) == regSet.end())
-            regSet.push_back(regIdx);
+    int regIdx, *confIdx;
+    bool isToSet;
+    for(int i=0; i<confSize; i++) {
+        isToSet = false;
+        confIdx = find(confDefaultIdxMQDC32, confDefaultIdxMQDC32+confSetSize, i);
+        if(confIdx != std::end(confDefaultIdxMQDC32)) {
+            // int confIdx = confDefaultIdxMQDC32[i];
+            isToSet = true;
+            res=cfgInfo->infoGetUint("config."+name+"."+confNameMQDC32[i], confTemp);
+            if(res != 1)
+                confValue[i] = confDefaultValueMQDC32[confIdx-confDefaultIdxMQDC32];
+            else 
+                confValue[i] = confTemp;
+        }
+        else {
+            res=cfgInfo->infoGetUint("config."+name+"."+confNameMQDC32[i], confTemp);
+            if(res == 1) {
+                isToSet = true;
+                confValue[i] = confTemp;
+            }
+        }
+
+        if(isToSet == true) {
+            regIdx = (*conf2reg)[confNameMQDC32[i]];
+            //debugMsg << name << "# " << "confIdx " << i << ", regIdx " << regIdx << ", confValue " << confValue[i];
+            //stMsg->stateOut(debugMsg);
+            data.setValueP(&confValue[i]);
+            mask.setValueP(&confMaskMQDC32[i]);
+            maskRegData(data, mask);
+            regValue[regIdx] = (regValue[regIdx] & (~confMaskMQDC32[i])) | (*(uint16_t*)data.getValueP());
+            //debugMsg << name << "# " << "regIdx " << regIdx << ", regValue " << regValue[regIdx];
+            //stMsg->stateOut(debugMsg);
+            if(find(regSet.begin(), regSet.end(), regIdx) == regSet.end())
+                regSet.push_back(regIdx);
+        }
     }
 
     stringstream sConf;
+    string *nameIdx;
     for(int i=1; i<ctrlSize; i++) {
         if(ctrlRWMQDC32[i] != WO) {
             result << ctrlMQDC32[i]+";"+"w"+";";
             vector<string> &confList = (*ctrl2conf)[ctrlMQDC32[i]];
             for(unsigned int j=0; j<confList.size(); j++) {
-                string* confIdx = find(confNameMQDC32, confNameMQDC32+confSize, confList[j]);
-                if(confIdx != confNameMQDC32+confSize) {
+                nameIdx = find(confNameMQDC32, confNameMQDC32+confSize, confList[j]);
+                if(nameIdx != std::end(confNameMQDC32)) {
                     sConf.str("");
-                    sConf << confValue[confIdx-confNameMQDC32];
+                    sConf << confValue[nameIdx-confNameMQDC32];
                     if(j != 0)
                         result << ",";
                     result << sConf.str();
@@ -767,6 +782,7 @@ int mqdc32::configAdc(string& ret) {
             debugMsg << name << "# " << "config."+name+".register" << regSet[i] << " set with accident !";
             stMsg->stateOut(debugMsg);
         }
+        usleep(10000);
         //debugMsg << name << "# " << "regAddr " << *(regAddrType*)((*regAddr)[regSet[i]]);
         //stMsg->stateOut(debugMsg);
         if(confValue[mcstCtrl] != 0x0000) {// mcst device is virtual and only write
@@ -776,7 +792,7 @@ int mqdc32::configAdc(string& ret) {
         }
     }
 
-    // setup vme irq
+    // setup vme irq, mcstCtrl is 0x0002 for enable and is 0x0001 for disable
     if(confValue[irqLevel]>0 && confValue[irqLevel]<=7 && confValue[mcstCtrl]!=0x0002)
         pvme->setupIrq(image, confValue[irqLevel], confValue[irqVector], 0, 0, 0, 0);
 

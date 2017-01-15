@@ -78,6 +78,8 @@
 0	config.vme1-mqdc32-0.bankConnect	0
 0	config.vme1-mqdc32-0.switchPull0	0
 0	config.vme1-mqdc32-0.switchPull1	0
+0	config.vme1-mqdc32-0.shiftBank0	160
+0	config.vme1-mqdc32-0.shiftBank1	160
 0	config.vme1-mqdc32-0.slideScale	0
 0	config.vme1-mqdc32-0.overFlow	0
 0	config.vme1-mqdc32-0.disableTh	0
@@ -159,6 +161,8 @@
 0	config.vme1-mqdc32-1.bankConnect	0
 0	config.vme1-mqdc32-1.switchPull0	0
 0	config.vme1-mqdc32-1.switchPull1	0
+0	config.vme1-mqdc32-1.shiftBank0	160
+0	config.vme1-mqdc32-1.shiftBank1	160
 0	config.vme1-mqdc32-1.slideScale	0
 0	config.vme1-mqdc32-1.overFlow	0
 0	config.vme1-mqdc32-1.disableTh	0
