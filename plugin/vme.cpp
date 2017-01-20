@@ -150,11 +150,15 @@ int vme::configVme() {
     /*
     // dmaSize is used for single board transfer and will be obsolete soon
     if((res=cfgInfo->infoGetUint("config."+name+".dmaSize", dmaSize)) != 1) {
-        debugMsg << name << "# " << "config."+name+".dmaSize not found.";
-        stMsg->stateOut(debugMsg);
-        dmaSize = DMASIZE;
+    debugMsg << name << "# " << "config."+name+".dmaSize not found.";
+    stMsg->stateOut(debugMsg);
+    dmaSize = DMASIZE;
     }
     */
+
+    vmeStatus = TASK_EXIT;
+    joinable = false;
+
     debugMsg << dec;
     return 1;
 }
@@ -209,7 +213,7 @@ int vme::prepVme() {
         stMsg->stateOut(debugMsg);
         return 0;
     }
-    
+
     listNumber = pvme->newCmdPktList();
     //debugMsg << name << "# " << "add cmd packet list number " << listNumber;
     //stMsg->stateOut(debugMsg);
@@ -240,24 +244,44 @@ int vme::finishVme() {
 
 int vme::startVme() {
     runVmeCtrl = TASK_START;
-    t0 = new thread(&vme::runVme, this);
+    //debugMsg << name << "# vmeStatus: " << vmeStatus;
+    //stMsg->stateOut(debugMsg);
+    if(vmeStatus!=TASK_RUN) {
+        //debugMsg << name << "# new runVme thread.";
+        //stMsg->stateOut(debugMsg);
+        t0 = new thread(&vme::runVme, this);
+        joinable=true;
+    }
     return 1;
 }
 
 int vme::stopVme() {
-    //t0->detach();
+    if(joinable==true) {
+        t0->detach();
+        joinable=false;
+    }
     //sleep(1);
     runVmeCtrl = TASK_STOP;
-    t0->join();
+    usleep(100000);
+    //t0->join();
     // first stop the reading, then flush data?
     int res;
     triDev->queryInterface("flushData", NULL, &res);
+    // handle zombie adc and suspended thread
+    //debugMsg << name << "# vmeStatus: " << vmeStatus;
+    //stMsg->stateOut(debugMsg);
+    if(vmeStatus==TASK_RUN) {
+        vmeMsg.signal = 3;
+        vmeMsg.size = 0;
+        msgsnd(devMsgQue, &vmeMsg, sizeof(vmeMsg)-sizeof(long), 0);
+    }
+
     return 1;
 }
 
 void vme::runVme() {
     vmeStatus = TASK_RUN;
-    
+
     unsigned long genSize = 0;
     unsigned long sndSize = 0;
     while(runVmeCtrl == TASK_START) {
@@ -269,8 +293,8 @@ void vme::runVme() {
         dmaSize = sizeList[0];
         uintptr_t offset = pvme->DMAread(buffList[0], dmaSize, A32, D32);
         if(offset < 0) {
-            vmeStatus = TASK_ERROR;
-            break;
+        vmeStatus = TASK_ERROR;
+        break;
         }
         tranSize = dataPool->devWrite((void*)(dmaBase+offset), dmaSize);
         */
@@ -278,7 +302,7 @@ void vme::runVme() {
         //usleep(1000);
         //dmaSize = 24*sizeof(uint32_t);
         //tranSize = dataPool->devWrite((void*)&tmp[0], dmaSize, 1);
-        
+
         res = pvme->execCmdPktList(listNumber);
         if(res) {
             vmeStatus = TASK_ERROR;
@@ -294,7 +318,7 @@ void vme::runVme() {
             //for(unsigned int j=0; j<sizeList[i]*cbltList[i]/4;j++)
             //    cout << hex << "0x" << setw(8) << setfill('0') << *ptr++ << ", ";
             //cout << endl;
-            
+
             for(unsigned int j=0; j<cbltList[i];j++) {
                 fillSize = dataPool->devWrite((void*)(dmaBase+offsetList[i]+j*sizeList[i]), sizeList[i], 1);
                 if(fillSize != sizeList[i]) {
@@ -305,14 +329,15 @@ void vme::runVme() {
             }
             devList[i]->queryInterface("afterTransfer", NULL, &res);
         }
-        
-        triDev->queryInterface("ackTrigger", NULL, &res);
-        
+
+        if(runVmeCtrl == TASK_START)
+            triDev->queryInterface("ackTrigger", NULL, &res);
+
         genSize += dmaSize;
         sndSize += tranSize;
         //debugMsg << name << "# " << "vme generate " << dmaSize << " bytes data, pool write " << tranSize << " bytes. total gen " << genSize << ", total send " << sndSize << " bytes";
         //stMsg->stateOut(debugMsg);
-        
+
         vmeMsg.signal = 2;
         vmeMsg.size = eventTh;
         int eventSend = msgsnd(devMsgQue, &vmeMsg, sizeof(vmeMsg)-sizeof(long), 0);
@@ -321,19 +346,19 @@ void vme::runVme() {
             break;
         }
     }
-    
+
     vmeMsg.signal = 3;
     vmeMsg.size = 0;
     int stopSend = msgsnd(devMsgQue, &vmeMsg, sizeof(vmeMsg)-sizeof(long), 0);
     if(stopSend < 0)
         vmeStatus = TASK_ERROR;
-        
+
     if(vmeStatus == TASK_RUN)
         vmeStatus = TASK_EXIT;
 
     //debugMsg << name << "# " << "vme stop thread " << vmeStatus << endl;
     //stMsg->stateOut(debugMsg);
-    
+
     return;
 }
 
@@ -381,7 +406,7 @@ unsigned int vme::devStringSplit(const string& dList) {
 
         stringstream sCBLT(cblt);
         sCBLT >> tCBLT;
-        
+
         if(aw == "A16")
             tAW = awValue[0];
         else if(aw == "A24")
@@ -404,7 +429,7 @@ unsigned int vme::devStringSplit(const string& dList) {
 
         //debugMsg << name << "# " << "dev link: " << dev << ", " << tSize << ", " << tCBLT << ", " << tAW << ", " << tDW <<endl;
         //stMsg->stateOut(debugMsg);
-        
+
         nameList.push_back(dev);
         sizeList.push_back(tSize);
         cbltList.push_back(tCBLT);

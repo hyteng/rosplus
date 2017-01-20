@@ -665,6 +665,18 @@ int mqdc32::fillEvent(unsigned int &packSize) {
 }
 
 int mqdc32::flushData() {
+    disableAdc();
+    if(confValue[mcstCtrl] != 0x0002) {
+        // reset counters
+        pvme->ww(image, base+MQDC32_CountReset_Offset, pvme->swap16((uint16_t)0x0003));
+        usleep(1000);
+        // clear data
+        pvme->ww(image, base+MQDC32_FIFOReset_Offset, pvme->swap16((uint16_t)0x0000));
+        usleep(1000);
+        // clear Irq and Berr
+        pvme->ww(image, base+MQDC32_ReadoutReset_Offset, pvme->swap16((uint16_t)0x0000));
+        usleep(1000);
+    }
     return 1;
 }
 

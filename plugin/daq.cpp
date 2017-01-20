@@ -157,8 +157,10 @@ void daq::runDaq() {
 
                 dCount++;
                 if(dCount%100==0) {
-                    debugMsg << name << "# " << "save " << recSize << " bytes data";
-                    stMsg->stateOut(debugMsg);
+                    //debugMsg << name << "# " << "save " << recSize << "B data";
+                    //stMsg->stateOut(debugMsg);
+                    // for fast output
+                    std::cout<< "daq# " << recSize/1000 << "K" << std::endl;
                 }
             }
             else {

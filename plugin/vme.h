@@ -40,6 +40,7 @@ class vme :public smBase {
     private:
         int runVmeCtrl;
         int vmeStatus;
+        bool joinable;
         int devMsgQue;
         unsigned int vmeCount;
         unsigned int totalVmeSize;
