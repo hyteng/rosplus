@@ -48,7 +48,7 @@ static const char Version[] = "0.94 (January 2008)";
     static unsigned int VmicBase;
 #endif
 
-
+#define DEBUGPRINT 0
 //----------------------------------------------------------------------------
 // Module parameters
 //----------------------------------------------------------------------------
@@ -319,7 +319,7 @@ static irqreturn_t irq_handler(int irq, void *dev_id)
 
     status &= enable;        // check only irq sources that are enabled
 
-    printk("UniverseII: VME IRQ handler! %d, %04x.\n", irq, status);
+    if(DEBUGPRINT) printk("UniverseII: VME IRQ handler! %d, %04x.\n", irq, status);
 
     if (!status)             // we use shared ints, so we first check
         return IRQ_NONE;     // if this irq origins from universeII chip
@@ -337,15 +337,14 @@ static irqreturn_t irq_handler(int irq, void *dev_id)
         if (i) {
             i--;
             statVme = ioread32(baseaddr + aVIrq[i]);   // read Status/ID byte
-            if (statVme & 0x100)
-                printk ("UniverseII: VMEbus error during IACK cycle level %d !\n",
-                        i + 1);
+            if (statVme & 0x100) {
+                printk ("UniverseII: VMEbus error during IACK cycle level %d !\n", i+1);
+            }
             else {
                 if (irq_device[i][statVme].ok) {
                     if (irq_device[i][statVme].vmeAddrCl != 0)
-                        iowrite32(irq_device[i][statVme].vmeValCl,
-                               irq_device[i][statVme].vmeAddrCl);
-                    printk("UniverseII: VME IRQ handler: wakeup %d, %d!\n", i, statVme);
+                        iowrite32(irq_device[i][statVme].vmeValCl, irq_device[i][statVme].vmeAddrCl);
+                    if(DEBUGPRINT) printk("UniverseII: VME IRQ handler: wakeup %d, %d!\n", i, statVme);
                     wake_up_interruptible(&irq_device[i][statVme].irqWait);
                 }
             }
@@ -356,7 +355,7 @@ static irqreturn_t irq_handler(int irq, void *dev_id)
     // DMA interrupt
     if (status & 0x0100) {
         wake_up_interruptible(&dmaWait);
-        printk("UniverseII: DMA wakeup by irq status 0x0100, done.");
+        if(DEBUGPRINT) printk("UniverseII: DMA wakeup by irq status 0x0100, done.");
     }
 
     // mailbox interrupt
@@ -1494,7 +1493,7 @@ static int universeII_ioctl(struct file *file, unsigned int cmd,
                     vTimer->data = (vmeIrq << 8) + vmeStatus;
                 }
                 
-                printk("UniverseII: IOCTL_SET_IRQ: prepare_to_wait: %d, %d!\n", vmeIrq, vmeStatus);
+                if(DEBUGPRINT) printk("UniverseII: IOCTL_SET_IRQ: prepare_to_wait: %d, %d!\n", vmeIrq, vmeStatus);
                 prepare_to_wait(&irq_device[vmeIrq][vmeStatus].irqWait, &wait,TASK_INTERRUPTIBLE);
                 if (irqData.timeout > 0)
                     add_timer(vTimer);
@@ -1505,7 +1504,7 @@ static int universeII_ioctl(struct file *file, unsigned int cmd,
                 //spin_unlock(&ioctl_lock);
                 schedule();
                 //spin_lock(&ioctl_lock);
-                printk("UniverseII: IOCTL_SET_IRQ: wakeup: %d, %d!\n", vmeIrq, vmeStatus);
+                if(DEBUGPRINT) printk("UniverseII: IOCTL_SET_IRQ: wakeup: %d, %d!\n", vmeIrq, vmeStatus);
                 finish_wait(&irq_device[vmeIrq][vmeStatus].irqWait, &wait);
                 if (irqData.timeout > 0) {
                     del_timer(vTimer);
@@ -1563,7 +1562,7 @@ static int universeII_ioctl(struct file *file, unsigned int cmd,
                 prepare_to_wait(&mbxWait[mbxNr], &wait, TASK_INTERRUPTIBLE);
                 if (ioread32(baseaddr + LINT_STAT) & ~(0x10000 << mbxNr)) {
                     finish_wait(&mbxWait[mbxNr], &wait);
-                    printk ("UniverseII: previous mailbox interrupt detected!\n");
+                    if(DEBUGPRINT) printk ("UniverseII: previous mailbox interrupt detected!\n");
                 } else {
                     //spin_unlock(&ioctl_lock);
                     schedule();                       // Wait for mbx interrupt
