@@ -5,6 +5,7 @@
 
 using std::string;
 using std::stringstream;
+using namespace std;
 
 frameEngine::frameEngine(const string& n) : smBase(n) {
 }
@@ -51,15 +52,18 @@ int frameEngine::InitializedLOAD(std::string& ret, void* para[]) {
 }
 
 int frameEngine::LoadedUNLD(std::string& ret, void* para[]) {
-    std::map<std::string, std::string>::const_iterator modeIter;
-    for(modeIter=dev2libMap.begin(); modeIter!=dev2libMap.end(); modeIter++) {
-        if(unloadSharedModule(modeIter->first)) {
-            debugMsg << name << "# " << "unloadSharedModule: (dev)" << modeIter->first;
+    std::string devName;
+    std::map<std::string, std::string>::iterator modeIter;
+    for(modeIter=dev2libMap.begin(); modeIter!=dev2libMap.end();) {
+        devName = modeIter->first;
+        if(unloadSharedModule(devName)) {
+            debugMsg << name << "# " << "unloadSharedModule: (dev)" << devName;
             stMsg->stateOut(debugMsg);
         }
         else {
             return -1;
         }
+        modeIter = dev2libMap.erase(modeIter);
     }
     stId = 1;
     ret = "1;";
@@ -67,17 +71,17 @@ int frameEngine::LoadedUNLD(std::string& ret, void* para[]) {
 }
 
 int frameEngine::moduleStringSplit(const string& modeList) {
-    std::cout << modeList << std::endl;
+    //std::cout << modeList << std::endl;
     stringstream sList;
     string mode, lib, dev;
     sList << modeList;
     while(getline(sList, mode, ';')) {
-        std::cout << mode << std::endl;
+        //std::cout << mode << std::endl;
         stringstream sMode(mode);
         getline(sMode, lib, '.');
         getline(sMode, dev, '.');
         dev2libMap[dev] = lib;
-        std::cout << lib << ", " << dev << std::endl;
+        //std::cout << lib << ", " << dev << std::endl;
     }
     return dev2libMap.size();
 }
@@ -136,7 +140,7 @@ int frameEngine::unloadSharedModule(const string& devName) {
     char* dlsym_error;
 
     string modeName = dev2libMap[devName];
-    string libPath = libDir+"/lib"+modeName+".so";
+    string libPath = libDir+"/"+modeName+".so";
     pDestroy destroyModule = (pDestroy) dlsym(sharedLibHandle[modeName].first, "destroy");
     dlsym_error = dlerror();
     if(dlsym_error != NULL) {
@@ -153,8 +157,6 @@ int frameEngine::unloadSharedModule(const string& devName) {
         return 0;
     }
     (*destroyModule)(pModule);
-
-    dev2libMap.erase(devName);
 
     sharedLibHandle[modeName].second--;
     if(sharedLibHandle[modeName].second == 0) {

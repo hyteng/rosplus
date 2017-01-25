@@ -751,7 +751,7 @@ int mqdc32::configAdc(string& ret) {
 
         if(isToSet == true) {
             regIdx = (*conf2reg)[confNameMQDC32[i]];
-            //debugMsg << name << "# " << "confIdx " << i << ", regIdx " << regIdx << ", confValue " << confValue[i];
+            //debugMsg << name << "# " << "confIdx " << i << ", confName " << confNameMQDC32[i] << ", regIdx " << regIdx << ", confValue " << confValue[i];
             //stMsg->stateOut(debugMsg);
             data.setValueP(&confValue[i]);
             mask.setValueP(&confMaskMQDC32[i]);

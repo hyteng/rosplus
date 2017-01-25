@@ -159,7 +159,7 @@ int stateMachine::dispatch2(const string& ctrl, string& ret) {
     int res = 0;
     if(vCmd >= (int)smBase::CMID_UNKNCM && vCmd < (int)smBase::MAX_CMD_AMOUNT) {
         smBase::command eCmd = smBase::command(vCmd);
-        cout << "cmd: " << vCmd << ", id: " << eCmd << endl;
+        //cout << "cmd: " << vCmd << ", id: " << eCmd << endl;
         if(dev == "all") {
             res = doAction(eCmd, ret);
         }

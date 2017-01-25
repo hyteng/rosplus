@@ -160,7 +160,7 @@ void daq::runDaq() {
                     //debugMsg << name << "# " << "save " << recSize << "B data";
                     //stMsg->stateOut(debugMsg);
                     // for fast output
-                    std::cout<< "daq# " << recSize/1000 << "K" << std::endl;
+                    printf("daq# %ldk\n", recSize/1000);
                 }
             }
             else {

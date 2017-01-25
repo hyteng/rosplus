@@ -304,6 +304,7 @@ void vme::runVme() {
         //tranSize = dataPool->devWrite((void*)&tmp[0], dmaSize, 1);
 
         res = pvme->execCmdPktList(listNumber);
+        //res = pvme->DMAread();
         if(res) {
             vmeStatus = TASK_ERROR;
             break;
@@ -318,7 +319,7 @@ void vme::runVme() {
             //for(unsigned int j=0; j<sizeList[i]*cbltList[i]/4;j++)
             //    cout << hex << "0x" << setw(8) << setfill('0') << *ptr++ << ", ";
             //cout << endl;
-
+            
             for(unsigned int j=0; j<cbltList[i];j++) {
                 fillSize = dataPool->devWrite((void*)(dmaBase+offsetList[i]+j*sizeList[i]), sizeList[i], 1);
                 if(fillSize != sizeList[i]) {
@@ -327,11 +328,9 @@ void vme::runVme() {
                 tranSize += fillSize;
                 dmaSize += sizeList[i];
             }
+            
             devList[i]->queryInterface("afterTransfer", NULL, &res);
         }
-
-        if(runVmeCtrl == TASK_START)
-            triDev->queryInterface("ackTrigger", NULL, &res);
 
         genSize += dmaSize;
         sndSize += tranSize;
@@ -345,6 +344,9 @@ void vme::runVme() {
             vmeStatus = TASK_ERROR;
             break;
         }
+
+        if(runVmeCtrl == TASK_START)
+            triDev->queryInterface("ackTrigger", NULL, &res);
     }
 
     vmeMsg.signal = 3;

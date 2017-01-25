@@ -39,7 +39,7 @@ MODULE_DESCRIPTION("VME driver for the Tundra Universe II PCI to VME bridge");
 MODULE_AUTHOR("Andreas Ehmanns <universeII@gmx.de>");
 MODULE_LICENSE("GPL");
 
-static const char Version[] = "0.94 (January 2008)";
+static const char Version[] = "0.95 (January 2016)";
 
 //#define VMIC
 #ifdef VMIC
@@ -355,7 +355,7 @@ static irqreturn_t irq_handler(int irq, void *dev_id)
     // DMA interrupt
     if (status & 0x0100) {
         wake_up_interruptible(&dmaWait);
-        if(DEBUGPRINT) printk("UniverseII: DMA wakeup by irq status 0x0100, done.");
+        //if(DEBUGPRINT) printk("UniverseII: DMA wakeup by irq status 0x0100, done.\n");
     }
 
     // mailbox interrupt
@@ -379,10 +379,10 @@ static irqreturn_t irq_handler(int irq, void *dev_id)
                         "Lost interrupt?\n");
                 vmeBerrList[statistics.berrs & 0x1F].merr = 1;
             }
-            vmeBerrList[statistics.berrs & 0x1F].valid = 1;
-            vmeBerrList[statistics.berrs & 0x1F].AM = (statVme >> 26) & 0x3f;
-            vmeBerrList[statistics.berrs & 0x1F].address = 
-                                                     ioread32(baseaddr + VAERR);
+            // for fast vme transfer, disable the Berr record
+            //vmeBerrList[statistics.berrs & 0x1F].valid = 1;
+            //vmeBerrList[statistics.berrs & 0x1F].AM = (statVme >> 26) & 0x3f;
+            //vmeBerrList[statistics.berrs & 0x1F].address = ioread32(baseaddr + VAERR);
             statistics.berrs++;
 
             iowrite32(0x00800000, baseaddr + V_AMERR);
@@ -796,9 +796,11 @@ static ssize_t universeII_read(struct file *file, char __user *buf, size_t count
                 (pci + dmaParam.count > dmaHandle + PCI_BUF_SIZE))
                 return -2;
 
+            spin_lock(&dma_lock);
             // Check that DMA is idle
             if (ioread32(baseaddr + DGCS) & 0x00008000) {
                 printk("UniverseII: DMA device is not idle!\n");
+                spin_unlock(&dma_lock);
                 return 0;
             }
 
@@ -820,6 +822,8 @@ static ssize_t universeII_read(struct file *file, char __user *buf, size_t count
                 okcount = -1;
             else
                 okcount = offset;
+
+            spin_unlock(&dma_lock);
 
             break;
 
@@ -943,9 +947,11 @@ static ssize_t universeII_write(struct file *file, const char __user *buf,
                 (pci + dmaParam.count > dmaHandle + PCI_BUF_SIZE))
                 return -2;
 
+            spin_lock(&dma_lock);
             // Check that DMA is idle
             if (ioread32(baseaddr + DGCS) & 0x00008000) {
                 printk("UniverseII: DMA device is not idle!\n");
+                spin_unlock(&dma_lock);
                 return 0;
             }
 
@@ -967,6 +973,8 @@ static ssize_t universeII_write(struct file *file, const char __user *buf,
                 okcount = -1;
             else
                 okcount = offset;
+
+            spin_unlock(&dma_lock);
 
             break;
 
@@ -1270,7 +1278,7 @@ static int universeII_ioctl(struct file *file, unsigned int cmd,
                 }
 
                 if (!iRegs.ms) {   // master image
-                    printk("UniverseII: %x, %x, %x", pciBase, iRegs.base, -pciBase + iRegs.base);
+                    printk("UniverseII: IOCTL_SET_IMAGE: %x, %x, %x\n", pciBase, iRegs.base, -pciBase + iRegs.base);
 
                     iowrite32(pciBase, baseaddr + aBS[minor]);
                     iowrite32(pciBase + iRegs.size, baseaddr + aBD[minor]);
@@ -1682,15 +1690,18 @@ static int universeII_ioctl(struct file *file, unsigned int cmd,
             }
 
         case IOCTL_EXEC_DCP: {
-                int n = 0;
+                int n=0, res;
                 u32 val;
                 struct kcp *scan;
 
+                spin_lock(&dma_lock);
+                //spin_lock(&vme_lock);
                 // Check that DMA is idle
                 val = ioread32(baseaddr + DGCS);
                 if (val & 0x00008000) {
-                    printk ("UniverseII: Can't execute list %ld! DMA status = "
-                            "%08x!\n", arg, val);
+                    printk ("UniverseII: Can't execute list %ld! DMA status = %08x!\n", arg, val);
+                    //spin_unlock(&vme_lock);
+                    spin_unlock(&dma_lock);
                     return -1;
                 }
                 
@@ -1700,8 +1711,12 @@ static int universeII_ioctl(struct file *file, unsigned int cmd,
 
                 execDMA(0x08000000);                     // Enable chained mode
 
-                if (testAndClearDMAErrors())             // Check for DMA errors
+                res = testAndClearDMAErrors();
+                //spin_unlock(&vme_lock);
+                spin_unlock(&dma_lock);
+                if(res) {            // Check for DMA errors
                     return -2;
+                }
 
                 // Check that all command packets have been processed properly
 
@@ -1709,8 +1724,7 @@ static int universeII_ioctl(struct file *file, unsigned int cmd,
                 while (scan != NULL) {
                     n++;
                     if (!(scan->dcp.dcpp & 0x00000002)) {
-                        printk ("UniverseII: Processed bit of packet number "
-                                "%d is not set!\n", n);
+                        printk ("UniverseII: Processed bit of packet number %d is not set!\n", n);
                         return n;
                     }
                     scan = scan->next;
@@ -1835,7 +1849,7 @@ static int universeII_ioctl(struct file *file, unsigned int cmd,
                 u32 csr;
                 struct kcp *del, *search;
 
-                printk("UniverseII: General driver reset requested by user!");
+                printk("UniverseII: General driver reset requested by user!\n");
 
                 // clear all previous PCI errors
 
@@ -1933,6 +1947,12 @@ static void __exit universeII_exit(void)
 
     iowrite32(0, baseaddr + LINT_EN);  // Turn off Ints
     pcivector = ioread32(baseaddr + PCI_MISC1) & 0x000000FF;
+    printk("UniverseII: IRQ %x\n", pcivector);
+    pcivector &= 0x000000FF;
+    // actually the devices use irq within pci struct
+    pcivector = universeII_dev->irq;
+    printk("UniverseII: IRQ %x\n", pcivector);
+
     free_irq(pcivector, universeII_dev);   // Free Vector
 
     for (i = 1; i < MAX_IMAGE + 1; i++)

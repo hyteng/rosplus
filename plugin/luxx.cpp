@@ -69,20 +69,14 @@ int luxx::queryInterface(const std::string& funcName, void* para[], void* ret) {
 }
 
 int luxx::InitializedLOAD(std::string& ret, void* para[]) {
-    debugMsg << name << "# " << "InitializedLOAD";
-    stMsg->stateOut(debugMsg);
     return smBase::InitializedLOAD(ret, para);
 }
 
 int luxx::LoadedUNLD(std::string& ret, void* para[]) {
-    debugMsg << name << "# " << "LoadedUNLD";
-    stMsg->stateOut(debugMsg);
     return smBase::LoadedUNLD(ret, para);
 }
 
 int luxx::LoadedCONF(std::string& ret, void* para[]) {
-    debugMsg << name << "# " << "LoadedCONF";
-    stMsg->stateOut(debugMsg);
     if(!configLuxx(ret))
         return -1;
     ret = "3;"+ret;
@@ -91,41 +85,29 @@ int luxx::LoadedCONF(std::string& ret, void* para[]) {
 }
 
 int luxx::ConfiguredUNCF(std::string& ret, void* para[]) {
-    debugMsg << name << "# " << "ConfiguredUNCF";
-    stMsg->stateOut(debugMsg);
     releaseLuxx();
     return smBase::ConfiguredUNCF(ret, para);
 }
 
 int luxx::ConfiguredPREP(std::string& ret, void* para[]) {
-    debugMsg << name << "# " << "ConfiguredPREP";
-    stMsg->stateOut(debugMsg);
     prepLuxx();
     return smBase::ConfiguredPREP(ret, para);
 }
 
 int luxx::ReadySTOP(std::string& ret, void* para[]) {
-    debugMsg << name << "# " << "ReadySTOP";
-    stMsg->stateOut(debugMsg);
     finishLuxx();
     return smBase::ReadySTOP(ret, para);
 }
 
 int luxx::ReadySATR(std::string& ret, void* para[]) {
-    debugMsg << name << "# " << "ReadySATR";
-    stMsg->stateOut(debugMsg);
     return smBase::ReadySATR(ret, para);
 }
 
 int luxx::RunningSPTR(std::string& ret, void* para[]) {
-    debugMsg << name << "# " << "RunningSPTR";
-    stMsg->stateOut(debugMsg);
     return smBase::RunningSPTR(ret, para);
 }
 
 int luxx::PausedSPTR(std::string& ret, void* para[]) {
-    debugMsg << name << "# " << "PausedSPTR";
-    stMsg->stateOut(debugMsg);
     return smBase::PausedSPTR(ret, para);
 }
 
@@ -465,6 +447,10 @@ int luxx::configLuxx(std::string& ret) {
 }
 
 int luxx::releaseLuxx() {
+
+    if(confValue[0] == 0)
+        return 1;
+
     unlockTTY();
     cleanTTY();
     return 1;
