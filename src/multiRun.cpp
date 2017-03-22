@@ -44,13 +44,14 @@ int main(int argc, const char *argv[]) {
     for(int i=0; i<runNumber; i++) {
         std::cout << "running " << i << "th: ";
         std::cin.sync();
-        std::cin >> std::noskipws >> pos;
+        std::cin.clear();
+        std::cin >> pos;
 
         runDAQ(runTime);
 
         std::cout << "done" << std::endl;
         //std::cin.sync();
-        //std::cin >> std::noskipws >> pos;
+        //std::cin >> pos;
 
         //runDAQ(runTime);
     }
